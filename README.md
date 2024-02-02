@@ -20,12 +20,16 @@ flowchart TB
     PP(Payment Provider) --Confirms payment--> CPF[Confirm Payment Function]
     CPF --Update payment--> DB[(Database)]
     CPF --Publishes confirmation--> PS[[Pub/Sub]]
+    
+    PS --Subscribes--> WF[Websocket Feed]
 
-    PS --Subscribes to confirmations--> AP([Alert Page])
+    WF --> AP([Alert Page])
     AP --Shows alert--> S((Streamer))
 
-    SD([Streamer Dashboard]) --- DB
-    PS --Provides overview--> SD
+
+    SD([Streamer Dashboard]) --- SS
+    SS[Streamer Service] --- DB
+    WF --> SD
     SD --- S
     
 ```
