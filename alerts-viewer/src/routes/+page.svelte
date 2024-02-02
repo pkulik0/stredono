@@ -1,21 +1,33 @@
 <script lang="ts">
     import { SendDonateRequest } from  "../../../pb/functions_pb";
     import {onDestroy, onMount} from "svelte";
+    import type {Donate} from "$lib/donate";
+    import Alert from "./Alert.svelte";
 
     let ws: WebSocket;
+
+    const newDonation = (pbDonate: SendDonateRequest) => {
+        console.log(pbDonate);
+        const donate: Donate = {
+            amount: pbDonate.amount,
+            currency: pbDonate.currency,
+            message: pbDonate.message,
+            user: pbDonate.sender
+        };
+        donations = [donate, ...donations];
+
+        setTimeout(() => {
+            donations = donations.slice(0, donations.length - 1);
+        }, 10000);
+    };
 
     onMount(() => {
         ws = new WebSocket("ws://localhost:8081/ws");
         ws.binaryType = "arraybuffer";
 
         ws.onmessage = (event) => {
-            console.log(event)
             const sdReq = SendDonateRequest.fromBinary(new Uint8Array(event.data))
-            console.log(sdReq);
-        };
-
-        ws.onclose = () => {
-            console.log("disconnected");
+            newDonation(sdReq);
         };
 
         ws.onerror = (err) => {
@@ -26,7 +38,11 @@
     onDestroy(() => {
         ws.close();
     });
+
+    let donations: Donate[] = [];
 </script>
 
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+{#if donations.length > 0}
+    <Alert donate={donations[0]} />
+{/if}
+

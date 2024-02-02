@@ -53,9 +53,9 @@ func ConfirmPayment(w http.ResponseWriter, r *http.Request) {
 		Email:     "abc@email.com",
 		Recipient: "stredono",
 		Sender:    "pkulik0",
-		Amount:    "10",
-		Currency:  "USD",
-		Message:   "Thank you for your work",
+		Amount:    "205.58",
+		Currency:  "EUR",
+		Message:   "aha aha2 aha3 aha4 aha5 aha6 aha7 aha8 aha9 aha10 aha11 aha12 aha13 aha14 aha15 aha16 aha17 aha18 aha19 aha21 aha22 aha23 aha24 aha25 aha26 aha27 aha28 aha29 aha30 aha31 aha32 aha33 aha34 aha35 aha36 aha37 aha38 aha39 aha40 aha41 oeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuae",
 	}
 	data, err := proto.Marshal(&sdReq)
 	if err != nil {
