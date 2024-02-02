@@ -22,7 +22,7 @@
     };
 
     onMount(() => {
-        ws = new WebSocket("ws://localhost:8081/ws");
+        ws = new WebSocket("ws://localhost:8081/ws?token=123");
         ws.binaryType = "arraybuffer";
 
         ws.onmessage = (event) => {

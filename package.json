@@ -9,7 +9,7 @@
   "workspaces": [
     "user-app",
     "alerts-viewer",
-    "shared-ts"
+    "stream-dashboard"
   ],
   "private": true
 }

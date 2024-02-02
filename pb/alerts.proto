@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package stredono;
+
+option go_package="github.com/pkulik0/stredono/pb";
+
+message AlertsKey {
+  string key = 1;
+}
