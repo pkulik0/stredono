@@ -1,5 +1,5 @@
 {
-	"name": "@stredono/user-app",
+	"name": "@stredono/alerts-viewer",
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
@@ -19,7 +19,6 @@
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
-		"@types/axios": "^0.14.0",
 		"@types/eslint": "8.56.0",
 		"@typescript-eslint/eslint-plugin": "^6.0.0",
 		"@typescript-eslint/parser": "^6.0.0",
@@ -36,7 +35,5 @@
 		"vitest": "^1.2.0"
 	},
 	"type": "module",
-	"dependencies": {
-		"axios": "^1.6.7"
-	}
+	"dependencies": {}
 }

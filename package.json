@@ -7,7 +7,9 @@
     "@bufbuild/protobuf": "^1.7.2"
   },
   "workspaces": [
-    "user-app"
+    "user-app",
+    "alerts-viewer",
+    "shared-ts"
   ],
   "private": true
 }
