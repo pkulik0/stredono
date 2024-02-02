@@ -35,5 +35,7 @@
 		"vitest": "^1.2.0"
 	},
 	"type": "module",
-	"dependencies": {}
+	"dependencies": {
+		"@stredono/shared-ts": "workspace:*"
+	}
 }

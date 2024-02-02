@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/GoogleCloudPlatform/functions-framework-go/functions"
 	"github.com/golang/protobuf/proto"
-	"github.com/pkulik0/stredono/functions/pb"
+	"github.com/pkulik0/stredono/pb"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"

@@ -3,7 +3,9 @@ package main
 import (
 	"cloud.google.com/go/pubsub"
 	"context"
+	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
+	"github.com/pkulik0/stredono/pb"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
@@ -12,13 +14,12 @@ import (
 
 type FeedService struct {
 	ctx      context.Context
-	cancel   context.CancelFunc
 	client   *pubsub.Client
 	upgrader websocket.Upgrader
 }
 
 func NewFeedService() (*FeedService, error) {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, "stredono-5ccdd")
 	if err != nil {
 		return nil, err
@@ -28,7 +29,6 @@ func NewFeedService() (*FeedService, error) {
 
 	return &FeedService{
 		ctx:    ctx,
-		cancel: cancel,
 		client: client,
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
@@ -53,14 +53,6 @@ const (
 	readLimit  = 0
 )
 
-func (s *FeedService) handleError(conn *websocket.Conn, err error) {
-	if websocket.IsCloseError(err, websocket.CloseGoingAway) {
-		log.Debugf("Connection closed by %s", conn)
-	}
-	s.cancel()
-	log.Errorf("Connection %s error: %s", conn.RemoteAddr(), err)
-}
-
 func (s *FeedService) wsHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := s.upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -70,60 +62,79 @@ func (s *FeedService) wsHandler(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	conn.SetReadLimit(readLimit)
-	conn.SetReadDeadline(time.Now().Add(pongWait))
+
+	if err := conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+		log.Errorf("Failed to set read deadline: %v", err)
+		return
+	}
 	conn.SetPongHandler(func(string) error {
-		log.Debugf("Received pong from %s", conn.RemoteAddr())
-		conn.SetReadDeadline(time.Now().Add(pongWait))
+		if err := conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+			return err
+		}
 		return nil
 	})
 
 	sub := s.client.Subscription("donations-XYZ")
 
+	ctx, cancel := context.WithCancel(s.ctx)
+	defer cancel()
+
 	go func() {
 		log.Debugf("Starting ping ticker for %s", conn.RemoteAddr())
+		defer log.Debugf("Stopped ping ticker for %s", conn.RemoteAddr())
+
 		ticker := time.NewTicker(pingPeriod)
 		defer ticker.Stop()
+
 		for {
 			select {
 			case <-ticker.C:
 				if err := conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(pongWait)); err != nil {
-					s.handleError(conn, err)
-					break
+					cancel()
+					return
 				}
-				log.Debugf("Sent ping to %s", conn.RemoteAddr())
-			case <-s.ctx.Done():
-				break
+			case <-ctx.Done():
+				return
 			}
 		}
-		log.Debugf("Stopped ping ticker for %s", conn.RemoteAddr())
 	}()
 
 	go func() {
 		log.Debugf("Starting read loop for %s", conn.RemoteAddr())
+		defer log.Debugf("Stopped read loop for %s", conn.RemoteAddr())
+
 		for {
 			_, _, err := conn.ReadMessage()
 			if err != nil {
-				s.handleError(conn, err)
-				break
+				cancel()
+				return
 			}
 		}
-		log.Debugf("Stopped read loop for %s", conn.RemoteAddr())
 	}()
 
 	log.Debugf("%s started listening to subscription: %s", conn.RemoteAddr(), sub.String())
-	for {
-		err := sub.Receive(s.ctx, func(ctx context.Context, message *pubsub.Message) {
-			log.Debugf("Received message: %s for %s", message.ID, conn.RemoteAddr())
-			conn.WriteMessage(websocket.BinaryMessage, message.Data)
-			message.Ack()
-		})
-		if err != nil {
-			s.handleError(conn, err)
-			break
-		}
-	}
+	defer log.Debugf("%s unsubscribed from: %s", conn.RemoteAddr(), sub.String())
 
-	log.Debugf("Unsubscribed from topic: %s", sub.String())
+	log.Debugf("Waiting for message for %s", conn.RemoteAddr())
+	err = sub.Receive(ctx, func(ctx context.Context, message *pubsub.Message) {
+		log.Debugf("Received message: %s for %s", message.ID, conn.RemoteAddr())
+
+		var sdReq pb.SendDonateRequest
+		if err := proto.Unmarshal(message.Data, &sdReq); err != nil {
+			log.Errorf("Failed to unmarshal message: %v", err)
+			return
+		}
+		log.Debugf("Unmarshaled message: %s", sdReq.String())
+
+		if err := conn.WriteMessage(websocket.BinaryMessage, message.Data); err != nil {
+			log.Errorf("Failed to write message to %s: %v", conn.RemoteAddr(), err)
+			return
+		}
+		message.Ack()
+	})
+	if err != nil {
+		log.Errorf("Failed to receive message: %v", err)
+	}
 }
 
 func main() {

@@ -1,22 +1,31 @@
 <script lang="ts">
-    const ws = new WebSocket("ws://localhost:8081/ws");
+    import { SendDonateRequest } from  "../../../pb/functions_pb";
+    import {onDestroy, onMount} from "svelte";
 
-    ws.onopen = () => {
-        console.log("connected");
-        ws.send("Hello");
-    };
+    let ws: WebSocket;
 
-    ws.onmessage = (event) => {
-        console.log(event.data);
-    };
+    onMount(() => {
+        ws = new WebSocket("ws://localhost:8081/ws");
+        ws.binaryType = "arraybuffer";
 
-    ws.onclose = () => {
-        console.log("disconnected");
-    };
+        ws.onmessage = (event) => {
+            console.log(event)
+            const sdReq = SendDonateRequest.fromBinary(new Uint8Array(event.data))
+            console.log(sdReq);
+        };
 
-    ws.onerror = (err) => {
-        console.error(err);
-    };
+        ws.onclose = () => {
+            console.log("disconnected");
+        };
+
+        ws.onerror = (err) => {
+            console.error(err);
+        };
+    });
+
+    onDestroy(() => {
+        ws.close();
+    });
 </script>
 
 <h1>Welcome to SvelteKit</h1>

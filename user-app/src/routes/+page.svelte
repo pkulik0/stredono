@@ -1,6 +1,6 @@
 <script lang="ts">
     import axios from 'axios';
-    import {SendDonateRequest} from "$lib/functions_pb";
+    import {SendDonateRequest} from "../../../shared-ts/functions_pb";
     import {PUBLIC_SENT_DONATE_LINK} from "$env/static/public";
 
     const donate = async () => {
