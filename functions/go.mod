@@ -2,7 +2,10 @@ module github.com/pkulik0/stredono/functions
 
 go 1.21
 
-require github.com/GoogleCloudPlatform/functions-framework-go v1.8.0
+require (
+	github.com/GoogleCloudPlatform/functions-framework-go v1.8.0
+	google.golang.org/protobuf v1.30.0
+)
 
 require (
 	github.com/cloudevents/sdk-go/v2 v2.15.0 // indirect

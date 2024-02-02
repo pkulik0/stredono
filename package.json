@@ -1,0 +1,13 @@
+{
+  "name": "stredono",
+  "devDependencies": {
+    "@bufbuild/protoc-gen-es": "^1.7.2"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^1.7.2"
+  },
+  "workspaces": [
+    "user-app"
+  ],
+  "private": true
+}

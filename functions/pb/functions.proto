@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package stredono;
+
+option go_package="github.com/pkulik0/stredono/pb";
+
+message SendDonateRequest {
+    string sender = 1;
+    string email = 2;
+    string message = 3;
+    string amount = 4;
+    string currency = 5;
+    string recipient = 6;
+}
