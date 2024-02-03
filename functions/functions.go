@@ -15,6 +15,24 @@ import (
 func init() {
 	functions.HTTP("SendDonate", SendDonate)
 	functions.HTTP("ConfirmPayment", ConfirmPayment)
+	functions.HTTP("OnRegister", OnRegister)
+}
+
+func OnRegister(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Failed to read request", http.StatusBadRequest)
+		return
+	}
+
+	log.Infof("Received request: %v", r)
+	log.Infof("Body: %s", body)
+	_, err = fmt.Fprintf(w, "%+v", body)
+	if err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
+	return
 }
 
 func SendDonate(w http.ResponseWriter, r *http.Request) {
