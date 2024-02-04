@@ -35,30 +35,69 @@ func OnRegister(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func ReturnError(w http.ResponseWriter, code int, errorMessage string) {
+	log.Errorf("Error: %s", errorMessage)
+
+	errRes := pb.ErrorResponse{
+		Error: errorMessage,
+	}
+	data, err := proto.Marshal(&errRes)
+	if err != nil {
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/octet-stream")
+	_, err = w.Write(data)
+	if err != nil {
+		http.Error(w, "", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(code)
+
+	return
+}
+
 func SendDonate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "Failed to read request", http.StatusBadRequest)
+		ReturnError(w, http.StatusBadRequest, "Failed to read request")
 		return
 	}
 
 	req := pb.SendDonateRequest{}
 	if err := proto.Unmarshal(body, &req); err != nil {
-		http.Error(w, "Failed to parse request", http.StatusBadRequest)
+		ReturnError(w, http.StatusBadRequest, "Failed to unmarshal request")
 		return
 	}
 
-	fmt.Fprintf(w, "%s: %s donated %s %s: %s", req.Recipient, req.Sender, req.Amount, req.Currency, req.Message)
+	redirectUrl := "http://google.com"
+	sdRes := pb.SendDonateResponse{
+		RedirectUrl: redirectUrl,
+	}
+
+	data, err := proto.Marshal(&sdRes)
+	if err != nil {
+		ReturnError(w, http.StatusInternalServerError, "Failed to marshal response")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/octet-stream")
+	_, err = w.Write(data)
+	if err != nil {
+		ReturnError(w, http.StatusInternalServerError, "Failed to write response")
+		return
+	}
+	log.Infof("Redirecting to: %s", redirectUrl)
 }
 
 func ConfirmPayment(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	client, err := pubsub.NewClient(ctx, "stredono-5ccdd")
 	if err != nil {
-		http.Error(w, "Failed to connect to pubsub", http.StatusInternalServerError)
-		log.Errorf("Failed to connect to pubsub: %v", err)
+		ReturnError(w, http.StatusInternalServerError, "Failed to connect to pubsub")
 		return
 	}
 	defer client.Close()
@@ -71,14 +110,13 @@ func ConfirmPayment(w http.ResponseWriter, r *http.Request) {
 		Email:     "abc@email.com",
 		Recipient: "stredono",
 		Sender:    "pkulik0",
-		Amount:    "205.58",
+		Amount:    205.58,
 		Currency:  "EUR",
 		Message:   "aha aha2 aha3 aha4 aha5 aha6 aha7 aha8 aha9 aha10 aha11 aha12 aha13 aha14 aha15 aha16 aha17 aha18 aha19 aha21 aha22 aha23 aha24 aha25 aha26 aha27 aha28 aha29 aha30 aha31 aha32 aha33 aha34 aha35 aha36 aha37 aha38 aha39 aha40 aha41 oeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuae",
 	}
 	data, err := proto.Marshal(&sdReq)
 	if err != nil {
-		http.Error(w, "Failed to marshal message", http.StatusInternalServerError)
-		log.Errorf("Failed to marshal message: %v", err)
+		ReturnError(w, http.StatusInternalServerError, "Failed to marshal message")
 		return
 	}
 
@@ -87,8 +125,7 @@ func ConfirmPayment(w http.ResponseWriter, r *http.Request) {
 	})
 	id, err := result.Get(ctx)
 	if err != nil {
-		http.Error(w, "Failed to publish message", http.StatusInternalServerError)
-		log.Errorf("Failed to publish message: %v", err)
+		ReturnError(w, http.StatusInternalServerError, "Failed to publish message")
 		return
 	}
 

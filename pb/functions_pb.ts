@@ -26,9 +26,9 @@ export class SendDonateRequest extends Message<SendDonateRequest> {
   message = "";
 
   /**
-   * @generated from field: string amount = 4;
+   * @generated from field: float amount = 4;
    */
-  amount = "";
+  amount = 0;
 
   /**
    * @generated from field: string currency = 5;
@@ -51,7 +51,7 @@ export class SendDonateRequest extends Message<SendDonateRequest> {
     { no: 1, name: "sender", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "email", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "message", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "amount", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "amount", kind: "scalar", T: 2 /* ScalarType.FLOAT */ },
     { no: 5, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 6, name: "recipient", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
@@ -70,6 +70,80 @@ export class SendDonateRequest extends Message<SendDonateRequest> {
 
   static equals(a: SendDonateRequest | PlainMessage<SendDonateRequest> | undefined, b: SendDonateRequest | PlainMessage<SendDonateRequest> | undefined): boolean {
     return proto3.util.equals(SendDonateRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message stredono.SendDonateResponse
+ */
+export class SendDonateResponse extends Message<SendDonateResponse> {
+  /**
+   * @generated from field: string redirectUrl = 1;
+   */
+  redirectUrl = "";
+
+  constructor(data?: PartialMessage<SendDonateResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.SendDonateResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "redirectUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SendDonateResponse {
+    return new SendDonateResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SendDonateResponse {
+    return new SendDonateResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SendDonateResponse {
+    return new SendDonateResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SendDonateResponse | PlainMessage<SendDonateResponse> | undefined, b: SendDonateResponse | PlainMessage<SendDonateResponse> | undefined): boolean {
+    return proto3.util.equals(SendDonateResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message stredono.ErrorResponse
+ */
+export class ErrorResponse extends Message<ErrorResponse> {
+  /**
+   * @generated from field: string error = 1;
+   */
+  error = "";
+
+  constructor(data?: PartialMessage<ErrorResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.ErrorResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "error", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ErrorResponse {
+    return new ErrorResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ErrorResponse {
+    return new ErrorResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ErrorResponse {
+    return new ErrorResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ErrorResponse | PlainMessage<ErrorResponse> | undefined, b: ErrorResponse | PlainMessage<ErrorResponse> | undefined): boolean {
+    return proto3.util.equals(ErrorResponse, a, b);
   }
 }
 

@@ -8,7 +8,7 @@
         TableBodyCell,
         TableBodyRow,
         TableHead,
-        TableHeadCell, TextPlaceholder, VideoPlaceholder
+        TableHeadCell, TextPlaceholder
     } from "flowbite-svelte";
     import {onMount} from "svelte";
     import {getAlerts} from "$lib/alerts";

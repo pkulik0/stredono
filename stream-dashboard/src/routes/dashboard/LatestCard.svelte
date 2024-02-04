@@ -64,23 +64,17 @@
                 <DotsVerticalSolid class="dots-menu" />
             </Button>
             <Dropdown>
-                <DropdownItem>
-                    <div class={menuButtonClass}>
-                        <RefreshOutline/>
-                        Refresh
-                    </div>
+                <DropdownItem class="{menuButtonClass}">
+                    <RefreshOutline/>
+                    Refresh
                 </DropdownItem>
-                <DropdownItem>
-                    <div class={menuButtonClass}>
-                        <ShieldSolid/>
-                        Block
-                    </div>
+                <DropdownItem class="{menuButtonClass}">
+                    <ShieldSolid/>
+                    Block
                 </DropdownItem>
-                <DropdownItem slot="footer">
-                    <div class={menuButtonClass}>
-                        <RedoOutline/>
-                        Refund
-                    </div>
+                <DropdownItem slot="footer" class="{menuButtonClass} text-red-500">
+                    <RedoOutline/>
+                    Refund
                 </DropdownItem>
             </Dropdown>
         </div>
