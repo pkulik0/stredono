@@ -1,6 +1,6 @@
 <script lang="ts">
-
-    import {Breadcrumb, BreadcrumbItem} from "flowbite-svelte";
+    import {Breadcrumb, BreadcrumbItem, Card} from "flowbite-svelte";
+    import LatestCard from "./LatestCard.svelte";
 </script>
 
 <Breadcrumb aria-label="Default breadcrumb example">
@@ -8,4 +8,6 @@
 </Breadcrumb>
 
 
-DASHBOARD
+<div class="flex justify-center">
+    <LatestCard/>
+</div>

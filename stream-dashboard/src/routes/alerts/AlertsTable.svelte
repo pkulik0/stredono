@@ -28,6 +28,7 @@
     let iconClass = "w-4 h-4 mr-2";
 </script>
 
+
 <Table>
     <caption class="p-5 rounded-lg mt-3 text-lg font-semibold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-800 mb-4">
         Your alerts
@@ -74,13 +75,14 @@
 
                         <Hr/>
 
-                        <Button outline color="blue" class="{btnClass}">
-                            <EditSolid class="{iconClass}" />
-                            Edit
-                        </Button>
                         <Button outline color="green" class="{btnClass}">
                             <EyeSolid class="{iconClass}" />
                             Test
+                        </Button>
+
+                        <Button outline color="blue" class="{btnClass}">
+                            <EditSolid class="{iconClass}" />
+                            Edit
                         </Button>
                     </TableBodyCell>
                 </TableBodyRow>

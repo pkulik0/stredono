@@ -13,7 +13,6 @@
     <BreadcrumbItem href="/alerts">Alerts</BreadcrumbItem>
 </Breadcrumb>
 
-
 <AlertsTable/>
 
 <div class="flex justify-end">

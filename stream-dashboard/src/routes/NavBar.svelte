@@ -3,7 +3,6 @@
 
     import {DarkMode, Navbar, NavBrand, NavHamburger, NavLi, NavUl} from "flowbite-svelte";
     import {auth} from "$lib/firebase";
-    import {goto} from "$app/navigation";
     import {userStore} from "$lib/userStore";
 
     let activeClass = 'text-white bg-green-700 md:bg-transparent md:text-green-700 md:dark:text-white dark:bg-green-600 md:dark:bg-transparent';
@@ -19,7 +18,7 @@
 </script>
 
 <Navbar>
-    <NavBrand href="/">
+    <NavBrand href="/dashboard">
         <span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">Stredono</span>
     </NavBrand>
     <NavHamburger />
