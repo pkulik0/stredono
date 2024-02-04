@@ -43,3 +43,70 @@ export class AlertsKey extends Message<AlertsKey> {
   }
 }
 
+/**
+ * @generated from message stredono.Alert
+ */
+export class Alert extends Message<Alert> {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id = "";
+
+  /**
+   * @generated from field: float from = 2;
+   */
+  from = 0;
+
+  /**
+   * @generated from field: float to = 3;
+   */
+  to = 0;
+
+  /**
+   * @generated from field: string template = 4;
+   */
+  template = "";
+
+  /**
+   * @generated from field: string gifUrl = 5;
+   */
+  gifUrl = "";
+
+  /**
+   * @generated from field: string soundUrl = 6;
+   */
+  soundUrl = "";
+
+  constructor(data?: PartialMessage<Alert>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.Alert";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "from", kind: "scalar", T: 2 /* ScalarType.FLOAT */ },
+    { no: 3, name: "to", kind: "scalar", T: 2 /* ScalarType.FLOAT */ },
+    { no: 4, name: "template", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "gifUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "soundUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Alert {
+    return new Alert().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Alert {
+    return new Alert().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Alert {
+    return new Alert().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: Alert | PlainMessage<Alert> | undefined, b: Alert | PlainMessage<Alert> | undefined): boolean {
+    return proto3.util.equals(Alert, a, b);
+  }
+}
+

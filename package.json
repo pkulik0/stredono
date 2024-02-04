@@ -6,10 +6,5 @@
   "dependencies": {
     "@bufbuild/protobuf": "^1.7.2"
   },
-  "workspaces": [
-    "user-app",
-    "alerts-viewer",
-    "stream-dashboard"
-  ],
   "private": true
 }

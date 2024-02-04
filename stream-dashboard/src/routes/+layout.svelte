@@ -4,7 +4,6 @@
     import {onAuthStateChanged} from "firebase/auth";
     import {auth} from "$lib/firebase.js";
     import {userStore} from "$lib/userStore";
-    import type {OptionalUser} from "$lib/userStore";
     import {goto} from "$app/navigation";
 
     if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -13,7 +12,7 @@
         document.documentElement.classList.remove('dark')
     }
 
-    onAuthStateChanged(auth, async (u: OptionalUser) => {
+    onAuthStateChanged(auth, async (u) => {
         console.log("User state changed", u);
         if(u) {
             userStore.set(u)
@@ -29,13 +28,10 @@
     });
 </script>
 
+<NavBar />
 
-<div class="flex flex-col min-h-screen">
-    <NavBar />
-
-    <div class="flex flex-1 justify-center p-4">
-        <div class="max-w-4xl w-full">
-            <slot />
-        </div>
+<div class="p-4 flex justify-center">
+    <div class="w-full md:w-3/4">
+        <slot />
     </div>
 </div>

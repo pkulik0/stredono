@@ -24,9 +24,14 @@
     </NavBrand>
     <NavHamburger />
     <NavUl {activeUrl} {activeClass} {nonActiveClass}>
-        <DarkMode {btnClass} />
         {#if $userStore}
-            <NavLi on:click={signOut}>Sign Out</NavLi>
+            <NavLi href="/dashboard">Dashboard</NavLi>
+            <NavLi href="/donations">Donations</NavLi>
+            <NavLi href="/alerts">Alerts</NavLi>
+            <NavLi href="/payments">Payments</NavLi>
+            <NavLi href="/settings">Settings</NavLi>
+            <NavLi on:click={signOut}>Sign out</NavLi>
         {/if}
+        <DarkMode {btnClass} />
     </NavUl>
 </Navbar>
