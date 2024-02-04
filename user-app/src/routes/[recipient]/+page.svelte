@@ -1,21 +1,23 @@
 <script lang="ts">
     import axios from 'axios';
     import {PUBLIC_SENT_DONATE_LINK} from "$env/static/public";
-    import {ErrorResponse, SendDonateRequest, SendDonateResponse} from "../../../../pb/functions_pb";
+    import {DonateStatus, ErrorResponse, SendDonateRequest, SendDonateResponse} from "../../../../pb/functions_pb";
     import {
         Avatar,
         Button,
         ButtonGroup,
         Card,
-        Dropdown, DropdownItem,
+        Dropdown,
+        DropdownItem,
         Hr,
         Img,
         Input,
         InputAddon,
         Label,
-        Textarea, TextPlaceholder
+        Textarea,
+        TextPlaceholder
     } from "flowbite-svelte";
-    import {slide, fade} from "svelte/transition";
+    import {slide} from "svelte/transition";
     import {page} from "$app/stores";
     import {DotsHorizontalOutline, ExclamationCircleSolid} from "flowbite-svelte-icons";
     import {onMount} from "svelte";
@@ -35,7 +37,8 @@
             email: email,
             sender: username,
             recipient: recipient,
-            message: message
+            message: message,
+            status: DonateStatus.INITIATED
         });
 
         const res = await axios.post(PUBLIC_SENT_DONATE_LINK, sdReq.toBinary(), { responseType: 'arraybuffer' })

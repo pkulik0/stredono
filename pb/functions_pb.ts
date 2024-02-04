@@ -4,7 +4,33 @@
 // @ts-nocheck
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
-import { Message, proto3 } from "@bufbuild/protobuf";
+import { Message, proto3, Timestamp } from "@bufbuild/protobuf";
+
+/**
+ * @generated from enum stredono.DonateStatus
+ */
+export enum DonateStatus {
+  /**
+   * @generated from enum value: INITIATED = 0;
+   */
+  INITIATED = 0,
+
+  /**
+   * @generated from enum value: PAYMENT_PENDING = 1;
+   */
+  PAYMENT_PENDING = 1,
+
+  /**
+   * @generated from enum value: PAYMENT_SUCCESS = 2;
+   */
+  PAYMENT_SUCCESS = 2,
+}
+// Retrieve enum metadata with: proto3.getEnumType(DonateStatus)
+proto3.util.setEnumType(DonateStatus, "stredono.DonateStatus", [
+  { no: 0, name: "INITIATED" },
+  { no: 1, name: "PAYMENT_PENDING" },
+  { no: 2, name: "PAYMENT_SUCCESS" },
+]);
 
 /**
  * @generated from message stredono.SendDonateRequest
@@ -40,6 +66,16 @@ export class SendDonateRequest extends Message<SendDonateRequest> {
    */
   recipient = "";
 
+  /**
+   * @generated from field: stredono.DonateStatus status = 7;
+   */
+  status = DonateStatus.INITIATED;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp created = 8;
+   */
+  created?: Timestamp;
+
   constructor(data?: PartialMessage<SendDonateRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -54,6 +90,8 @@ export class SendDonateRequest extends Message<SendDonateRequest> {
     { no: 4, name: "amount", kind: "scalar", T: 2 /* ScalarType.FLOAT */ },
     { no: 5, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 6, name: "recipient", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "status", kind: "enum", T: proto3.getEnumType(DonateStatus) },
+    { no: 8, name: "created", kind: "message", T: Timestamp },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SendDonateRequest {
@@ -107,43 +145,6 @@ export class SendDonateResponse extends Message<SendDonateResponse> {
 
   static equals(a: SendDonateResponse | PlainMessage<SendDonateResponse> | undefined, b: SendDonateResponse | PlainMessage<SendDonateResponse> | undefined): boolean {
     return proto3.util.equals(SendDonateResponse, a, b);
-  }
-}
-
-/**
- * @generated from message stredono.ErrorResponse
- */
-export class ErrorResponse extends Message<ErrorResponse> {
-  /**
-   * @generated from field: string error = 1;
-   */
-  error = "";
-
-  constructor(data?: PartialMessage<ErrorResponse>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "stredono.ErrorResponse";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "error", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ErrorResponse {
-    return new ErrorResponse().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ErrorResponse {
-    return new ErrorResponse().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ErrorResponse {
-    return new ErrorResponse().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: ErrorResponse | PlainMessage<ErrorResponse> | undefined, b: ErrorResponse | PlainMessage<ErrorResponse> | undefined): boolean {
-    return proto3.util.equals(ErrorResponse, a, b);
   }
 }
 

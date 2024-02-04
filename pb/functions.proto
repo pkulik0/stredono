@@ -4,6 +4,14 @@ package stredono;
 
 option go_package="github.com/pkulik0/stredono/pb";
 
+import "google/protobuf/timestamp.proto";
+
+enum DonateStatus {
+    INITIATED = 0;
+    PAYMENT_PENDING = 1;
+    PAYMENT_SUCCESS = 2;
+}
+
 message SendDonateRequest {
     string sender = 1;
     string email = 2;
@@ -11,12 +19,10 @@ message SendDonateRequest {
     float amount = 4;
     string currency = 5;
     string recipient = 6;
+    DonateStatus status = 7;
+    google.protobuf.Timestamp created = 8;
 }
 
 message SendDonateResponse {
     string redirectUrl = 1;
-}
-
-message ErrorResponse {
-    string error = 1;
 }

@@ -1,13 +1,16 @@
 package functions
 
 import (
+	"cloud.google.com/go/firestore"
 	"cloud.google.com/go/pubsub"
 	"context"
+	firebase "firebase.google.com/go"
 	"fmt"
 	"github.com/GoogleCloudPlatform/functions-framework-go/functions"
 	"github.com/golang/protobuf/proto"
 	"github.com/pkulik0/stredono/pb"
 	log "github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"io"
 	"net/http"
 )
@@ -35,27 +38,60 @@ func OnRegister(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func ReturnError(w http.ResponseWriter, code int, errorMessage string) {
-	log.Errorf("Error: %s", errorMessage)
+func ReturnError(w http.ResponseWriter, r *http.Request, code int, errorMessage string) {
+	log.Errorf("Error (%d): %s \nRequest: %+v", code, errorMessage, r)
+	http.Error(w, errorMessage, code)
+}
 
-	errRes := pb.ErrorResponse{
-		Error: errorMessage,
-	}
-	data, err := proto.Marshal(&errRes)
+const projectID = "stredono-5ccdd"
+
+func GetFirestoreClient(ctx context.Context) (*firestore.Client, error) {
+	conf := &firebase.Config{ProjectID: projectID}
+	app, err := firebase.NewApp(ctx, conf)
 	if err != nil {
-		http.Error(w, "", http.StatusInternalServerError)
-		return
+		return nil, err
 	}
+	return app.Firestore(ctx)
+}
 
-	w.Header().Set("Content-Type", "application/octet-stream")
-	_, err = w.Write(data)
+func SaveDonateToDb(donateReq *pb.SendDonateRequest) (string, error) {
+	ctx := context.Background()
+	client, err := GetFirestoreClient(ctx)
 	if err != nil {
-		http.Error(w, "", http.StatusInternalServerError)
-		return
+		return "", err
 	}
-	w.WriteHeader(code)
+	defer client.Close()
 
-	return
+	doc, _, err := client.Collection("donations").Add(ctx, donateReq)
+	if err != nil {
+		return "", err
+	}
+	return doc.ID, nil
+}
+
+func ValidateNewDonate(req *pb.SendDonateRequest) error {
+	if req.Sender == "" {
+		return fmt.Errorf("invalid sender: %s", req.Sender)
+	}
+	if req.Recipient == "" {
+		return fmt.Errorf("invalid recipient: %s", req.Recipient)
+	}
+	if req.Status != pb.DonateStatus_INITIATED {
+		return fmt.Errorf("invalid status: %s", req.Status)
+	}
+	if req.Amount < 0 {
+		return fmt.Errorf("invalid amount: %d", req.Amount)
+	}
+	if req.Currency == "" {
+		return fmt.Errorf("invalid currency: %s", req.Currency)
+	}
+	if req.Email == "" {
+		return fmt.Errorf("invalid email: %s", req.Email)
+	}
+	if req.Created != nil {
+		return fmt.Errorf("timestamp should not be set")
+	}
+	return nil
 }
 
 func SendDonate(w http.ResponseWriter, r *http.Request) {
@@ -63,15 +99,29 @@ func SendDonate(w http.ResponseWriter, r *http.Request) {
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		ReturnError(w, http.StatusBadRequest, "Failed to read request")
+		ReturnError(w, r, http.StatusBadRequest, "Failed to read request")
 		return
 	}
 
 	req := pb.SendDonateRequest{}
 	if err := proto.Unmarshal(body, &req); err != nil {
-		ReturnError(w, http.StatusBadRequest, "Failed to unmarshal request")
+		ReturnError(w, r, http.StatusBadRequest, "Failed to parse request")
 		return
 	}
+
+	if err := ValidateNewDonate(&req); err != nil {
+		ReturnError(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+	req.Status = pb.DonateStatus_PAYMENT_PENDING
+	req.Created = timestamppb.Now()
+
+	donateId, err := SaveDonateToDb(&req)
+	if err != nil {
+		ReturnError(w, r, http.StatusInternalServerError, "Failed to save donation")
+		return
+	}
+	log.Infof("Saved donation with id: %s", donateId)
 
 	redirectUrl := "http://google.com"
 	sdRes := pb.SendDonateResponse{
@@ -80,43 +130,71 @@ func SendDonate(w http.ResponseWriter, r *http.Request) {
 
 	data, err := proto.Marshal(&sdRes)
 	if err != nil {
-		ReturnError(w, http.StatusInternalServerError, "Failed to marshal response")
+		ReturnError(w, r, http.StatusInternalServerError, "Invalid response")
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/octet-stream")
 	_, err = w.Write(data)
 	if err != nil {
-		ReturnError(w, http.StatusInternalServerError, "Failed to write response")
+		log.Errorf("Failed to write response: %s", err)
 		return
 	}
-	log.Infof("Redirecting to: %s", redirectUrl)
 }
 
 func ConfirmPayment(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-	client, err := pubsub.NewClient(ctx, "stredono-5ccdd")
-	if err != nil {
-		ReturnError(w, http.StatusInternalServerError, "Failed to connect to pubsub")
+	donationId := r.URL.Query().Get("id")
+	if donationId == "" {
+		ReturnError(w, r, http.StatusBadRequest, "Missing id")
 		return
 	}
-	defer client.Close()
 
-	topic := client.Topic("donations")
+	ctx := context.Background()
+	firestoreClient, err := GetFirestoreClient(ctx)
+	if err != nil {
+		ReturnError(w, r, http.StatusInternalServerError, "Firestore connection failed")
+		return
+	}
+	defer firestoreClient.Close()
+
+	docRef := firestoreClient.Collection("donations").Doc(donationId)
+	doc, err := docRef.Get(ctx)
+	if err != nil {
+		ReturnError(w, r, http.StatusInternalServerError, "Failed to get donation")
+		return
+	}
+
+	donateReq := pb.SendDonateRequest{}
+	if err := doc.DataTo(&donateReq); err != nil {
+		ReturnError(w, r, http.StatusInternalServerError, "Failed to parse donation")
+		return
+	}
+	if donateReq.Status != pb.DonateStatus_PAYMENT_PENDING {
+		ReturnError(w, r, http.StatusBadRequest, "Invalid status")
+		return
+	}
+	donateReq.Status = pb.DonateStatus_PAYMENT_SUCCESS
+
+	_, err = docRef.Set(ctx, &donateReq)
+	if err != nil {
+		ReturnError(w, r, http.StatusInternalServerError, "Failed to update donation")
+		return
+	}
+
+	pubsubClient, err := pubsub.NewClient(ctx, projectID)
+	if err != nil {
+		ReturnError(w, r, http.StatusInternalServerError, "PubSub connection failed")
+		return
+	}
+	defer pubsubClient.Close()
+
+	topic := pubsubClient.Topic("donations")
 	topic.PublishSettings.NumGoroutines = 1
 	defer topic.Stop()
 
-	sdReq := pb.SendDonateRequest{
-		Email:     "abc@email.com",
-		Recipient: "stredono",
-		Sender:    "pkulik0",
-		Amount:    205.58,
-		Currency:  "EUR",
-		Message:   "aha aha2 aha3 aha4 aha5 aha6 aha7 aha8 aha9 aha10 aha11 aha12 aha13 aha14 aha15 aha16 aha17 aha18 aha19 aha21 aha22 aha23 aha24 aha25 aha26 aha27 aha28 aha29 aha30 aha31 aha32 aha33 aha34 aha35 aha36 aha37 aha38 aha39 aha40 aha41 oeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuaeouaoeueoauoeauaoeuae",
-	}
-	data, err := proto.Marshal(&sdReq)
+	data, err := proto.Marshal(&donateReq)
 	if err != nil {
-		ReturnError(w, http.StatusInternalServerError, "Failed to marshal message")
+		ReturnError(w, r, http.StatusInternalServerError, "Failed to marshal message")
 		return
 	}
 
@@ -125,7 +203,7 @@ func ConfirmPayment(w http.ResponseWriter, r *http.Request) {
 	})
 	id, err := result.Get(ctx)
 	if err != nil {
-		ReturnError(w, http.StatusInternalServerError, "Failed to publish message")
+		ReturnError(w, r, http.StatusInternalServerError, "Failed to publish message")
 		return
 	}
 
