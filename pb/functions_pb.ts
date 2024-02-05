@@ -37,42 +37,47 @@ proto3.util.setEnumType(DonateStatus, "stredono.DonateStatus", [
  */
 export class SendDonateRequest extends Message<SendDonateRequest> {
   /**
-   * @generated from field: string sender = 1;
+   * @generated from field: string id = 1;
+   */
+  id = "";
+
+  /**
+   * @generated from field: string sender = 2;
    */
   sender = "";
 
   /**
-   * @generated from field: string email = 2;
+   * @generated from field: string email = 3;
    */
   email = "";
 
   /**
-   * @generated from field: string message = 3;
+   * @generated from field: string message = 4;
    */
   message = "";
 
   /**
-   * @generated from field: float amount = 4;
+   * @generated from field: float amount = 5;
    */
   amount = 0;
 
   /**
-   * @generated from field: string currency = 5;
+   * @generated from field: string currency = 6;
    */
   currency = "";
 
   /**
-   * @generated from field: string recipient = 6;
+   * @generated from field: string recipientId = 7;
    */
-  recipient = "";
+  recipientId = "";
 
   /**
-   * @generated from field: stredono.DonateStatus status = 7;
+   * @generated from field: stredono.DonateStatus status = 8;
    */
   status = DonateStatus.INITIATED;
 
   /**
-   * @generated from field: google.protobuf.Timestamp created = 8;
+   * @generated from field: google.protobuf.Timestamp created = 9;
    */
   created?: Timestamp;
 
@@ -84,14 +89,15 @@ export class SendDonateRequest extends Message<SendDonateRequest> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "stredono.SendDonateRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "sender", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "email", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "message", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "amount", kind: "scalar", T: 2 /* ScalarType.FLOAT */ },
-    { no: 5, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "recipient", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 7, name: "status", kind: "enum", T: proto3.getEnumType(DonateStatus) },
-    { no: 8, name: "created", kind: "message", T: Timestamp },
+    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "sender", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "email", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "message", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "amount", kind: "scalar", T: 2 /* ScalarType.FLOAT */ },
+    { no: 6, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "recipientId", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 8, name: "status", kind: "enum", T: proto3.getEnumType(DonateStatus) },
+    { no: 9, name: "created", kind: "message", T: Timestamp },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SendDonateRequest {

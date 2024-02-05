@@ -7,6 +7,6 @@
     <slot />
 </div>
 
-<div id="darkMode" class="p-4 fixed top-0 right-0">
+<div id="darkMode" class="p-4 fixed top-0 left-0 sm:right-0">
     <DarkMode />
 </div>

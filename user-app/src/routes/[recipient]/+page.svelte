@@ -1,8 +1,9 @@
 <script lang="ts">
     import axios from 'axios';
-    import {PUBLIC_SENT_DONATE_LINK} from "$env/static/public";
-    import {DonateStatus, ErrorResponse, SendDonateRequest, SendDonateResponse} from "../../../../pb/functions_pb";
+    import {PUBLIC_GET_LISTENERS_LINK, PUBLIC_SENT_DONATE_LINK} from "$env/static/public";
+    import {DonateStatus, SendDonateRequest, SendDonateResponse} from "../../../../pb/functions_pb";
     import {
+        Alert,
         Avatar,
         Button,
         ButtonGroup,
@@ -36,15 +37,14 @@
             currency: currency,
             email: email,
             sender: username,
-            recipient: recipient,
+            recipientId: uid,
             message: message,
             status: DonateStatus.INITIATED
         });
 
         const res = await axios.post(PUBLIC_SENT_DONATE_LINK, sdReq.toBinary(), { responseType: 'arraybuffer' })
         if(res.status !== 200) {
-            const errorRes = ErrorResponse.fromBinary(new Uint8Array(res.data));
-            console.error(errorRes.toJson()); // TODO: handle error
+            console.error(res.data); // TODO: handle error
             return;
         }
 
@@ -52,6 +52,7 @@
         window.location.href = sdRes.redirectUrl;
     }
 
+    let recipient = $page.params.recipient;
     let uid:string = "";
     let avatarUrl:string = "";
     let description:string|undefined = undefined;
@@ -68,18 +69,33 @@
     $: blockClass = isBlocked ? "pointer-events-none blur-sm" : "";
     $: donateButtonColor = isBlocked ? "alternative" : "primary";
 
-    let recipient = $page.params.recipient;
+    let hasListeners: boolean|undefined = undefined;
+
+    const getListeners = async () => {
+        // TODO: error handling
+        const res = await axios.get(PUBLIC_GET_LISTENERS_LINK + "?uid=" + uid)
+        if(res.status !== 200) {
+            console.error(res.data); // TODO: handle error
+            return;
+        }
+        hasListeners = res.data !== 0;
+    }
 
     onMount(async () => {
         try {
             const doc = await getPageDocByUsername(recipient);
             const data = doc.data()
             if (!data) {
-                page.set({error: "Recipient not found"});
+                await goto("/");
                 return;
             }
 
             uid = data.uid;
+            getListeners().then(r => {})
+            setInterval(getListeners, 10000)
+
+            console.log("uid", uid)
+
             avatarUrl = await getAvatarUrl(uid);
             description = data.description;
             url = data.url;
@@ -97,6 +113,7 @@
 
 
 <Card padding="xl" class="{cardClass}">
+
     <div class="flex justify-end">
         <DotsHorizontalOutline />
         <Dropdown class="w-36">
@@ -167,5 +184,15 @@
         </Label>
 
         <Button on:click={sendDonate} class="w-full" color="{donateButtonColor}">Donate</Button>
+
+        {#if hasListeners === false}
+            <div transition:slide>
+                <Alert border>
+                    <ExclamationCircleSolid slot="icon"/>
+                    <span class="capitalize">{recipient}</span>
+                    is currently not displaying the donations on stream.
+                </Alert>
+            </div>
+        {/if}
     </div>
 </Card>

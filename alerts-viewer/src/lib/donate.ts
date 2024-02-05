@@ -1,6 +1,6 @@
 export interface Donate {
     user: string;
-    amount: string;
+    amount: number;
     currency: string;
     message: string;
 }

@@ -3,16 +3,15 @@ package main
 import (
 	"cloud.google.com/go/pubsub"
 	"context"
-	"errors"
 	firebase "firebase.google.com/go"
-	"firebase.google.com/go/auth"
-	"github.com/golang/protobuf/proto"
+	"fmt"
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
-	"github.com/pkulik0/stredono/pb"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/api/option"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -21,8 +20,7 @@ type FeedService struct {
 	client   *pubsub.Client
 	upgrader websocket.Upgrader
 
-	app        *firebase.App
-	authClient *auth.Client
+	app *firebase.App
 }
 
 func NewFeedService() (*FeedService, error) {
@@ -40,11 +38,6 @@ func NewFeedService() (*FeedService, error) {
 		return nil, err
 	}
 
-	authClient, err := app.Auth(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	return &FeedService{
 		ctx:    ctx,
 		client: client,
@@ -53,8 +46,7 @@ func NewFeedService() (*FeedService, error) {
 				return true
 			},
 		},
-		app:        app,
-		authClient: authClient,
+		app: app,
 	}, nil
 }
 
@@ -64,7 +56,6 @@ func (s *FeedService) Close() {
 
 func (s *FeedService) Serve(addr string) error {
 	http.HandleFunc("/ws", s.wsHandler)
-	http.HandleFunc("/token", s.newAlertsTokenHandler)
 	return http.ListenAndServe(addr, nil)
 }
 
@@ -74,48 +65,17 @@ const (
 	readLimit  = 1024
 )
 
-func (s *FeedService) newAlertsTokenHandler(w http.ResponseWriter, r *http.Request) {
-	token, err := s.verifyToken(r)
-	if err != nil {
-		log.Errorf("Failed to verify token: %v", err)
-		http.Error(w, "Failed to verify token", http.StatusUnauthorized)
-		return
-	}
-
-	customToken, err := s.authClient.CustomToken(s.ctx, token.UID)
-	if err != nil {
-		log.Errorf("Failed to create custom token: %v", err)
-		http.Error(w, "Failed to create custom token", http.StatusInternalServerError)
-		return
-	}
-	tokenResponse := pb.AlertsKey{
-		Key: customToken,
-	}
-
-	if err := proto.MarshalText(w, &tokenResponse); err != nil {
-		log.Errorf("Failed to marshal token response: %v", err)
-		http.Error(w, "Failed to marshal token response", http.StatusInternalServerError)
-		return
-	}
-}
-
-func (s *FeedService) verifyToken(r *http.Request) (*auth.Token, error) {
-	idToken := r.Header.Get("Authorization")
-	if idToken == "" {
-		return nil, errors.New("no token provided")
-	}
-	return s.authClient.VerifyIDToken(s.ctx, idToken)
-}
+const topicName = "donations"
 
 func (s *FeedService) wsHandler(w http.ResponseWriter, r *http.Request) {
-	token, err := s.verifyToken(r)
-	if err != nil {
-		log.Errorf("Failed to verify token: %v", err)
-		http.Error(w, "Failed to verify token", http.StatusUnauthorized)
+	recipientId := r.URL.Query().Get("uid")
+	if recipientId == "" {
+		log.Errorf("uid not set")
+		http.Error(w, "uid not set", http.StatusBadRequest)
 		return
 	}
 
-	log.Infof("New connection from %s as %s", r.RemoteAddr, token.Subject)
+	log.Infof("New connection from %s as %s", r.RemoteAddr, recipientId)
 
 	conn, err := s.upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -169,7 +129,26 @@ func (s *FeedService) wsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	sub := s.client.Subscription("donations-XYZ")
+	// TODO: consider closing on signal etc
+	id := strings.ReplaceAll(uuid.New().String(), "-", "")[:5]
+	subId := fmt.Sprintf("%s-%s-%s", topicName, recipientId, id)
+	log.Debugf("Creating subscription: %s", subId)
+	sub, err := s.client.CreateSubscription(s.ctx, subId, pubsub.SubscriptionConfig{
+		Topic:                     s.client.Topic(topicName),
+		EnableExactlyOnceDelivery: true,
+		Filter:                    fmt.Sprintf("attributes.recipientId = \"%s\"", recipientId),
+	})
+	if err != nil {
+		log.Errorf("Failed to create subscription: %v", err)
+		return
+	}
+	defer func(sub *pubsub.Subscription, ctx context.Context) {
+		if err := sub.Delete(ctx); err != nil {
+			log.Errorf("Failed to delete subscription: %v", err)
+			return
+		}
+		log.Debugf("Deleted subscription: %s", sub.String())
+	}(sub, s.ctx)
 
 	log.Debugf("%s started listening to subscription: %s", conn.RemoteAddr(), sub.String())
 	defer log.Debugf("%s unsubscribed from: %s", conn.RemoteAddr(), sub.String())
@@ -177,13 +156,6 @@ func (s *FeedService) wsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Debugf("Waiting for message for %s", conn.RemoteAddr())
 	err = sub.Receive(ctx, func(ctx context.Context, message *pubsub.Message) {
 		log.Debugf("Received message: %s for %s", message.ID, conn.RemoteAddr())
-
-		var sdReq pb.SendDonateRequest
-		if err := proto.Unmarshal(message.Data, &sdReq); err != nil {
-			log.Errorf("Failed to unmarshal message: %v", err)
-			return
-		}
-		log.Debugf("Unmarshaled message: %s", sdReq.String())
 
 		if err := conn.WriteMessage(websocket.BinaryMessage, message.Data); err != nil {
 			log.Errorf("Failed to write message to %s: %v", conn.RemoteAddr(), err)

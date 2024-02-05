@@ -3,6 +3,7 @@
     import {onDestroy, onMount} from "svelte";
     import type {Donate} from "$lib/donate";
     import Alert from "./Alert.svelte";
+    import {page} from "$app/stores";
 
     let ws: WebSocket;
 
@@ -22,7 +23,7 @@
     };
 
     onMount(() => {
-        ws = new WebSocket("ws://localhost:8081/ws?token=123");
+        ws = new WebSocket("ws://localhost:8081/ws?uid=" + $page.url.searchParams.get("uid"));
         ws.binaryType = "arraybuffer";
 
         ws.onmessage = (event) => {
