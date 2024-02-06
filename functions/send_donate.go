@@ -3,14 +3,14 @@ package functions
 import (
 	"context"
 	"fmt"
-	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
 	"github.com/pkulik0/stredono/pb"
 	log "github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/protobuf/proto"
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func saveDonateToFirestore(donateReq *pb.SendDonateRequest) (string, error) {
@@ -50,7 +50,7 @@ func validateNewDonate(req *pb.SendDonateRequest) error {
 	if req.Email == "" {
 		return fmt.Errorf("invalid email: %s", req.Email)
 	}
-	if req.Created != nil {
+	if req.Timestamp != 0 {
 		return fmt.Errorf("timestamp should not be set")
 	}
 	return nil
@@ -77,7 +77,7 @@ func sendDonate(w http.ResponseWriter, r *http.Request) {
 	}
 	req.Id = strings.ReplaceAll(uuid.New().String(), "-", "")
 	req.Status = pb.DonateStatus_PAYMENT_PENDING
-	req.Created = timestamppb.Now()
+	req.Timestamp = time.Now().Unix()
 
 	donateId, err := saveDonateToFirestore(&req)
 	if err != nil {

@@ -2,3 +2,4 @@
 .vscode
 go.work*
 node_modules
+*service.json

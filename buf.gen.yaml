@@ -5,4 +5,4 @@ plugins:
     out: .
   - plugin: es
     opt: target=ts
-    out: .
+    out: app/src/lib
