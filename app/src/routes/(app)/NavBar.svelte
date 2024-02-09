@@ -17,7 +17,7 @@
     }
 </script>
 
-<Navbar>
+<Navbar color="primary">
     <NavBrand href="/panel">
         <span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">Stredono</span>
     </NavBrand>

@@ -1,7 +1,12 @@
-import {collection, onSnapshot, query, where} from "firebase/firestore";
+import {collection, onSnapshot, query, where, getDocs} from "firebase/firestore";
 import {auth, db} from "$lib/firebase";
 import {DonateStatus, SendDonateRequest} from "$lib/pb/functions_pb";
-import {donationsStore, userStore} from "$lib/stores";
+import {userStore} from "$lib/stores";
+import {writable, type Writable} from "svelte/store";
+
+export type DonationsMap = {[key: number]: { donate: SendDonateRequest[], startDate: Date, endDate: Date }}
+
+export const donationStore: Writable<DonationsMap> = writable({});
 
 export interface Donate {
     user: string;
@@ -23,6 +28,10 @@ const keysToLower = (obj: any) => {
 
 }
 
+const dateToFirestoreTimestamp = (date: Date) => {
+    return Math.floor(date.getTime() / 1000);
+}
+
 const getWeekBeginning = (): Date => {
     const now = new Date();
     const day = now.getDay();
@@ -32,37 +41,79 @@ const getWeekBeginning = (): Date => {
     return now;
 }
 
+export const fetchOldDonations = async (date: Date, page: number) => {
+    if (page < 1) throw new Error("Invalid page number");
+
+    const user = auth.currentUser;
+    if(!user) throw new Error("Not logged in");
+
+    const startDate = new Date(date);
+    startDate.setDate(startDate.getDate() - 7 * page);
+
+    const endDate = new Date(date);
+    endDate.setDate(endDate.getDate() - 7 * (page - 1));
+
+    const q = query(collection(db, "donations"),
+        where("RecipientId", "==", user.uid),
+        where("Timestamp", ">=", dateToFirestoreTimestamp(startDate)),
+        where("Timestamp", "<", dateToFirestoreTimestamp(endDate))
+    );
+    const snapshot = await getDocs(q);
+
+    donationStore.update((pastDonations) => {
+        pastDonations[page] = {
+            donate: [],
+            startDate: startDate,
+            endDate: endDate
+        }
+
+        snapshot.forEach((doc) => {
+            const sdReq = SendDonateRequest.fromJson(keysToLower(doc.data()));
+            if(sdReq.status < DonateStatus.PAYMENT_SUCCESS) return;
+            pastDonations[page].donate.push(sdReq);
+        });
+
+        return pastDonations
+    })
+}
+
 const getDonationsSubscriber = () => {
     const user = auth.currentUser;
     if(!user) throw new Error("Not logged in");
 
-    const donationsRef = collection(db, "donations");
-    const q = query(donationsRef,
+    const date = getWeekBeginning()
+    const q = query(collection(db, "donations"),
         where("RecipientId", "==", user.uid),
-        where("Timestamp", ">=", getWeekBeginning().getTime() / 1000)
+        where("Timestamp", ">=", dateToFirestoreTimestamp(date))
     );
 
-    console.log("Subscribing to donations");
-
     return onSnapshot(q, (snapshot) => {
-        console.log("Donations snapshot");
+        donationStore.update((donations) => {
+            if(!donations[0]) {
+                const endDate = new Date(date);
+                endDate.setDate(endDate.getDate() + 7);
 
-        donationsStore.update((donations) => {
+                donations[0] = {
+                    donate: [],
+                    startDate: date,
+                    endDate: endDate
+                }
+            }
+            let latestDonations = donations[0].donate;
+
             snapshot.docChanges().forEach((change) => {
-                console.log("Donation change", change.type, change.doc.data());
-
                 const sdReq = SendDonateRequest.fromJson(keysToLower(change.doc.data()));
                 if(sdReq.status < DonateStatus.PAYMENT_SUCCESS) return;
 
                 if(change.type === "added" || change.type === "modified") {
-                    const index = donations.findIndex((d) => d.id === sdReq.id);
+                    const index = latestDonations.findIndex((d) => d.id === sdReq.id);
                     if(index === -1) {
-                        donations.push(sdReq);
+                        latestDonations.push(sdReq);
                         return;
                     }
-                    donations[index] = sdReq;
+                    latestDonations[index] = sdReq;
                 } else if(change.type === "removed") {
-                    donations =  donations.filter((d) => d.id !== sdReq.id);
+                    latestDonations =  latestDonations.filter((d) => d.id !== sdReq.id);
                 }
             })
 
@@ -82,6 +133,6 @@ userStore.subscribe((user) => {
             unsubscribe();
             unsubscribe = null;
         }
-        donationsStore.set([]);
+        donationStore.set({});
     }
 })

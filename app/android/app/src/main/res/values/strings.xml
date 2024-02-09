@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">stredono</string>
+    <string name="title_activity_main">stredono</string>
+    <string name="package_name">com.piotrkulik.stredono</string>
+    <string name="custom_url_scheme">com.piotrkulik.stredono</string>
+</resources>

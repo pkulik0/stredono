@@ -1,10 +1,8 @@
 import {type Writable, writable} from "svelte/store";
 import type {User} from "firebase/auth";
-import {SendDonateRequest} from "$lib/pb/functions_pb";
 
 export const userStore: Writable<User | null> = writable(null);
 export const streamModeStore: Writable<boolean> = writable(localStorage.getItem("streamMode") === "true");
-export const donationsStore: Writable<SendDonateRequest[]> = writable([]);
 
 streamModeStore.subscribe((value) => {
     localStorage.setItem("streamMode", value.toString());
