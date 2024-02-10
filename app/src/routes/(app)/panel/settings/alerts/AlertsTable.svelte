@@ -26,7 +26,7 @@
 
 
 <Table noborder>
-    <caption class="p-5 rounded-lg mt-3 text-lg font-semibold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-800 mb-4">
+    <caption class="p-5 rounded-lg text-lg font-semibold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-800 mb-4">
         Your alerts
         <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
             Alerts are displayed on stream when you receive a donation.

@@ -1,17 +1,12 @@
 <script lang="ts">
     import AlertsTable from "./AlertsTable.svelte";
-    import {Breadcrumb, BreadcrumbItem, Button} from "flowbite-svelte";
+    import {Button} from "flowbite-svelte";
     import {PlusSolid} from "flowbite-svelte-icons";
     import AlertsDrawer from "./AlertsDrawer.svelte";
 
     let drawerHidden = true;
 
 </script>
-
-<Breadcrumb aria-label="Default breadcrumb example">
-    <BreadcrumbItem href="/panel" home>Panel</BreadcrumbItem>
-    <BreadcrumbItem href="/alerts">Alerts</BreadcrumbItem>
-</Breadcrumb>
 
 <AlertsTable/>
 

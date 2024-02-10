@@ -26,7 +26,6 @@
         {#if $userStore}
             <NavLi href="/panel">Panel</NavLi>
             <NavLi href="/panel/donations">Donations</NavLi>
-            <NavLi href="/panel/alerts">Alerts</NavLi>
             <NavLi href="/panel/payments">Payments</NavLi>
             <NavLi href="/panel/settings">Settings</NavLi>
             <NavLi on:click={signOut}>Sign out</NavLi>

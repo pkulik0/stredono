@@ -1,8 +1,8 @@
-<script>
-    import {Breadcrumb, BreadcrumbItem} from "flowbite-svelte";
-</script>
+<script lang="ts">
+    import {onMount} from "svelte";
+    import {goto} from "$app/navigation";
 
-<Breadcrumb aria-label="Default breadcrumb example">
-    <BreadcrumbItem href="/panel" home>Panel</BreadcrumbItem>
-    <BreadcrumbItem href="/settings">Settings</BreadcrumbItem>
-</Breadcrumb>
+    onMount(() => {
+        goto('/panel/settings/profile');
+    });
+</script>
