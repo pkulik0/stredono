@@ -1,8 +1,9 @@
-package functions
+package donations
 
 import (
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/pkulik0/stredono/functions/util"
 	"github.com/pkulik0/stredono/pb"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
@@ -40,17 +41,13 @@ func validateNewDonate(req *pb.SendDonateRequest) error {
 	return nil
 }
 
-func sendDonate(w http.ResponseWriter, r *http.Request) {
-	if setupCors(w, r) {
-		return
-	}
-
-	Middleware(MiddlewareConfig{
+func SendDonate(w http.ResponseWriter, r *http.Request) {
+	util.CorsMiddleware(util.CloudMiddleware(util.CloudConfig{
 		Firestore: true,
-	}, sendDonateInternal)(w, r)
+	}, sendDonate))(w, r)
 }
 
-func sendDonateInternal(w http.ResponseWriter, r *http.Request) {
+func sendDonate(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Errorf("Failed to read request: %s", err)
@@ -58,14 +55,14 @@ func sendDonateInternal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := pb.SendDonateRequest{}
-	if err := proto.Unmarshal(body, &req); err != nil {
+	req := &pb.SendDonateRequest{}
+	if err := proto.Unmarshal(body, req); err != nil {
 		log.Errorf("Failed to unmarshal request: %s", err)
 		http.Error(w, "Failed to unmarshal request", http.StatusBadRequest)
 		return
 	}
 
-	if err := validateNewDonate(&req); err != nil {
+	if err := validateNewDonate(req); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
@@ -74,17 +71,17 @@ func sendDonateInternal(w http.ResponseWriter, r *http.Request) {
 	req.Timestamp = time.Now().Unix()
 
 	ctx := r.Context()
-	firestoreClient, ok := GetFirestore(ctx)
+	firestoreClient, ok := util.GetFirestore(ctx)
 	if !ok {
 		log.Error("Failed to get firestore client")
-		http.Error(w, internalServerError, http.StatusInternalServerError)
+		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
 	doc, _, err := firestoreClient.Collection("donations").Add(ctx, req) // TODO: check
 	if err != nil {
 		log.Errorf("Failed to save donation: %s", err)
-		http.Error(w, internalServerError, http.StatusInternalServerError)
+		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 	donateId := doc.ID
@@ -98,7 +95,7 @@ func sendDonateInternal(w http.ResponseWriter, r *http.Request) {
 	data, err := proto.Marshal(&sdRes)
 	if err != nil {
 		log.Errorf("Failed to marshal response: %s", err)
-		http.Error(w, internalServerError, http.StatusInternalServerError)
+		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 

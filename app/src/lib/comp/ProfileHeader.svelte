@@ -6,7 +6,7 @@
     export let profile: Profile | undefined
 
     $: avatarUrl = profile?.avatarUrl ?? "";
-    $: url = profile?.url ?? "https://stredono.com";
+    $: url = profile?.url ?? "";
     $: profileName = profile?.name ?? "Stredono";
     $: description = profile?.description ?? "Description";
 </script>

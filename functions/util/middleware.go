@@ -1,4 +1,4 @@
-package functions
+package util
 
 import (
 	"cloud.google.com/go/firestore"
@@ -16,13 +16,14 @@ import (
 )
 
 const (
-	internalServerError = "Internal server error"
-	invalidRequestError = "Invalid request"
-	invalidStatusError  = "Invalid status"
-	unauthorizedError   = "Unauthorized"
+	ServerErrorMessage = "Internal server error"
+	BadRequestMessage  = "Invalid request"
+	invalidStatusError = "Invalid status"
+	unauthorizedError  = "Unauthorized"
 
-	authHeader  = "Authorization"
-	tokenPrefix = "Bearer "
+	authHeader        = "Authorization"
+	contextTypeHeader = "Content-Type"
+	tokenPrefix       = "Bearer "
 
 	authContextKey      = "fbAuth"
 	tokenContextKey     = "fbToken"
@@ -42,7 +43,7 @@ type AuthConfig struct {
 	Token  bool
 }
 
-type MiddlewareConfig struct {
+type CloudConfig struct {
 	Auth      AuthConfig
 	Firestore bool
 	Storage   bool
@@ -52,7 +53,23 @@ type MiddlewareConfig struct {
 	Secrets   bool
 }
 
-func Middleware(config MiddlewareConfig, next HandlerFunc) HandlerFunc {
+func CorsMiddleware(next HandlerFunc) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodOptions {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", authHeader+", "+contextTypeHeader)
+			w.Header().Set("Access-Control-Max-Age", "3600")
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		next(w, r)
+	}
+}
+
+func CloudMiddleware(config CloudConfig, next HandlerFunc) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
@@ -61,16 +78,16 @@ func Middleware(config MiddlewareConfig, next HandlerFunc) HandlerFunc {
 
 		if err != nil {
 			log.Errorf("failed to get firebase app | %s", err)
-			http.Error(w, internalServerError, http.StatusInternalServerError)
+			http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 			return
 		}
 		ctx = context.WithValue(ctx, appContextKey, app)
 
-		if config.Auth.Client {
+		if config.Auth.Client || config.Auth.Token {
 			client, err := app.Auth(ctx)
 			if err != nil {
 				log.Errorf("failed to get firebase auth | %s", err)
-				http.Error(w, internalServerError, http.StatusInternalServerError)
+				http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 				return
 			}
 			ctx = context.WithValue(ctx, authContextKey, client)
@@ -105,7 +122,7 @@ func Middleware(config MiddlewareConfig, next HandlerFunc) HandlerFunc {
 			client, err := app.Firestore(ctx)
 			if err != nil {
 				log.Errorf("failed to get firestore client | %s", err)
-				http.Error(w, internalServerError, http.StatusInternalServerError)
+				http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 				return
 			}
 			ctx = context.WithValue(ctx, firestoreContextKey, client)
@@ -120,7 +137,7 @@ func Middleware(config MiddlewareConfig, next HandlerFunc) HandlerFunc {
 			client, err := app.Storage(ctx)
 			if err != nil {
 				log.Errorf("failed to get storage client | %s", err)
-				http.Error(w, internalServerError, http.StatusInternalServerError)
+				http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 				return
 			}
 			ctx = context.WithValue(ctx, storageContextKey, client)
@@ -130,7 +147,7 @@ func Middleware(config MiddlewareConfig, next HandlerFunc) HandlerFunc {
 			client, err := app.Messaging(ctx)
 			if err != nil {
 				log.Errorf("failed to get messaging client | %s", err)
-				http.Error(w, internalServerError, http.StatusInternalServerError)
+				http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 				return
 			}
 			ctx = context.WithValue(ctx, messagingContextKey, client)
@@ -140,7 +157,7 @@ func Middleware(config MiddlewareConfig, next HandlerFunc) HandlerFunc {
 			client, err := app.Database(ctx)
 			if err != nil {
 				log.Errorf("failed to get realtime database client | %s", err)
-				http.Error(w, internalServerError, http.StatusInternalServerError)
+				http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 				return
 			}
 			ctx = context.WithValue(ctx, realtimeContextKey, client)
@@ -150,7 +167,7 @@ func Middleware(config MiddlewareConfig, next HandlerFunc) HandlerFunc {
 			client, err := pubsub.NewClient(r.Context(), ProjectID)
 			if err != nil {
 				log.Errorf("failed to get pubsub client | %s", err)
-				http.Error(w, internalServerError, http.StatusInternalServerError)
+				http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 				return
 			}
 			ctx = context.WithValue(ctx, pubsubContextKey, client)
@@ -165,7 +182,7 @@ func Middleware(config MiddlewareConfig, next HandlerFunc) HandlerFunc {
 			client, err := secretmanager.NewClient(ctx)
 			if err != nil {
 				log.Errorf("failed to get secrets manager client | %s", err)
-				http.Error(w, internalServerError, http.StatusInternalServerError)
+				http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 				return
 			}
 			ctx = context.WithValue(ctx, secretsContextKey, client)

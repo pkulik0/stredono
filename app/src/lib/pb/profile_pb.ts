@@ -40,11 +40,6 @@ export class Profile extends Message<Profile> {
    */
   minimumAmount = 0;
 
-  /**
-   * @generated from field: string hexColor = 7;
-   */
-  hexColor = "";
-
   constructor(data?: PartialMessage<Profile>) {
     super();
     proto3.util.initPartial(data, this);
@@ -59,7 +54,6 @@ export class Profile extends Message<Profile> {
     { no: 4, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 5, name: "avatarUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 6, name: "minimumAmount", kind: "scalar", T: 2 /* ScalarType.FLOAT */ },
-    { no: 7, name: "hexColor", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Profile {

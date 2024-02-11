@@ -1,4 +1,4 @@
-package functions
+package twitch
 
 import (
 	"cloud.google.com/go/firestore"
@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/pkulik0/stredono/functions/util"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/twitch"
@@ -15,38 +16,30 @@ import (
 
 const (
 	twitchClientId         = "t1kl0vkt6hv06bi4ah4691hi8fexso"
-	twitchClientSecretName = "projects/621885503876/secrets/twitch-client-secret/versions/1"
+	twitchClientSecretName = util.GcSecretsPath + "twitch-client-secret/versions/1"
 	twitchRedirectUrl      = "http://localhost:8080/connectTwitchCallback"
 )
 
-func connectTwitch(w http.ResponseWriter, r *http.Request) {
-	if setupCors(w, r) {
-		return
-	}
-
-	Middleware(MiddlewareConfig{
-		Auth: AuthConfig{
+func Connect(w http.ResponseWriter, r *http.Request) {
+	util.CorsMiddleware(util.CloudMiddleware(util.CloudConfig{
+		Auth: util.AuthConfig{
 			Client: true,
 			Token:  true,
 		},
 		Firestore: true,
 		Secrets:   true,
-	}, connectTwitchInternal)(w, r)
+	}, connect))(w, r)
 }
 
-func connectTwitchCallback(w http.ResponseWriter, r *http.Request) {
-	if setupCors(w, r) {
-		return
-	}
-
-	Middleware(MiddlewareConfig{
+func ConnectCallback(w http.ResponseWriter, r *http.Request) {
+	util.CorsMiddleware(util.CloudMiddleware(util.CloudConfig{
 		Firestore: true,
 		Secrets:   true,
-	}, connectTwitchCallbackInternal)(w, r)
+	}, connectCallback))(w, r)
 }
 
-func getTwitchOauthConfig(r *http.Request) (*oauth2.Config, error) {
-	secretClient, ok := GetSecretsManager(r.Context())
+func getOauthConfig(r *http.Request) (*oauth2.Config, error) {
+	secretClient, ok := util.GetSecretsManager(r.Context())
 	if !ok {
 		return nil, errors.New("failed to get secrets manager")
 	}
@@ -65,7 +58,19 @@ func getTwitchOauthConfig(r *http.Request) (*oauth2.Config, error) {
 		RedirectURL:  twitchRedirectUrl,
 		Scopes: []string{
 			"user:read:email",
+			"moderator:read:followers", // channel.follow
 			"channel:read:subscriptions",
+			"channel:read:redemptions",
+			"bits:read",
+			"channel:manage:ads",
+			"channel:read:ads", // channel.ad_break_begin
+			"channel:manage:broadcast",
+			"channel:edit:commercial",
+			"channel:read:hype_train",
+			"channel:read:goals",
+			"channel:read:vips",
+			"user:read:broadcast",
+			"user:read:chat",
 		},
 		Endpoint: twitch.Endpoint,
 	}, nil
@@ -76,11 +81,11 @@ type TokenRequest struct {
 	RedirectUrl string `json:"redirectUrl"`
 }
 
-func connectTwitchInternal(w http.ResponseWriter, r *http.Request) {
-	token, ok := GetAuthToken(r.Context())
+func connect(w http.ResponseWriter, r *http.Request) {
+	token, ok := util.GetAuthToken(r.Context())
 	if !ok {
 		log.Error("Failed to get auth token")
-		http.Error(w, internalServerError, http.StatusInternalServerError)
+		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
@@ -90,17 +95,17 @@ func connectTwitchInternal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	twitchOauthConfig, err := getTwitchOauthConfig(r)
+	twitchOauthConfig, err := getOauthConfig(r)
 	if err != nil {
 		log.Errorf("Failed to get twitch oauth config: %s", err)
-		http.Error(w, internalServerError, http.StatusInternalServerError)
+		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
-	firestoreClient, ok := GetFirestore(r.Context())
+	firestoreClient, ok := util.GetFirestore(r.Context())
 	if !ok {
 		log.Error("Failed to get firestore client")
-		http.Error(w, internalServerError, http.StatusInternalServerError)
+		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
@@ -116,7 +121,7 @@ func connectTwitchInternal(w http.ResponseWriter, r *http.Request) {
 	}, firestore.MergeAll)
 	if err != nil {
 		log.Errorf("Failed to save state: %s", err)
-		http.Error(w, internalServerError, http.StatusInternalServerError)
+		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
@@ -128,7 +133,7 @@ func connectTwitchInternal(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func connectTwitchCallbackInternal(w http.ResponseWriter, r *http.Request) {
+func connectCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	state := r.URL.Query().Get("state")
 
@@ -141,10 +146,10 @@ func connectTwitchCallbackInternal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	firestoreClient, ok := GetFirestore(r.Context())
+	firestoreClient, ok := util.GetFirestore(r.Context())
 	if !ok {
 		log.Error("Failed to get firestore client")
-		http.Error(w, internalServerError, http.StatusInternalServerError)
+		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
@@ -152,14 +157,14 @@ func connectTwitchCallbackInternal(w http.ResponseWriter, r *http.Request) {
 	states, err := statesDoc.Get(r.Context())
 	if err != nil {
 		log.Errorf("Failed to get states: %s", err)
-		http.Error(w, internalServerError, http.StatusInternalServerError)
+		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
 	twitchStates, ok := states.Data()["twitch"].(map[string]interface{})
 	if !ok {
 		log.Error("Failed to get twitch states")
-		http.Error(w, internalServerError, http.StatusInternalServerError)
+		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
@@ -170,7 +175,7 @@ func connectTwitchCallbackInternal(w http.ResponseWriter, r *http.Request) {
 		jsonData, err := json.Marshal(s)
 		if err != nil {
 			log.Errorf("Failed to marshal state: %s", err)
-			http.Error(w, internalServerError, http.StatusInternalServerError)
+			http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 			return
 		}
 
@@ -178,7 +183,7 @@ func connectTwitchCallbackInternal(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(jsonData, &ss)
 		if err != nil {
 			log.Errorf("Failed to unmarshal state: %s", err)
-			http.Error(w, internalServerError, http.StatusInternalServerError)
+			http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 			return
 		}
 
@@ -194,17 +199,17 @@ func connectTwitchCallbackInternal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	oauthConfig, err := getTwitchOauthConfig(r)
+	oauthConfig, err := getOauthConfig(r)
 	if err != nil {
 		log.Errorf("Failed to get twitch oauth config: %s", err)
-		http.Error(w, internalServerError, http.StatusInternalServerError)
+		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
 	token, err := oauthConfig.Exchange(r.Context(), code)
 	if err != nil {
 		log.Errorf("Failed to exchange code: %s", err)
-		http.Error(w, internalServerError, http.StatusInternalServerError)
+		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
@@ -213,7 +218,7 @@ func connectTwitchCallbackInternal(w http.ResponseWriter, r *http.Request) {
 	}, firestore.MergeAll)
 	if err != nil {
 		log.Errorf("Failed to save token: %s", err)
-		http.Error(w, internalServerError, http.StatusInternalServerError)
+		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 

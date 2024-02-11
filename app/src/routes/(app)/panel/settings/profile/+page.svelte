@@ -24,10 +24,6 @@
         });
     });
 
-    const connectTwitch = async () => {
-        window.location.href = await getTwitchAuthUrl();
-    }
-
     let files: FileList|undefined = undefined;
     let name: string = "";
     let url: string = "";
@@ -93,7 +89,5 @@
         </Label>
 
         <Button class="w-full" on:click={clickSave}>Save</Button>
-
-        <Button color="purple" outline class="w-full" on:click={connectTwitch}>Connect Twitch</Button>
     </div>
 </div>

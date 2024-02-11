@@ -2,32 +2,18 @@ package functions
 
 import (
 	"github.com/GoogleCloudPlatform/functions-framework-go/functions"
-	"net/http"
-)
-
-const (
-	ProjectID   = "stredono-5ccdd"
-	DatabaseUrl = "https://stredono.europe-west1.firebasedatabase.app"
+	"github.com/pkulik0/stredono/functions/donations"
+	"github.com/pkulik0/stredono/functions/twitch"
 )
 
 func init() {
-	functions.HTTP("sendDonate", sendDonate)
-	functions.HTTP("confirmPayment", confirmPayment)
-	functions.HTTP("getListeners", getListeners)
-	functions.HTTP("onRegister", onRegister)
-	functions.HTTP("connectTwitch", connectTwitch)
-	functions.HTTP("connectTwitchCallback", connectTwitchCallback)
-}
+	functions.HTTP("sendDonate", donations.SendDonate)
+	functions.HTTP("confirmPayment", donations.ConfirmPayment)
 
-func setupCors(w http.ResponseWriter, r *http.Request) bool {
-	if r.Method == http.MethodOptions {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", authHeader)
-		w.Header().Set("Access-Control-Max-Age", "3600")
-		w.WriteHeader(http.StatusNoContent)
-		return true
-	}
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	return false
+	functions.HTTP("getListeners", getListeners)
+
+	functions.HTTP("connectTwitch", twitch.Connect)
+	functions.HTTP("connectTwitchCallback", twitch.ConnectCallback)
+	functions.HTTP("getTwitchData", twitch.GetData)
+	functions.HTTP("webhookTwitch", twitch.Webhook)
 }

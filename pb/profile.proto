@@ -11,5 +11,4 @@ message Profile {
   string description = 4;
   string avatarUrl = 5;
   float minimumAmount = 6;
-  string hexColor = 7;
 }

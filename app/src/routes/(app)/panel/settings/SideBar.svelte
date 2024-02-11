@@ -42,6 +42,12 @@
             </SidebarItem>
         </SidebarGroup>
         <SidebarGroup border>
+            <SidebarItem label="Twitch" href="{baseUrl}/twitch">
+                <svelte:fragment slot="icon">
+                    <MessageDotsSolid class={iconClass} />
+                </svelte:fragment>
+            </SidebarItem>
+
             <SidebarItem label="Alerts" href="{baseUrl}/alerts">
                 <svelte:fragment slot="icon">
                     <BellSolid class={iconClass} />
@@ -53,20 +59,9 @@
                     <VolumeUpSolid class={iconClass} />
                 </svelte:fragment>
             </SidebarItem>
-
-            <SidebarItem label="Chat Bot" href="{baseUrl}/bot">
-                <svelte:fragment slot="icon">
-                    <MessageDotsSolid class={iconClass} />
-                </svelte:fragment>
-            </SidebarItem>
-
-            <SidebarItem label="Moderators" href="{baseUrl}/mods">
-                <svelte:fragment slot="icon">
-                    <UsersGroupSolid class={iconClass} />
-                </svelte:fragment>
-            </SidebarItem>
         </SidebarGroup>
-        <SidebarGroup>
+
+        <SidebarGroup border>
             <SidebarItem on:click={async () => { await auth.signOut(); }} label="Sign Out">
                 <svelte:fragment slot="icon">
                     <ArrowRightToBracketSolid class={iconClass} />

@@ -2,6 +2,7 @@ package functions
 
 import (
 	"fmt"
+	"github.com/pkulik0/stredono/functions/util"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"regexp"
@@ -11,24 +12,22 @@ const listenersRegex = ".*%s.*"
 const noMoreItemsErr = "no more items in iterator"
 
 func getListeners(w http.ResponseWriter, r *http.Request) {
-	Middleware(MiddlewareConfig{
+	util.CorsMiddleware(util.CloudMiddleware(util.CloudConfig{
 		Pubsub: true,
-	}, getListenersInternal)(w, r)
+	}, getListenersInternal))(w, r)
 }
 
 func getListenersInternal(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
 	uid := r.URL.Query().Get("uid")
 	if uid == "" {
 		http.Error(w, "Missing uid", http.StatusBadRequest)
 		return
 	}
 
-	client, ok := GetPubsub(r.Context())
+	client, ok := util.GetPubsub(r.Context())
 	if !ok {
 		log.Errorf("Failed to get pubsub client")
-		http.Error(w, internalServerError, http.StatusInternalServerError)
+		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
@@ -40,7 +39,7 @@ func getListenersInternal(w http.ResponseWriter, r *http.Request) {
 			matched, err := regexp.Match(fmt.Sprintf(listenersRegex, uid), []byte(sub.ID()))
 			if err != nil {
 				log.Errorf("Failed to match regex: %s", err)
-				http.Error(w, internalServerError, http.StatusInternalServerError)
+				http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 				return
 			}
 			if matched {
@@ -48,7 +47,7 @@ func getListenersInternal(w http.ResponseWriter, r *http.Request) {
 			}
 		} else if err.Error() != noMoreItemsErr {
 			log.Errorf("Failed to get next subscription: %s", err)
-			http.Error(w, internalServerError, http.StatusInternalServerError)
+			http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
 			return
 		} else {
 			break
