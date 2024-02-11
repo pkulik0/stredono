@@ -2,6 +2,7 @@ import {initializeApp} from "firebase/app";
 import {getAuth} from "firebase/auth";
 import {getFirestore} from "firebase/firestore";
 import {getDownloadURL, getMetadata, getStorage, ref, uploadBytes} from "firebase/storage";
+import {getMessaging} from "firebase/messaging";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDTNZ9x1GD5Y2Euvgmjwh5n70v7MDv9zPs",
@@ -18,8 +19,9 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+export const messaging = getMessaging(app);
 
-export const uploadToStorage = async (folder: string, name: string, file: File): Promise<string> => {
+export const uploadToStorage = async (folder: string, name: string, file: File, overwrite: boolean): Promise<string> => {
     const user = auth.currentUser;
     if(!user) throw new Error("Not logged in");
 
@@ -30,13 +32,15 @@ export const uploadToStorage = async (folder: string, name: string, file: File):
     fullPath += name;
 
     const storageRef = ref(storage, fullPath);
-    try {
-        const metadata = await getMetadata(storageRef);
-        if(metadata.size > 0) {
-            throw new Error("File already exists");
+    if(!overwrite) {
+        try {
+            const metadata = await getMetadata(storageRef);
+            if(metadata.size > 0) {
+                throw new Error("File already exists");
+            }
+        } catch (e: any) {
+            if(e.code !== "storage/object-not-found") throw e;
         }
-    } catch (e: any) {
-        if(e.code !== "storage/object-not-found") throw e;
     }
 
     const bytes = await file.arrayBuffer();

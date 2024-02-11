@@ -1,9 +1,17 @@
 <script>
-    import { Sidebar, SidebarGroup, SidebarItem, SidebarWrapper, SidebarDropdownItem, SidebarDropdownWrapper } from 'flowbite-svelte';
+    import { Sidebar, SidebarGroup, SidebarItem, SidebarWrapper} from 'flowbite-svelte';
     import {
-        UserSolid, MessageDotsSolid, BellSolid, VolumeUpSolid, UsersGroupSolid, BarsSolid, DollarSolid, WalletSolid
+        UserSolid,
+        MessageDotsSolid,
+        BellSolid,
+        VolumeUpSolid,
+        UsersGroupSolid,
+        DollarSolid,
+        WalletSolid,
+        ArrowLeftToBracketSolid, ArrowRightToBracketSolid
     } from 'flowbite-svelte-icons';
     import {page} from "$app/stores";
+    import {auth} from "$lib/firebase";
 
     let iconClass = "w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white"
     $: activeUrl = $page.url.pathname;
@@ -46,27 +54,22 @@
                 </svelte:fragment>
             </SidebarItem>
 
-            <SidebarDropdownWrapper isOpen label="Chat Bot">
+            <SidebarItem label="Chat Bot" href="{baseUrl}/bot">
                 <svelte:fragment slot="icon">
                     <MessageDotsSolid class={iconClass} />
                 </svelte:fragment>
-                <svelte:fragment slot="arrowup"><span></span></svelte:fragment>
-                <svelte:fragment slot="arrowdown"><span></span></svelte:fragment>
-
-                <SidebarDropdownItem label="Rules" href="{baseUrl}/chatbot/rules" />
-                <SidebarDropdownItem label="Filters" href="{baseUrl}/chatbot/filters" />
-                <SidebarDropdownItem label="Commands" href="{baseUrl}/chatbot/commands" />
-            </SidebarDropdownWrapper>
+            </SidebarItem>
 
             <SidebarItem label="Moderators" href="{baseUrl}/mods">
                 <svelte:fragment slot="icon">
                     <UsersGroupSolid class={iconClass} />
                 </svelte:fragment>
             </SidebarItem>
-
-            <SidebarItem label="Other" href="{baseUrl}/other">
+        </SidebarGroup>
+        <SidebarGroup>
+            <SidebarItem on:click={async () => { await auth.signOut(); }} label="Sign Out">
                 <svelte:fragment slot="icon">
-                    <BarsSolid class={iconClass} />
+                    <ArrowRightToBracketSolid class={iconClass} />
                 </svelte:fragment>
             </SidebarItem>
         </SidebarGroup>

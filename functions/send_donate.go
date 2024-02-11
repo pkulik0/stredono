@@ -1,7 +1,6 @@
 package functions
 
 import (
-	"context"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/pkulik0/stredono/pb"
@@ -12,21 +11,6 @@ import (
 	"strings"
 	"time"
 )
-
-func saveDonateToFirestore(donateReq *pb.SendDonateRequest) (string, error) {
-	ctx := context.Background()
-	client, err := getFirestoreClient(ctx)
-	if err != nil {
-		return "", err
-	}
-	defer client.Close()
-
-	doc, _, err := client.Collection("donations").Add(ctx, donateReq)
-	if err != nil {
-		return "", err
-	}
-	return doc.ID, nil
-}
 
 func validateNewDonate(req *pb.SendDonateRequest) error {
 	if req.Id != "" {
@@ -57,33 +41,53 @@ func validateNewDonate(req *pb.SendDonateRequest) error {
 }
 
 func sendDonate(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	if setupCors(w, r) {
+		return
+	}
 
+	Middleware(MiddlewareConfig{
+		Firestore: true,
+	}, sendDonateInternal)(w, r)
+}
+
+func sendDonateInternal(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		returnError(w, r, http.StatusBadRequest, "Failed to read request")
+		log.Errorf("Failed to read request: %s", err)
+		http.Error(w, "Failed to read request", http.StatusBadRequest)
 		return
 	}
 
 	req := pb.SendDonateRequest{}
 	if err := proto.Unmarshal(body, &req); err != nil {
-		returnError(w, r, http.StatusBadRequest, "Failed to parse request")
+		log.Errorf("Failed to unmarshal request: %s", err)
+		http.Error(w, "Failed to unmarshal request", http.StatusBadRequest)
 		return
 	}
 
 	if err := validateNewDonate(&req); err != nil {
-		returnError(w, r, http.StatusBadRequest, err.Error())
+		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
 	req.Id = strings.ReplaceAll(uuid.New().String(), "-", "")
 	req.Status = pb.DonateStatus_PAYMENT_PENDING
 	req.Timestamp = time.Now().Unix()
 
-	donateId, err := saveDonateToFirestore(&req)
-	if err != nil {
-		returnError(w, r, http.StatusInternalServerError, "Failed to save donation")
+	ctx := r.Context()
+	firestoreClient, ok := GetFirestore(ctx)
+	if !ok {
+		log.Error("Failed to get firestore client")
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
+
+	doc, _, err := firestoreClient.Collection("donations").Add(ctx, req) // TODO: check
+	if err != nil {
+		log.Errorf("Failed to save donation: %s", err)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
+		return
+	}
+	donateId := doc.ID
 	log.Infof("Saved donation with id: %s", donateId)
 
 	redirectUrl := "http://google.com"
@@ -93,7 +97,8 @@ func sendDonate(w http.ResponseWriter, r *http.Request) {
 
 	data, err := proto.Marshal(&sdRes)
 	if err != nil {
-		returnError(w, r, http.StatusInternalServerError, "Invalid response")
+		log.Errorf("Failed to marshal response: %s", err)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 

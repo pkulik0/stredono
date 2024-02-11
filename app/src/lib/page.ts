@@ -1,6 +1,7 @@
 import {db, storage} from "$lib/firebase";
-import {doc, getDoc} from "firebase/firestore";
+import {collection, doc, getDoc, setDoc} from "firebase/firestore";
 import {getDownloadURL, ref} from "firebase/storage";
+import {Profile} from "$lib/pb/profile_pb";
 
 export class FetchError extends Error {
     constructor(message: string, public status: number) {
@@ -8,11 +9,14 @@ export class FetchError extends Error {
     }
 }
 
-
-export const getPageDocByUsername = async (username: string) => {
+export const getProfileByUsername = async (username: string): Promise<Profile> => {
     const pageDoc = await getDoc(doc(db, "pages", username))
     if (!pageDoc.exists()) throw new FetchError("Page not found", 404)
-    return pageDoc
+    return Profile.fromJson(pageDoc.data())
+}
+
+export const saveProfileToDb = async (username: string, profile: Profile) => {
+    await setDoc(doc(db, "pages", username), profile.toJson() as object)
 }
 
 export const getAvatarUrl = async (uid: string): Promise<string> => {

@@ -2,7 +2,6 @@ package functions
 
 import (
 	"cloud.google.com/go/pubsub"
-	"context"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/pkulik0/stredono/pb"
@@ -11,76 +10,81 @@ import (
 )
 
 func confirmPayment(w http.ResponseWriter, r *http.Request) {
+	Middleware(MiddlewareConfig{
+		Firestore: true,
+		Pubsub:    true,
+	}, confirmPaymentInternal)(w, r)
+}
+
+func confirmPaymentInternal(w http.ResponseWriter, r *http.Request) {
 	donationId := r.URL.Query().Get("id")
 	if donationId == "" {
-		returnError(w, r, http.StatusBadRequest, "Missing id")
+		http.Error(w, "Missing id", http.StatusBadRequest)
 		return
 	}
 
-	ctx := context.Background()
-	firestoreClient, err := getFirestoreClient(ctx)
-	if err != nil {
-		returnError(w, r, http.StatusInternalServerError, "Firestore connection failed")
+	firestoreClient, ok := GetFirestore(r.Context())
+	if !ok {
+		log.Error("Failed to get firestore client")
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
-	defer firestoreClient.Close()
 
 	docRef := firestoreClient.Collection("donations").Doc(donationId)
-	doc, err := docRef.Get(ctx)
+	doc, err := docRef.Get(r.Context())
 	if err != nil {
-		returnError(w, r, http.StatusInternalServerError, "Failed to get donation")
+		http.Error(w, invalidRequestError, http.StatusBadRequest)
 		return
 	}
 
 	donateReq := pb.SendDonateRequest{}
 	if err := doc.DataTo(&donateReq); err != nil {
-		returnError(w, r, http.StatusInternalServerError, "Failed to parse donation")
+		log.Errorf("Failed to unmarshal data: %s", err)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 	if donateReq.Status != pb.DonateStatus_PAYMENT_PENDING {
-		returnError(w, r, http.StatusBadRequest, "Invalid status")
+		http.Error(w, invalidStatusError, http.StatusBadRequest)
 		return
 	}
 	donateReq.Status = pb.DonateStatus_PAYMENT_SUCCESS
 
-	_, err = docRef.Set(ctx, &donateReq)
+	_, err = docRef.Set(r.Context(), &donateReq)
 	if err != nil {
-		returnError(w, r, http.StatusInternalServerError, "Failed to update donation")
+		log.Errorf("Failed to update donation: %s", err)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
-	pubsubClient, err := pubsub.NewClient(ctx, projectID)
-	if err != nil {
-		returnError(w, r, http.StatusInternalServerError, "PubSub connection failed")
-		return
-	}
-	defer pubsubClient.Close()
-
+	pubsubClient, ok := GetPubsub(r.Context())
 	topic := pubsubClient.Topic("donations")
 	topic.PublishSettings.NumGoroutines = 1
 	defer topic.Stop()
 
 	data, err := proto.Marshal(&donateReq)
 	if err != nil {
-		returnError(w, r, http.StatusInternalServerError, "Failed to marshal message")
+		log.Errorf("Failed to marshal data: %s", err)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
-	result := topic.Publish(ctx, &pubsub.Message{
+	result := topic.Publish(r.Context(), &pubsub.Message{
 		Data: data,
 		Attributes: map[string]string{
 			"recipientId": donateReq.RecipientId,
 		},
 	})
-	id, err := result.Get(ctx)
+	id, err := result.Get(r.Context())
 	if err != nil {
-		returnError(w, r, http.StatusInternalServerError, "Failed to publish message")
+		log.Errorf("Failed to publish message: %s", err)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 
 	_, _ = fmt.Fprintf(w, "Published message with ID: %s", id)
 	if err != nil {
 		log.Errorf("Failed to write response: %s", err)
+		http.Error(w, internalServerError, http.StatusInternalServerError)
 		return
 	}
 }

@@ -1,7 +1,7 @@
 <script lang="ts">
     import {Alert, Button, ButtonGroup, Hr, Input, InputAddon, Label, Textarea} from "flowbite-svelte";
     import {ExclamationCircleSolid} from "flowbite-svelte-icons";
-    import {emailStore, usernameStore} from "$lib/stores";
+    import {emailStore, senderStore} from "$lib/stores";
     import {slide} from "svelte/transition";
 
     $: blockClass = isBlocked ? "pointer-events-none blur-sm" : "";
@@ -27,7 +27,7 @@
 <div class="space-y-6 {blockClass}">
     <Label>
         Name
-        <Input bind:value={$usernameStore} />
+        <Input bind:value={$senderStore} />
     </Label>
 
     <div>

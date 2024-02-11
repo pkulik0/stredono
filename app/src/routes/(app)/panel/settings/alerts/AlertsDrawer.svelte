@@ -21,8 +21,8 @@
 
         try {
             const id = uuidv4().replace(/-/g, "");
-            const gifUrl = await uploadToStorage("gifs", id, gifFile);
-            const soundUrl = await uploadToStorage("sounds", id, soundFile);
+            const gifUrl = await uploadToStorage("gifs", id, gifFile, false); // TODO: change name etc
+            const soundUrl = await uploadToStorage("sounds", id, soundFile, false);
 
             const alert = Alert.fromJson({
                 id: id,

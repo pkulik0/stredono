@@ -2,7 +2,6 @@
     import { page } from '$app/stores';
 
     import {DarkMode, Navbar, NavBrand, NavHamburger, NavLi, NavUl, Toggle} from "flowbite-svelte";
-    import {auth} from "$lib/firebase";
     import {streamModeStore, userStore} from "$lib/stores";
 
     let activeClass = 'text-white bg-green-700 md:bg-transparent md:text-green-700 md:dark:text-white dark:bg-green-600 md:dark:bg-transparent';
@@ -11,10 +10,6 @@
     let btnClass = "md:m-0 md:me-6 my-6"
 
     $: activeUrl = $page.url.pathname;
-
-    const signOut = async () => {
-        await auth.signOut()
-    }
 </script>
 
 <Navbar color="primary">
@@ -28,7 +23,6 @@
             <NavLi href="/panel/donations">Donations</NavLi>
             <NavLi href="/panel/payments">Payments</NavLi>
             <NavLi href="/panel/settings">Settings</NavLi>
-            <NavLi on:click={signOut}>Sign out</NavLi>
         {/if}
         <div class="sm:flex sm:justify-end">
             <DarkMode {btnClass} />

@@ -8,10 +8,10 @@ interface UserDoc {
     data: any
 }
 
-const getUserDoc = async (): Promise<UserDoc> => {
+export const getUserDoc = async (): Promise<UserDoc> => {
     const user = auth.currentUser;
     if (!user) {
-        throw new Error("User not found");
+        throw new Error("Not logged in");
     }
 
     const userDoc = doc(db, "users", user.uid);
