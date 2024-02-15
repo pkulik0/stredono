@@ -1,4 +1,4 @@
-package twitch
+package functions
 
 import (
 	"cloud.google.com/go/firestore"
@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/pkulik0/stredono/functions/util"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/twitch"
@@ -16,13 +15,13 @@ import (
 
 const (
 	twitchClientId         = "t1kl0vkt6hv06bi4ah4691hi8fexso"
-	twitchClientSecretName = util.GcSecretsPath + "twitch-client-secret/versions/1"
+	twitchClientSecretName = GcSecretsPath + "twitch-client-secret/versions/1"
 	twitchRedirectUrl      = "http://localhost:8080/connectTwitchCallback"
 )
 
 func Connect(w http.ResponseWriter, r *http.Request) {
-	util.CorsMiddleware(util.CloudMiddleware(util.CloudConfig{
-		Auth: util.AuthConfig{
+	CorsMiddleware(CloudMiddleware(CloudConfig{
+		Auth: AuthConfig{
 			Client: true,
 			Token:  true,
 		},
@@ -32,14 +31,14 @@ func Connect(w http.ResponseWriter, r *http.Request) {
 }
 
 func ConnectCallback(w http.ResponseWriter, r *http.Request) {
-	util.CorsMiddleware(util.CloudMiddleware(util.CloudConfig{
+	CorsMiddleware(CloudMiddleware(CloudConfig{
 		Firestore: true,
 		Secrets:   true,
 	}, connectCallback))(w, r)
 }
 
 func getOauthConfig(r *http.Request) (*oauth2.Config, error) {
-	secretClient, ok := util.GetSecretsManager(r.Context())
+	secretClient, ok := GetSecretsManager(r.Context())
 	if !ok {
 		return nil, errors.New("failed to get secrets manager")
 	}
@@ -82,10 +81,10 @@ type TokenRequest struct {
 }
 
 func connect(w http.ResponseWriter, r *http.Request) {
-	token, ok := util.GetAuthToken(r.Context())
+	token, ok := GetAuthToken(r.Context())
 	if !ok {
 		log.Error("Failed to get auth token")
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
@@ -98,14 +97,14 @@ func connect(w http.ResponseWriter, r *http.Request) {
 	twitchOauthConfig, err := getOauthConfig(r)
 	if err != nil {
 		log.Errorf("Failed to get twitch oauth config: %s", err)
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
-	firestoreClient, ok := util.GetFirestore(r.Context())
+	firestoreClient, ok := GetFirestore(r.Context())
 	if !ok {
 		log.Error("Failed to get firestore client")
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
@@ -121,7 +120,7 @@ func connect(w http.ResponseWriter, r *http.Request) {
 	}, firestore.MergeAll)
 	if err != nil {
 		log.Errorf("Failed to save state: %s", err)
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
@@ -146,10 +145,10 @@ func connectCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	firestoreClient, ok := util.GetFirestore(r.Context())
+	firestoreClient, ok := GetFirestore(r.Context())
 	if !ok {
 		log.Error("Failed to get firestore client")
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
@@ -157,14 +156,14 @@ func connectCallback(w http.ResponseWriter, r *http.Request) {
 	states, err := statesDoc.Get(r.Context())
 	if err != nil {
 		log.Errorf("Failed to get states: %s", err)
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
 	twitchStates, ok := states.Data()["twitch"].(map[string]interface{})
 	if !ok {
 		log.Error("Failed to get twitch states")
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
@@ -175,7 +174,7 @@ func connectCallback(w http.ResponseWriter, r *http.Request) {
 		jsonData, err := json.Marshal(s)
 		if err != nil {
 			log.Errorf("Failed to marshal state: %s", err)
-			http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+			http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 			return
 		}
 
@@ -183,7 +182,7 @@ func connectCallback(w http.ResponseWriter, r *http.Request) {
 		err = json.Unmarshal(jsonData, &ss)
 		if err != nil {
 			log.Errorf("Failed to unmarshal state: %s", err)
-			http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+			http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 			return
 		}
 
@@ -202,14 +201,14 @@ func connectCallback(w http.ResponseWriter, r *http.Request) {
 	oauthConfig, err := getOauthConfig(r)
 	if err != nil {
 		log.Errorf("Failed to get twitch oauth config: %s", err)
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
 	token, err := oauthConfig.Exchange(r.Context(), code)
 	if err != nil {
 		log.Errorf("Failed to exchange code: %s", err)
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
@@ -218,7 +217,7 @@ func connectCallback(w http.ResponseWriter, r *http.Request) {
 	}, firestore.MergeAll)
 	if err != nil {
 		log.Errorf("Failed to save token: %s", err)
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 

@@ -2,4 +2,8 @@
 .vscode
 go.work*
 node_modules
-*service.json
+service.json
+*.tfstate*
+*.tfvars*
+.terraform
+source.zip

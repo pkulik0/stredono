@@ -1,6 +1,6 @@
 <script lang="ts">
     import axios from 'axios';
-    import {PUBLIC_FUNC_LINK} from "$env/static/public";
+    import {PUBLIC_FUNC_LINK, PUBLIC_SEND_DONATE_LINK} from "$env/static/public";
     import {DonateStatus, SendDonateRequest, SendDonateResponse} from "$lib/pb/functions_pb";
     import {
         Card,
@@ -31,7 +31,7 @@
             status: DonateStatus.INITIATED
         });
 
-        const res = await axios.post(PUBLIC_FUNC_LINK + "sendDonate", sdReq.toBinary(), { responseType: 'arraybuffer' })
+        const res = await axios.post(PUBLIC_SEND_DONATE_LINK, sdReq.toBinary(), { responseType: 'arraybuffer' })
         if(res.status !== 200) {
             console.error(res.data); // TODO: handle error
             return;

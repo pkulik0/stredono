@@ -1,9 +1,8 @@
-package donations
+package functions
 
 import (
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/pkulik0/stredono/functions/util"
 	"github.com/pkulik0/stredono/pb"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
@@ -42,7 +41,7 @@ func validateNewDonate(req *pb.SendDonateRequest) error {
 }
 
 func SendDonate(w http.ResponseWriter, r *http.Request) {
-	util.CorsMiddleware(util.CloudMiddleware(util.CloudConfig{
+	CorsMiddleware(CloudMiddleware(CloudConfig{
 		Firestore: true,
 	}, sendDonate))(w, r)
 }
@@ -71,17 +70,17 @@ func sendDonate(w http.ResponseWriter, r *http.Request) {
 	req.Timestamp = time.Now().Unix()
 
 	ctx := r.Context()
-	firestoreClient, ok := util.GetFirestore(ctx)
+	firestoreClient, ok := GetFirestore(ctx)
 	if !ok {
 		log.Error("Failed to get firestore client")
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
 	doc, _, err := firestoreClient.Collection("donations").Add(ctx, req) // TODO: check
 	if err != nil {
 		log.Errorf("Failed to save donation: %s", err)
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 	donateId := doc.ID
@@ -95,7 +94,7 @@ func sendDonate(w http.ResponseWriter, r *http.Request) {
 	data, err := proto.Marshal(&sdRes)
 	if err != nil {
 		log.Errorf("Failed to marshal response: %s", err)
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 

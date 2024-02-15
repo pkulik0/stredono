@@ -1,24 +1,22 @@
-package twitch
+package functions
+
+// https://dev.twitch.tv/docs/eventsub/
 
 import (
+	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"github.com/pkulik0/stredono/functions/util"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 )
 
-//
-// https://dev.twitch.tv/docs/eventsub/
-// https://dev.twitch.tv/docs/eventsub/eventsub-reference
-//
-
 const (
-	eventsubSecretName = util.GcSecretsPath + "twitch-eventsub-secret/versions/1"
+	eventsubSecretName  = GcSecretsPath + "twitch-eventsub-secret/versions/1"
+	eventsubPubsubTopic = "twitch-eventsub"
 
 	eventsubIdHeader                  = "Twitch-Eventsub-Message-Id"
 	eventsubRetryHeader               = "Twitch-Eventsub-Message-Retry"
@@ -31,7 +29,135 @@ const (
 	eventsubMessageTypeWebhookCallback = "webhook_callback_verification"
 	eventsubMessageTypeNotification    = "notification"
 	eventsubMessageTypeRevocation      = "revocation"
+
+	// Not all event types are supported
+	// https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/
+	eventTypeChannelUpdate                             = "channel.update"
+	eventTypeChannelFollow                             = "channel.follow"
+	eventTypeChannelAdBreakBegin                       = "channel.ad_break.begin"
+	eventTypeChannelChatMessage                        = "channel.chat.message"
+	eventTypeChannelChatNotif                          = "channel.chat.notification"
+	eventTypeChannelChatSettings                       = "channel.chat_settings.update"
+	eventTypeChannelSubscription                       = "channel.subscribe"
+	eventTypeChannelSubscriptionEnd                    = "channel.subscription.end"
+	eventTypeChannelSubscriptionGift                   = "channel.subscription.gift"
+	eventTypeChannelSubscriptionMessage                = "channel.subscription.message"
+	eventTypeChannelCheer                              = "channel.cheer"
+	eventTypeChannelRaid                               = "channel.raid"
+	eventTypeChannelModeratorAdd                       = "channel.moderator.add"
+	eventTypeChannelModeratorRemove                    = "channel.moderator.remove"
+	eventTypeChannelPointsCustomRewardAdd              = "channel.channel_points_custom_reward.add"
+	eventTypeChannelPointsCustomRewardUpdate           = "channel.channel_points_custom_reward.update"
+	eventTypeChannelPointsCustomRewardRemove           = "channel.channel_points_custom_reward.remove"
+	eventTypeChannelPointsCustomRewardRedemptionAdd    = "channel.channel_points_custom_reward_redemption.add"
+	eventTypeChannelPointsCustomRewardRedemptionUpdate = "channel.channel_points_custom_reward_redemption.update"
+	eventTypeStreamOnline                              = "stream.online"
+	eventTypeStreamOffline                             = "stream.offline"
+	eventTypeUserAuthorizationGrant                    = "user.authorization.grant"
+	eventTypeUserAuthorizationRevoke                   = "user.authorization.revoke"
+	eventTypeUserUpdate                                = "user.update"
+
+	messageFragmentTypeText      = "text"
+	messageFragmentTypeCheermote = "cheermote"
+	messageFragmentTypeEmote     = "emote"
+	messageFragmentTypeMention   = "mention"
+
+	chatNotifSub              = "sub"
+	chatNotifResub            = "resub"
+	chatNotifSubGift          = "subgift"
+	chatNotifCommunitySubGift = "community_sub_gift"
+	chatNotifGiftPaidUpgrade  = "gift_paid_upgrade"
+	chatNotifPrimePaidUpgrade = "prime_paid_upgrade"
+	chatNotifRaid             = "raid"
+	chatNotifUnraid           = "unraid"
+	chatNotifPayItForward     = "pay_it_forward"
+	chatNotifAnnouncement     = "announcement"
+	chatNotifBitsBadgeTier    = "bits_badge_tier"
+	chatNotifCharityDonation  = "charity_donation"
+
+	streamOnlineTypeLive       = "live"
+	streamOnlineTypePlaylist   = "playlist"
+	streamOnlineTypeWatchParty = "watch_party"
+	streamOnlineTypePremiere   = "premiere"
+	streamOnlineTypeReRun      = "rerun"
 )
+
+func Webhook(w http.ResponseWriter, r *http.Request) {
+	CorsMiddleware(CloudMiddleware(CloudConfig{
+		Realtime: true,
+		Secrets:  true,
+		Pubsub:   true,
+	}, webhook))(w, r)
+}
+
+func calculateHmacSignature(secret string, headers *eventsubHeaders, body string) string {
+	h := hmac.New(sha256.New, []byte(secret))
+	message := headers.Id + headers.Timestamp + body
+	h.Write([]byte(message))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func webhook(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Errorf("Failed to read request | %s", err)
+		http.Error(w, "Failed to read request", http.StatusBadRequest)
+		return
+	}
+	defer func(Body io.ReadCloser) {
+		if err := Body.Close(); err != nil {
+			log.Errorf("Failed to close request body | %s", err)
+		}
+	}(r.Body)
+	headers := newEventsubHeaders(r)
+
+	secretsClient, ok := GetSecretsManager(r.Context())
+	if !ok {
+		log.Error("Failed to get secrets client")
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
+		return
+	}
+	eventsubSecretResponse, err := secretsClient.AccessSecretVersion(r.Context(), &secretmanagerpb.AccessSecretVersionRequest{
+		Name: eventsubSecretName,
+	})
+	if err != nil {
+		log.Errorf("Failed to get eventsub secret | %s", err)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
+		return
+	}
+	eventsubSecret := string(eventsubSecretResponse.Payload.Data)
+
+	expectedSig := "sha256=" + calculateHmacSignature(eventsubSecret, &headers, string(body))
+	if !hmac.Equal([]byte(expectedSig), []byte(headers.Signature)) {
+		log.Errorf("Failed to validate signature")
+		http.Error(w, BadRequestMessage, http.StatusBadRequest)
+		return
+	}
+
+	var notification eventsubNotification
+	if err := json.Unmarshal(body, &notification); err != nil {
+		log.Errorf("Failed to unmarshal request | %s", err)
+		http.Error(w, "Failed to unmarshal request", http.StatusBadRequest)
+		return
+	}
+
+	switch headers.Type {
+	case eventsubMessageTypeWebhookCallback:
+		_, err = w.Write([]byte(notification.Challenge))
+		if err != nil {
+			log.Errorf("Failed to write response | %s", err)
+			return
+		}
+	case eventsubMessageTypeNotification:
+		handleEvent(w, r, &notification)
+	case eventsubMessageTypeRevocation:
+		log.Printf("Revoked subscription: %s", notification.Subscription.Id)
+		// TODO: handle revocation
+	default:
+		log.Errorf("unknown message type: %s", headers.Type)
+		http.Error(w, BadRequestMessage, http.StatusBadRequest)
+	}
+}
 
 type eventsubHeaders struct {
 	Id           string
@@ -42,7 +168,7 @@ type eventsubHeaders struct {
 	Subscription struct {
 		Type    string
 		Version string
-	} `json:"subscription"`
+	}
 }
 
 func newEventsubHeaders(r *http.Request) eventsubHeaders {
@@ -86,124 +212,17 @@ type eventsubNotification struct {
 	Challenge    string                 `json:"challenge"`
 }
 
-func Webhook(w http.ResponseWriter, r *http.Request) {
-	util.CorsMiddleware(util.CloudMiddleware(util.CloudConfig{
-		Realtime: true,
-		Secrets:  true,
-	}, webhook))(w, r)
-}
-
-func calculateHmacSignature(secret string, headers *eventsubHeaders, body string) string {
-	h := hmac.New(sha256.New, []byte(secret))
-	message := headers.Id + headers.Timestamp + body
-	h.Write([]byte(message))
-	return hex.EncodeToString(h.Sum(nil))
-}
-
-func webhook(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Errorf("Failed to read request | %s", err)
-		http.Error(w, "Failed to read request", http.StatusBadRequest)
-		return
-	}
-	defer func(Body io.ReadCloser) {
-		if err := Body.Close(); err != nil {
-			log.Errorf("Failed to close request body | %s", err)
-		}
-	}(r.Body)
-	headers := newEventsubHeaders(r)
-
-	secretsClient, ok := util.GetSecretsManager(r.Context())
-	if !ok {
-		log.Error("Failed to get secrets client")
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
-		return
-	}
-	eventsubSecretResponse, err := secretsClient.AccessSecretVersion(r.Context(), &secretmanagerpb.AccessSecretVersionRequest{
-		Name: eventsubSecretName,
-	})
-	if err != nil {
-		log.Errorf("Failed to get eventsub secret | %s", err)
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
-		return
-	}
-	eventsubSecret := string(eventsubSecretResponse.Payload.Data)
-
-	expectedSig := "sha256=" + calculateHmacSignature(eventsubSecret, &headers, string(body))
-	if !hmac.Equal([]byte(expectedSig), []byte(headers.Signature)) {
-		log.Errorf("Failed to validate signature")
-		http.Error(w, util.BadRequestMessage, http.StatusBadRequest)
-		return
-	}
-
-	var notification eventsubNotification
-	if err := json.Unmarshal(body, &notification); err != nil {
-		log.Errorf("Failed to unmarshal request | %s", err)
-		http.Error(w, "Failed to unmarshal request", http.StatusBadRequest)
-		return
-	}
-
-	switch headers.Type {
-	case eventsubMessageTypeWebhookCallback:
-		_, err = w.Write([]byte(notification.Challenge))
-		if err != nil {
-			log.Errorf("Failed to write response | %s", err)
-			return
-		}
-	case eventsubMessageTypeNotification:
-		handleEvent(w, r, &notification)
-	case eventsubMessageTypeRevocation:
-		log.Printf("Revoked subscription: %s", notification.Subscription.Id)
-		// TODO: handle revocation
-	default:
-		log.Errorf("unknown message type: %s", headers.Type)
-		http.Error(w, util.BadRequestMessage, http.StatusBadRequest)
-	}
-}
-
-// https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/
-const (
-	eventTypeChannelUpdate                             = "channel.update"
-	eventTypeChannelFollow                             = "channel.follow"
-	eventTypeChannelAdBreakBegin                       = "channel.ad_break.begin"
-	eventTypeChannelChatMessage                        = "channel.chat.message"
-	eventTypeChannelChatNotif                          = "channel.chat.notification"
-	eventTypeChannelChatSettings                       = "channel.chat_settings.update"
-	eventTypeChannelSubscription                       = "channel.subscribe"
-	eventTypeChannelSubscriptionEnd                    = "channel.subscription.end"
-	eventTypeChannelSubscriptionGift                   = "channel.subscription.gift"
-	eventTypeChannelSubscriptionMessage                = "channel.subscription.message"
-	eventTypeChannelCheer                              = "channel.cheer"
-	eventTypeChannelRaid                               = "channel.raid"
-	eventTypeChannelModeratorAdd                       = "channel.moderator.add"
-	eventTypeChannelModeratorRemove                    = "channel.moderator.remove"
-	eventTypeChannelPointsCustomRewardAdd              = "channel.channel_points_custom_reward.add"
-	eventTypeChannelPointsCustomRewardUpdate           = "channel.channel_points_custom_reward.update"
-	eventTypeChannelPointsCustomRewardRemove           = "channel.channel_points_custom_reward.remove"
-	eventTypeChannelPointsCustomRewardRedemptionAdd    = "channel.channel_points_custom_reward_redemption.add"
-	eventTypeChannelPointsCustomRewardRedemptionUpdate = "channel.channel_points_custom_reward_redemption.update"
-	eventTypeChannelGoalBegin                          = "channel.goal.begin"
-	eventTypeChannelGoalProgress                       = "channel.goal.progress"
-	eventTypeChannelGoalEnd                            = "channel.goal.end"
-	eventTypeStreamOnline                              = "stream.online"
-	eventTypeStreamOffline                             = "stream.offline"
-	eventTypeUserAuthorizationGrant                    = "user.authorization.grant"
-	eventTypeUserAuthorizationRevoke                   = "user.authorization.revoke"
-	eventTypeUserUpdate                                = "user.update"
-)
-
 func unmarshalOrError[T any](w http.ResponseWriter, notif *eventsubNotification, out *T) bool {
 	jsonData, err := json.Marshal(notif.Event)
 	if err != nil {
 		log.Errorf("Failed to marshal event | %s", err)
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return false
 	}
 
 	if err := json.Unmarshal(jsonData, out); err != nil {
 		log.Errorf("Failed to unmarshal event | %s", err)
-		http.Error(w, util.ServerErrorMessage, http.StatusInternalServerError)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return false
 	}
 
@@ -211,6 +230,33 @@ func unmarshalOrError[T any](w http.ResponseWriter, notif *eventsubNotification,
 }
 
 func handleEvent(w http.ResponseWriter, r *http.Request, notification *eventsubNotification) {
+	pubsubClient, ok := GetPubsub(r.Context())
+	if !ok {
+		log.Error("Failed to get pubsub client")
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
+		return
+	}
+	topic := pubsubClient.Topic(eventsubPubsubTopic)
+	topic.PublishSettings.NumGoroutines = 1
+	defer topic.Stop()
+
+	publishEvent := func(event interface{}, uid string, kind string) bool {
+		data, err := json.Marshal(event)
+		if err != nil {
+			log.Errorf("Failed to marshal event | %s", err)
+			http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
+			return false
+		}
+		topic.Publish(r.Context(), &pubsub.Message{
+			Data: data,
+			Attributes: map[string]string{
+				"uid":   uid,
+				"event": kind,
+			},
+		})
+		return true
+	}
+
 	switch notification.Subscription.Type {
 	case eventTypeChannelUpdate:
 		var event eventChannelUpdate
@@ -224,6 +270,9 @@ func handleEvent(w http.ResponseWriter, r *http.Request, notification *eventsubN
 			return
 		}
 		log.Printf("channel.follow: %+v", event)
+		if !publishEvent(event, event.BroadcasterId, "follow") {
+			return
+		}
 	case eventTypeChannelAdBreakBegin:
 		var event eventAdBreakBegin
 		if !unmarshalOrError(w, notification, &event) {
@@ -326,24 +375,6 @@ func handleEvent(w http.ResponseWriter, r *http.Request, notification *eventsubN
 			return
 		}
 		log.Printf("channel.channel_points_custom_reward_redemption.update: %+v", event)
-	case eventTypeChannelGoalBegin:
-		var event eventGoals
-		if !unmarshalOrError(w, notification, &event) {
-			return
-		}
-		log.Printf("channel.goal.begin: %+v", event)
-	case eventTypeChannelGoalProgress:
-		var event eventGoals
-		if !unmarshalOrError(w, notification, &event) {
-			return
-		}
-		log.Printf("channel.goal.progress: %+v", event)
-	case eventTypeChannelGoalEnd:
-		var event eventGoals
-		if !unmarshalOrError(w, notification, &event) {
-			return
-		}
-		log.Printf("channel.goal.end: %+v", event)
 	case eventTypeStreamOnline:
 		var event eventStreamOnline
 		if !unmarshalOrError(w, notification, &event) {
@@ -376,7 +407,7 @@ func handleEvent(w http.ResponseWriter, r *http.Request, notification *eventsubN
 		log.Printf("user.update: %+v", event)
 	default:
 		log.Errorf("unknown subscription received: %+v", notification.Subscription)
-		http.Error(w, util.BadRequestMessage, http.StatusBadRequest)
+		http.Error(w, BadRequestMessage, http.StatusBadRequest)
 	}
 }
 
@@ -439,13 +470,6 @@ type emoteData struct {
 	Format     string `json:"format"`
 }
 
-const (
-	eventChatMessageFragmentTypeText      = "text"
-	eventChatMessageFragmentTypeCheermote = "cheermote"
-	eventChatMessageFragmentTypeEmote     = "emote"
-	eventChatMessageFragmentTypeMention   = "mention"
-)
-
 type cheermoteData struct {
 	Prefix string `json:"prefix"`
 	Bits   int    `json:"bits"`
@@ -494,21 +518,6 @@ type eventChatMessage struct {
 	Reply          *replyData  `json:"reply"`
 	CustomRewardId *string     `json:"channel_points_custom_reward_id"`
 }
-
-const (
-	eventChatNotificationSub              = "sub"
-	eventChatNotificationResub            = "resub"
-	eventChatNotificationSubGift          = "subgift"
-	eventChatNotificationCommunitySubGift = "community_sub_gift"
-	eventChatNotificationGiftPaidUpgrade  = "gift_paid_upgrade"
-	eventChatNotificationPrimePaidUpgrade = "prime_paid_upgrade"
-	eventChatNotificationRaid             = "raid"
-	eventChatNotificationUnraid           = "unraid"
-	eventChatNotificationPayItForward     = "pay_it_forward"
-	eventChatNotificationAnnouncement     = "announcement"
-	eventChatNotificationBitsBadgeTier    = "bits_badge_tier"
-	eventChatNotificationCharityDonation  = "charity_donation"
-)
 
 type subData struct {
 	SubTier        string `json:"sub_tier"`
@@ -723,37 +732,6 @@ type eventChannelCustomRewardRedemption struct {
 	Reward     rewardData `json:"reward"`
 	RedemeedAt string     `json:"redeemed_at"`
 }
-
-const (
-	eventGoalTypeFollowers    = "follow"
-	eventGoalTypeSubs         = "subscription"
-	eventGoalTypeSubsCount    = "subscription_count"
-	eventGoalTypeNewSubs      = "new_subscription"
-	eventGoalTypeNewSubsCount = "new_subscription_count"
-)
-
-// channel.goal.begin
-// channel.goal.progress
-// channel.goal.end
-type eventGoals struct {
-	broadcasterData
-	Id            string `json:"id"`
-	Type          string `json:"type"`
-	Description   string `json:"description"`
-	IsAchieved    bool   `json:"is_achieved"`
-	CurrentAmount int    `json:"current_amount"`
-	TargetAmount  int    `json:"target_amount"`
-	StartedAt     string `json:"started_at"`
-	EndedAt       string `json:"ended_at"`
-}
-
-const (
-	eventStreamOnlineTypeLive       = "live"
-	eventStreamOnlineTypePlaylist   = "playlist"
-	eventStreamOnlineTypeWatchParty = "watch_party"
-	eventStreamOnlineTypePremiere   = "premiere"
-	eventStreamOnlineTypeReRun      = "rerun"
-)
 
 // stream.online
 type eventStreamOnline struct {

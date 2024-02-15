@@ -1,4 +1,4 @@
-package util
+package functions
 
 import (
 	"cloud.google.com/go/firestore"
@@ -10,9 +10,12 @@ import (
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
 	realtime "firebase.google.com/go/v4/db"
+	"github.com/nicklaw5/helix"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/oauth2"
 	"net/http"
 	"strings"
+	"time"
 )
 
 const (
@@ -34,6 +37,8 @@ const (
 	realtimeContextKey  = "fbRealtime"
 	pubsubContextKey    = "gcPubsub"
 	secretsContextKey   = "gcSecrets"
+
+	twitchContextKey = "twitchHelix"
 )
 
 type HandlerFunc func(w http.ResponseWriter, r *http.Request)
@@ -197,6 +202,92 @@ func CloudMiddleware(config CloudConfig, next HandlerFunc) HandlerFunc {
 	}
 }
 
+func HelixMiddleware(next HandlerFunc) HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		token, ok := GetAuthToken(r.Context())
+		if !ok {
+			log.Error("Failed to get auth token")
+			http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
+			return
+		}
+
+		firestoreClient, ok := GetFirestore(r.Context())
+		if !ok {
+			log.Error("Failed to get firestore client")
+			http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
+			return
+		}
+
+		tokensDoc, err := firestoreClient.Collection("tokens").Doc(token.UID).Get(r.Context())
+		if err != nil {
+			log.Errorf("Failed to get token: %s", err)
+			http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
+			return
+		}
+
+		var tokensData map[string]interface{}
+		if err := tokensDoc.DataTo(&tokensData); err != nil {
+			log.Errorf("Failed to unmarshal token data: %s", err)
+			http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
+			return
+		}
+
+		twitchTokenData, ok := tokensData["twitch"].(map[string]interface{})
+		if !ok {
+			http.Error(w, "Missing twitch token", http.StatusBadRequest)
+			return
+		}
+
+		oauthConfig, err := getOauthConfig(r)
+		if err != nil {
+			log.Errorf("Failed to get twitch oauth config: %s", err)
+			http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
+			return
+		}
+
+		oauthToken := &oauth2.Token{
+			AccessToken:  twitchTokenData["AccessToken"].(string),
+			RefreshToken: twitchTokenData["RefreshToken"].(string),
+			Expiry:       twitchTokenData["Expiry"].(time.Time),
+			TokenType:    twitchTokenData["TokenType"].(string),
+		}
+		oldAccessToken := oauthToken.AccessToken
+
+		tokenSource := oauthConfig.TokenSource(r.Context(), oauthToken)
+		oauthToken, err = tokenSource.Token()
+		if err != nil {
+			log.Errorf("Failed to refresh token: %s", err)
+			http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
+			return
+		}
+
+		if oldAccessToken != oauthToken.AccessToken {
+			_, err = firestoreClient.Collection("tokens").Doc(token.UID).Set(r.Context(), map[string]interface{}{
+				"twitch": oauthToken,
+			}, firestore.MergeAll)
+			if err != nil {
+				log.Errorf("Failed to save token: %s", err)
+				http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
+				return
+			}
+			log.Infof("Updated token for user %s", token.UID)
+		}
+
+		client, err := helix.NewClient(&helix.Options{
+			ClientID: twitchClientId,
+		})
+		if err != nil {
+			log.Errorf("Failed to create helix client: %s", err)
+			http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
+			return
+		}
+		client.SetUserAccessToken(oauthToken.AccessToken)
+
+		ctx := context.WithValue(r.Context(), twitchContextKey, client)
+		next(w, r.WithContext(ctx))
+	}
+}
+
 func GetFirebaseAuth(ctx context.Context) (*auth.Client, bool) {
 	authClient, ok := ctx.Value(authContextKey).(*auth.Client)
 	return authClient, ok
@@ -239,5 +330,10 @@ func GetAuthToken(ctx context.Context) (*auth.Token, bool) {
 
 func GetSecretsManager(ctx context.Context) (*secretmanager.Client, bool) {
 	client, ok := ctx.Value(secretsContextKey).(*secretmanager.Client)
+	return client, ok
+}
+
+func GetHelixClient(ctx context.Context) (*helix.Client, bool) {
+	client, ok := ctx.Value(twitchContextKey).(*helix.Client)
 	return client, ok
 }
