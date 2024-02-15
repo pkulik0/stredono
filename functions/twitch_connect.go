@@ -15,7 +15,7 @@ import (
 
 const (
 	twitchClientId         = "t1kl0vkt6hv06bi4ah4691hi8fexso"
-	twitchClientSecretName = GcSecretsPath + "twitch-client-secret/versions/1"
+	twitchClientSecretName = GcSecretsPath + "/twitch-client-secret/versions/latest"
 	twitchRedirectUrl      = "http://localhost:8080/connectTwitchCallback"
 )
 

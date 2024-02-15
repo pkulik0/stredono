@@ -13,14 +13,14 @@ const (
 	donationsPubsubTopic = "donations"
 )
 
-func ConfirmPayment(w http.ResponseWriter, r *http.Request) {
+func Confirm(w http.ResponseWriter, r *http.Request) {
 	CloudMiddleware(CloudConfig{
 		Firestore: true,
 		Pubsub:    true,
-	}, confirmPayment)(w, r)
+	}, confirm)(w, r)
 }
 
-func confirmPayment(w http.ResponseWriter, r *http.Request) {
+func confirm(w http.ResponseWriter, r *http.Request) {
 	donationId := r.URL.Query().Get("id")
 	if donationId == "" {
 		http.Error(w, "Missing id", http.StatusBadRequest)

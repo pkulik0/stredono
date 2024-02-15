@@ -3,16 +3,7 @@ import {getAuth} from "firebase/auth";
 import {getFirestore} from "firebase/firestore";
 import {getDownloadURL, getMetadata, getStorage, ref, uploadBytes} from "firebase/storage";
 import {getMessaging} from "firebase/messaging";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDTNZ9x1GD5Y2Euvgmjwh5n70v7MDv9zPs",
-    authDomain: "stredono-5ccdd.firebaseapp.com",
-    databaseURL: "https://stredono-5ccdd-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "stredono-5ccdd",
-    storageBucket: "stredono-5ccdd.appspot.com",
-    messagingSenderId: "621885503876",
-    appId: "1:621885503876:web:d1df527ab54b0db03d05d1"
-};
+import firebaseConfig from "./firebaseWebConfig.json";
 
 const app = initializeApp(firebaseConfig);
 

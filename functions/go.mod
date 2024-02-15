@@ -13,9 +13,6 @@ require (
 	github.com/golang/protobuf v1.5.3
 	github.com/google/uuid v1.6.0
 	github.com/nicklaw5/helix v1.25.0
-	github.com/pkulik0/stredono/functions/donations v0.0.0-20240211230413-068a71834c12
-	github.com/pkulik0/stredono/functions/twitch v0.0.0-20240211230413-068a71834c12
-	github.com/pkulik0/stredono/functions/util v0.0.0-20240211230413-068a71834c12
 	github.com/pkulik0/stredono/pb v0.0.0-20240211230413-068a71834c12
 	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/oauth2 v0.17.0
@@ -26,6 +23,7 @@ require (
 	cloud.google.com/go v0.112.0 // indirect
 	cloud.google.com/go/compute v1.23.3 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
+	cloud.google.com/go/functions v1.16.0 // indirect
 	cloud.google.com/go/iam v1.1.6 // indirect
 	cloud.google.com/go/longrunning v0.5.4 // indirect
 	github.com/MicahParks/keyfunc v1.9.0 // indirect

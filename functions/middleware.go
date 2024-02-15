@@ -78,7 +78,7 @@ func CloudMiddleware(config CloudConfig, next HandlerFunc) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		conf := &firebase.Config{ProjectID: ProjectID, DatabaseURL: DatabaseUrl}
+		conf := &firebase.Config{ProjectID: ProjectID, DatabaseURL: DatabaseURL}
 		app, err := firebase.NewApp(ctx, conf)
 
 		if err != nil {
@@ -288,6 +288,11 @@ func HelixMiddleware(next HandlerFunc) HandlerFunc {
 	}
 }
 
+func GetHelixClient(ctx context.Context) (*helix.Client, bool) {
+	client, ok := ctx.Value(twitchContextKey).(*helix.Client)
+	return client, ok
+}
+
 func GetFirebaseAuth(ctx context.Context) (*auth.Client, bool) {
 	authClient, ok := ctx.Value(authContextKey).(*auth.Client)
 	return authClient, ok
@@ -330,10 +335,5 @@ func GetAuthToken(ctx context.Context) (*auth.Token, bool) {
 
 func GetSecretsManager(ctx context.Context) (*secretmanager.Client, bool) {
 	client, ok := ctx.Value(secretsContextKey).(*secretmanager.Client)
-	return client, ok
-}
-
-func GetHelixClient(ctx context.Context) (*helix.Client, bool) {
-	client, ok := ctx.Value(twitchContextKey).(*helix.Client)
 	return client, ok
 }

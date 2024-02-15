@@ -7,7 +7,7 @@ node_modules
 
 *.tfstate*
 *.tfvars*
-.terraform
+infra/.terraform
 
 service.json
 *_source.zip
