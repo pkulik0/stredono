@@ -7,6 +7,16 @@ terraform {
   }
 }
 
+locals {
+  firebase_location = "eur3"
+  app_engine_location = "europe-west"
+  storage_location = "EU"
+  functions_location = "europe-west1"
+  rtdb-location = "europe-west1"
+
+  go_runtime = "go121"
+}
+
 provider "google-beta" {
   user_project_override = true
 }
@@ -18,16 +28,6 @@ provider "google-beta" {
 
 resource "random_id" "project-id" {
   byte_length = 4
-}
-
-locals {
-  firebase_location = "eur3"
-  app_engine_location = "europe-west"
-  storage_location = "EU"
-  functions_location = "europe-west1"
-  rtdb-location = "europe-west1"
-
-  go_runtime = "go121"
 }
 
 resource "google_project" "default" {
@@ -177,19 +177,18 @@ resource "google_storage_bucket" "fn_bucket" {
   depends_on = [google_project_service.default]
 }
 
-resource "null_resource" "zip_functions" {
-  provisioner "local-exec" {
-    command = "zip -r source *"
-    working_dir = "${path.module}/functions"
-  }
+data "archive_file" "source" {
+  type = "zip"
+  source_dir = "${path.module}/functions"
+  output_path = "${path.module}/functions_source.zip"
 }
 
 resource "google_storage_bucket_object" "functions_source" {
-  name = "source.zip"
-  source = "${path.module}/functions/source.zip"
+  name = "functions_source.zip"
+  source = data.archive_file.source.output_path
   bucket = google_storage_bucket.fn_bucket.name
 
-  depends_on = [null_resource.zip_functions]
+  depends_on = [google_storage_bucket.fn_bucket, data.archive_file.source]
 }
 
 resource "google_cloudfunctions2_function" "OnRegister" {

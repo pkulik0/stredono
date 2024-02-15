@@ -1,9 +1,13 @@
 .idea
 .vscode
+
 go.work*
+
 node_modules
-service.json
+
 *.tfstate*
 *.tfvars*
 .terraform
-source.zip
+
+service.json
+*_source.zip

@@ -24,5 +24,5 @@ func onRegister(w http.ResponseWriter, r *http.Request) {
 
 	log.Infof("\nRequest: \n%+v", r)
 
-	w.Write([]byte("OK"))
+	w.Write(body)
 }
