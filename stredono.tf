@@ -152,6 +152,21 @@ resource "google_firebase_database_instance" "default" {
 
   depends_on = [google_firebase_project.default]
 }
+resource "null_resource" "run_firebase_deploy" {
+  triggers = {
+    firebase_json_hash = filesha256("${path.module}/firebase.json")
+    rtdb_rules_hash = filesha256("${path.module}/rtdb.rules.json")
+  }
+
+  depends_on = [
+    google_firestore_database.default,
+  ]
+
+  provisioner "local-exec" {
+    command = "firebase deploy --only database --project ${google_project.default.project_id}"
+    working_dir = path.module
+  }
+}
 
 resource "google_service_account" "account" {
   account_id = "gcf-sa"
