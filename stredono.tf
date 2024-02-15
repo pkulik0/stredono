@@ -152,6 +152,8 @@ resource "google_firebase_database_instance" "default" {
 
   depends_on = [google_firebase_project.default]
 }
+
+// Realtime Database Rules aren't supported by the google-beta provider yet, so we use the firebase CLI to deploy them
 resource "null_resource" "run_firebase_deploy" {
   triggers = {
     firebase_json_hash = filesha256("${path.module}/firebase.json")
