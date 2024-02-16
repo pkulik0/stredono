@@ -1,10 +1,3 @@
-resource "google_project_service" "identitytoolkit" {
-  project = google_project.default.project_id
-  service = "identitytoolkit.googleapis.com"
-
-  depends_on = [google_project_service.default]
-}
-
 resource "google_identity_platform_config" "default" {
   provider = google-beta
   project = google_project.default.project_id
@@ -43,5 +36,5 @@ resource "google_identity_platform_config" "default" {
     "${google_project.default.project_id}.web.app"
   ]
 
-  depends_on = [google_project_service.identitytoolkit, google_cloudfunctions2_function.OnRegister]
+  depends_on = [google_project_service.default, google_cloudfunctions2_function.OnRegister]
 }

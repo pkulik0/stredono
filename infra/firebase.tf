@@ -18,6 +18,16 @@ resource "google_firestore_database" "default" {
   depends_on = [google_firebase_project.default]
 }
 
+resource "google_firestore_backup_schedule" "daily" {
+  provider = google-beta
+  project = google_project.default.project_id
+
+  retention = "604800s"
+  daily_recurrence {}
+
+  depends_on = [google_firestore_database.default]
+}
+
 resource "google_firebaserules_ruleset" "default" {
   provider = google-beta
   project = google_project.default.project_id
@@ -101,23 +111,4 @@ resource "null_resource" "run_firebase_deploy" {
     command = "firebase deploy --only database --project ${google_project.default.project_id}"
     working_dir = path.module
   }
-}
-
-resource "google_firebase_web_app" "stredono_web" {
-  provider = google-beta
-  project = google_project.default.project_id
-
-  display_name = "Stredono Web"
-
-  deletion_policy = "DELETE"
-  depends_on = [google_firebase_project.default]
-}
-
-data "google_firebase_web_app_config" "default" {
-  provider = google-beta
-  project = google_project.default.project_id
-
-  web_app_id = google_firebase_web_app.stredono_web.app_id
-
-  depends_on = [google_firebase_web_app.stredono_web]
 }

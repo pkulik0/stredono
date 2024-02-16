@@ -27,6 +27,20 @@ resource "local_file" "firebase_webapp_config" {
   depends_on = [data.google_firebase_web_app_config.default]
 }
 
+locals {
+  splitKeyId = split("/", google_recaptcha_enterprise_key.primary.id)
+  siteKey = element(local.splitKeyId, length(local.splitKeyId) - 1)
+}
+
+resource "local_file" "firebase_appcheck_config" {
+  filename = "${local.base_path}/app/src/lib/firebaseAppCheck.json"
+
+  content  = jsonencode({
+    siteKey: local.siteKey
+  })
+
+  depends_on = [google_recaptcha_enterprise_key.primary]
+}
 resource "local_file" "golang_constants" {
   filename = "${local.base_path}/functions/constants.go"
 

@@ -62,8 +62,11 @@ resource "google_project_service" "default" {
     "storage.googleapis.com",
     "firebasestorage.googleapis.com",
     "firebasedatabase.googleapis.com",
-    "secretmanager.googleapis.com"
+    "firebaseappcheck.googleapis.com",
+    "secretmanager.googleapis.com",
+    "recaptchaenterprise.googleapis.com",
   ])
+
   service = each.key
   disable_on_destroy = false
 }
