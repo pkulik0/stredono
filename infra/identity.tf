@@ -1,6 +1,6 @@
 resource "google_identity_platform_config" "default" {
   provider = google-beta
-  project = google_project.default.project_id
+  project  = google_project.default.project_id
 
   autodelete_anonymous_users = true
 
@@ -12,7 +12,7 @@ resource "google_identity_platform_config" "default" {
     }
 
     email {
-      enabled = true
+      enabled           = true
       password_required = false
     }
   }
@@ -24,8 +24,8 @@ resource "google_identity_platform_config" "default" {
     }
 
     forward_inbound_credentials {
-      id_token = true
-      access_token = true
+      id_token      = true
+      access_token  = true
       refresh_token = true
     }
   }

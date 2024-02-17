@@ -1,5 +1,5 @@
 data "external" "public_files" {
-  program = ["python3", "infra/scripts/list_files.py", "public"]
+  program     = ["python3", "infra/scripts/list_files.py", "public"]
   working_dir = local.base_path
 }
 
@@ -8,7 +8,7 @@ resource "google_storage_bucket_object" "public_files" {
 
   for_each = data.external.public_files.result
 
-  name = each.value
+  name   = each.value
   source = "${local.base_path}/${each.value}"
 
   bucket = local.firebase_bucket

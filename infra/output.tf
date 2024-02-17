@@ -17,15 +17,15 @@ locals {
 resource "local_file" "firebase_webapp_config" {
   filename = "${local.firebase_out_path}/firebaseWebConfig.json"
 
-  content  = jsonencode({
-    apiKey             = data.google_firebase_web_app_config.default.api_key,
-    authDomain         = data.google_firebase_web_app_config.default.auth_domain,
-    databaseURL        = data.google_firebase_web_app_config.default.database_url,
-    projectId          = google_project.default.project_id,
-    storageBucket      = data.google_firebase_web_app_config.default.storage_bucket,
-    messagingSenderId  = data.google_firebase_web_app_config.default.messaging_sender_id,
-    appId              = data.google_firebase_web_app_config.default.web_app_id,
-    measurementId      = data.google_firebase_web_app_config.default.measurement_id
+  content = jsonencode({
+    apiKey            = data.google_firebase_web_app_config.default.api_key,
+    authDomain        = data.google_firebase_web_app_config.default.auth_domain,
+    databaseURL       = data.google_firebase_web_app_config.default.database_url,
+    projectId         = google_project.default.project_id,
+    storageBucket     = data.google_firebase_web_app_config.default.storage_bucket,
+    messagingSenderId = data.google_firebase_web_app_config.default.messaging_sender_id,
+    appId             = data.google_firebase_web_app_config.default.web_app_id,
+    measurementId     = data.google_firebase_web_app_config.default.measurement_id
   })
 
   depends_on = [data.google_firebase_web_app_config.default]
@@ -33,14 +33,14 @@ resource "local_file" "firebase_webapp_config" {
 
 locals {
   splitKeyId = split("/", google_recaptcha_enterprise_key.primary.id)
-  siteKey = element(local.splitKeyId, length(local.splitKeyId) - 1)
+  siteKey    = element(local.splitKeyId, length(local.splitKeyId) - 1)
 }
 
 resource "local_file" "firebase_appcheck_config" {
   filename = "${local.firebase_out_path}/firebaseAppCheck.json"
 
-  content  = jsonencode({
-    siteKey: local.siteKey
+  content = jsonencode({
+    siteKey : local.siteKey
   })
 
   depends_on = [google_recaptcha_enterprise_key.primary]

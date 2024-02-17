@@ -1,0 +1,7 @@
+#!/bin/sh
+
+ret=$(terraform fmt -recursive -check)
+if [ -n "$ret" ]; then
+  echo "Some terraform files are not formatted. Run 'terraform fmt' to fix the formatting. $ret"
+  exit 1
+fi
