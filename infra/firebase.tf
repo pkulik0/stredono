@@ -2,9 +2,7 @@ resource "google_firebase_project" "default" {
   provider = google-beta
   project  = google_project.default.project_id
 
-  depends_on = [
-    google_project_service.default
-  ]
+  depends_on = [google_project_service.default]
 }
 
 resource "google_firestore_database" "default" {
@@ -34,6 +32,8 @@ resource "google_firestore_index" "donations" {
     field_path = "Timestamp"
     order      = "ASCENDING"
   }
+
+  depends_on = [google_firestore_database.default]
 }
 
 resource "google_firestore_backup_schedule" "daily" {
@@ -79,9 +79,10 @@ resource "google_app_engine_application" "default-bucket" {
 }
 
 resource "google_firebase_storage_bucket" "default" {
-  provider  = google-beta
-  project   = google_project.default.project_id
-  bucket_id = google_app_engine_application.default-bucket.default_bucket
+  provider   = google-beta
+  project    = google_project.default.project_id
+  bucket_id  = google_app_engine_application.default-bucket.default_bucket
+  depends_on = [google_app_engine_application.default-bucket]
 }
 
 locals {
@@ -97,7 +98,7 @@ resource "google_firebaserules_ruleset" "storage" {
       name    = "storage.rules"
     }
   }
-  depends_on = [google_firebase_project.default]
+  depends_on = [google_firebase_storage_bucket.default]
 }
 
 resource "google_firebaserules_release" "storage" {
@@ -105,6 +106,7 @@ resource "google_firebaserules_release" "storage" {
   project      = google_project.default.project_id
   name         = "firebase.storage/${google_app_engine_application.default-bucket.default_bucket}"
   ruleset_name = "projects/${google_project.default.project_id}/rulesets/${google_firebaserules_ruleset.storage.name}"
+  depends_on   = [google_firebaserules_ruleset.storage]
 }
 
 resource "google_firebase_database_instance" "default" {
@@ -125,9 +127,7 @@ resource "null_resource" "run_firebase_deploy" {
     rtdb_rules_hash    = filesha256("${local.base_path}/rtdb.rules.json")
   }
 
-  depends_on = [
-    google_firestore_database.default,
-  ]
+  depends_on = [google_firestore_database.default]
 
   provisioner "local-exec" {
     command     = "firebase deploy --only database --project ${google_project.default.project_id}"

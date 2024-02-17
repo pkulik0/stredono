@@ -2,6 +2,7 @@ resource "google_service_account" "account" {
   account_id   = "gcf-sa"
   display_name = "Cloud Functions Service Account"
   project      = google_project.default.project_id
+  depends_on   = [google_project_service.default]
 }
 
 resource "google_storage_bucket" "fn_bucket" {
@@ -57,7 +58,7 @@ resource "google_cloudfunctions2_function" "OnRegister" {
     service_account_email            = google_service_account.account.email
   }
 
-  depends_on = [google_project_service.default, google_storage_bucket.fn_bucket, data.archive_file.source]
+  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account]
 }
 
 // Cloud Run (v1) Invoker role for Gen 2 (used to be cloudfunctions.invoker for Gen 1)
@@ -102,5 +103,5 @@ resource "google_cloudfunctions2_function" "SendDonate" {
     service_account_email            = google_service_account.account.email
   }
 
-  depends_on = [google_project_service.default]
+  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account]
 }

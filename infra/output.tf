@@ -58,5 +58,5 @@ const (
 )
 EOF
 
-  depends_on = [data.google_firebase_web_app_config.default, google_secret_manager_secret.secrets]
+  depends_on = [google_project.default, data.google_firebase_web_app_config.default]
 }

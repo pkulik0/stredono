@@ -72,6 +72,7 @@ resource "google_project_service" "default" {
     "secretmanager.googleapis.com",
     "recaptchaenterprise.googleapis.com",
     "cloudkms.googleapis.com",
+    "iam.googleapis.com",
   ])
 
   service            = each.key
