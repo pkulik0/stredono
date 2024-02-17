@@ -17,13 +17,15 @@ jobs:
         uses: ./.github/actions/go
         with:
           go-version: '1.22'
-          src: 'functions'
+          dir: 'functions'
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
       - name: Setup GCloud
         uses: google-github-actions/setup-gcloud@v2
-        with:
-          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-          export_default_credentials: true
 
       - name: Terraform Plan and Apply
         uses: ./.github/actions/terraform

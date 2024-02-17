@@ -57,7 +57,7 @@ export class SendDonateRequest extends Message<SendDonateRequest> {
   message = "";
 
   /**
-   * @generated from field: float amount = 5;
+   * @generated from field: double amount = 5;
    */
   amount = 0;
 
@@ -93,7 +93,7 @@ export class SendDonateRequest extends Message<SendDonateRequest> {
     { no: 2, name: "sender", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "email", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 4, name: "message", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "amount", kind: "scalar", T: 2 /* ScalarType.FLOAT */ },
+    { no: 5, name: "amount", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
     { no: 6, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 7, name: "recipientId", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 8, name: "status", kind: "enum", T: proto3.getEnumType(DonateStatus) },

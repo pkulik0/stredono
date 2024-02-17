@@ -26,7 +26,7 @@ func validateNewDonate(req *pb.SendDonateRequest) error {
 		return fmt.Errorf("invalid status: %s", req.Status)
 	}
 	if req.Amount < 0 {
-		return fmt.Errorf("invalid amount: %d", req.Amount)
+		return fmt.Errorf("invalid amount: %f", req.Amount)
 	}
 	if req.Currency == "" {
 		return fmt.Errorf("invalid currency: %s", req.Currency)

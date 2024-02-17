@@ -15,7 +15,7 @@ message SendDonateRequest {
     string sender = 2;
     string email = 3;
     string message = 4;
-    float amount = 5;
+    double amount = 5;
     string currency = 6;
     string recipientId = 7;
     DonateStatus status = 8;

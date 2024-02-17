@@ -4,7 +4,7 @@ inputs:
   go-version:
     description: 'The version of Go to use'
     required: true
-  src:
+  dir:
     description: 'The source directory'
     required: true
 
@@ -17,9 +17,11 @@ runs:
         go-version: ${{ inputs.go-version }}
 
     - name: Build
-      run: go build -v ${{ inputs.src }}
+      run: go build -v
       shell: bash
+      working-directory: ${{ inputs.dir }}
 
     - name: Test
-      run: go test -v ${{ inputs.src }}
+      run: go test -v
       shell: bash
+      working-directory: ${{ inputs.dir }}
