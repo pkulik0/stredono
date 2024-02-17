@@ -1,7 +1,12 @@
 name: 'Go Build and Test'
+description: 'Build and test Go code'
 inputs:
-  go-version: '1.22'
-  src: '.'
+  go-version:
+    description: 'The version of Go to use'
+    required: true
+  src:
+    description: 'The source directory'
+    required: true
 
 runs:
   using: "composite"
@@ -13,6 +18,8 @@ runs:
 
     - name: Build
       run: go build -v ${{ inputs.src }}
+      shell: bash
 
     - name: Test
       run: go test -v ${{ inputs.src }}
+      shell: bash

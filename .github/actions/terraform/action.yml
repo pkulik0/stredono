@@ -1,26 +1,39 @@
 name: 'Terraform Plan and Apply'
+description: 'Run terraform plan and apply'
 inputs:
-  dir: '.'
+  dir:
+    description: 'The directory where the terraform files are located'
+    required: true
+  terraform-version:
+    description: 'The version of Terraform to use'
+    required: false
+    default: 'latest'
 
 runs:
   using: "composite"
   steps:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: ${{ inputs.terraform-version }}
 
     - name: Terraform Init
       run: terraform init
       working-directory: ${{ inputs.dir }}
+      shell: bash
 
     - name: Terraform Format
       run: terraform fmt -check
       working-directory: ${{ inputs.dir }}
+      shell: bash
 
     - name: Terraform Plan
       run: terraform plan -input=false
       working-directory: ${{ inputs.dir }}
+      shell: bash
 
     - name: Terraform Apply
       if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
       run: terraform apply -auto-approve -input=false
       working-directory: ${{ inputs.dir }}
+      shell: bash
