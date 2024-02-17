@@ -1,0 +1,31 @@
+name: 'Test and Deploy'
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build and Test Cloud Functions
+        uses: ./.github/actions/go
+        with:
+          go-version: '1.22'
+          src: 'functions'
+
+      - name: Setup GCloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          export_default_credentials: true
+
+      - name: Terraform Plan and Apply
+        uses: ./.github/actions/terraform
+        with:
+          dir: 'infra'

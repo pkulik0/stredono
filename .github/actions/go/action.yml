@@ -1,0 +1,18 @@
+name: 'Go Build and Test'
+inputs:
+  go-version: '1.22'
+  src: '.'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ inputs.go-version }}
+
+    - name: Build
+      run: go build -v ${{ inputs.src }}
+
+    - name: Test
+      run: go test -v ${{ inputs.src }}

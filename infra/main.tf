@@ -5,6 +5,11 @@ terraform {
       version = "~> 5.0"
     }
   }
+
+  backend "gcs" {
+    bucket  = "stredono-terraform-state"
+    prefix  = "terraform/state"
+  }
 }
 
 locals {
@@ -15,6 +20,7 @@ locals {
   storage_location = "EU"
   functions_location = "europe-west1"
   rtdb-location = "europe-west1"
+  kms_location = "europe"
 
   go_runtime = "go121"
 }
@@ -65,8 +71,65 @@ resource "google_project_service" "default" {
     "firebaseappcheck.googleapis.com",
     "secretmanager.googleapis.com",
     "recaptchaenterprise.googleapis.com",
+    "cloudkms.googleapis.com",
   ])
 
   service = each.key
   disable_on_destroy = false
+}
+
+data "google_project" "project" {
+  provider = google-beta
+  project_id = google_project.default.project_id
+}
+
+resource "google_project_iam_member" "default" {
+  provider = google-beta
+  project = data.google_project.project.project_id
+  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member  = "serviceAccount:service-${data.google_project.project.number}@gs-project-accounts.iam.gserviceaccount.com"
+  depends_on = [google_project_service.default]
+}
+
+resource "google_kms_key_ring" "default" {
+  provider = google-beta
+  project = google_project.default.project_id
+
+  location = local.kms_location
+  name     = "${google_project.default.project_id}-keyring"
+  depends_on = [google_project_iam_member.default]
+}
+
+resource "google_kms_crypto_key" "default" {
+  name     = "${google_project.default.project_id}-key"
+  key_ring = google_kms_key_ring.default.id
+
+  rotation_period = "86400s"
+
+  lifecycle {
+    prevent_destroy = false
+  }
+
+  depends_on = [google_kms_key_ring.default]
+}
+
+resource "google_storage_bucket" "terraform_state" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  name     = "stredono-terraform-state"
+  location = local.storage_location
+
+  force_destroy = false
+  storage_class = "STANDARD"
+
+  versioning {
+    enabled = true
+  }
+
+  encryption {
+    default_kms_key_name = google_kms_crypto_key.default.id
+  }
+
+  depends_on = [google_kms_crypto_key.default]
 }

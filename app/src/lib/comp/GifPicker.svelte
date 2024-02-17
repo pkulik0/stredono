@@ -6,10 +6,12 @@
     import {writable, type Writable} from "svelte/store";
     import {UploadOutline} from "flowbite-svelte-icons";
     import axios from "axios";
+    import FileDropzone from "$lib/comp/FileDropzone.svelte";
 
     const limit = 30;
 
     export let open: boolean = false;
+    export let upload: boolean = true;
 
     export let file: File|undefined = undefined
     $: if (file) open = false;
@@ -68,35 +70,6 @@
         })
         lastTerm = term;
     }
-
-    const dropHandle = (event: DragEvent) => {
-        file = undefined;
-        event.preventDefault();
-
-        if (!event.dataTransfer) return;
-        const dataTransfer = event.dataTransfer as DataTransfer;
-
-        const item = dataTransfer.items[0];
-        if (!item) return;
-
-        const gif = item.getAsFile();
-        if (!gif) return;
-
-        file = gif;
-    };
-
-    const handleChange = (event: Event) => {
-        if (!event.target) return;
-        const target = event.target as HTMLInputElement;
-
-        const files = target.files;
-        if (!files) return;
-
-        const gif = files.item(0)
-        if (!gif) return;
-        file = gif;
-    };
-
     const onGifPress = async (gif: Gif) => {
         const res = await axios.get(gif.url, { responseType: "blob" });
         const blob = new Blob([res.data], { type: "image/gif" });
@@ -127,18 +100,16 @@
 <Modal bind:open title="Gifs" autoclose outsideclose class="z-100" {backdropClass}>
 
     <svelte:fragment slot="header">
-        <Label class="w-full me-10">
+        <Label class="w-full me-5">
             Search
             <Input bind:value={searchTerm} on:input={onSearchInputChange} placeholder="Type in anything!" />
         </Label>
     </svelte:fragment>
 
     <svelte:fragment slot="footer">
-        <Dropzone class="max-h-40" id="dropzone" on:drop={dropHandle} on:dragover={e => e.preventDefault()} on:change={handleChange}>
-            <UploadOutline class="mb-3 w-10 h-10 text-gray-400" />
-            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">.gif (max. 5MB)</p>
-        </Dropzone>
+        {#if upload}
+            <FileDropzone bind:file description=".gif (max. 5MB)"/>
+        {/if}
     </svelte:fragment>
 
     <GifGallery onGifPress={onGifPress} gifs={gifs} loadMore={loadMore} columns={3} />

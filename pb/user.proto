@@ -4,22 +4,29 @@ package stredono;
 
 option go_package="github.com/pkulik0/stredono/pb";
 
+enum Currency {
+  UNKNOWN = 0;
+  BITS = 1;
+  PLN = 2;
+}
 message User {
   string username = 1;
   string uid = 2;
   string url = 3;
   string description = 4;
   string avatarUrl = 5;
-  float minimumAmount = 6;
 
-  repeated Alert alerts = 7;
+  double minimumAmount = 6;
+  Currency currency = 7;
+
+  repeated Alert alerts = 8;
 }
 
 enum AlertType {
   DONATE = 0;
   FOLLOW = 1;
   SUBSCRIBE = 2;
-  BITS = 3;
+  SUBGIFT = 3;
   RAID = 4;
 }
 
@@ -36,30 +43,18 @@ message TextToSpeechSettings {
 
 message AmountTrigger {
   double min = 1;
-  optional double max = 2;
-  string currency = 3;
-}
-
-message TimeTrigger {
-  int64 interval = 1;
-}
-
-enum TriggerType {
-  AMOUNT = 0;
-  TIME = 1;
+  double max = 2;
 }
 
 message Alert {
   string id = 1;
   AlertType type = 2;
+  optional AmountTrigger amountTrigger = 3;
+
   string template = 4;
 
   AlertStyle style = 5;
-  TextToSpeechSettings ttsSettings = 6;
-
-  TriggerType triggerType = 7;
-  optional AmountTrigger amountTrigger = 8;
-  optional TimeTrigger timeTrigger = 9;
+  optional TextToSpeechSettings ttsSettings = 6;
 }
 
 enum AnimationType {
@@ -75,4 +70,11 @@ message AlertStyle {
 
   string textColor = 4;
   string accentColor = 5;
+}
+
+message Event {
+  repeated string users = 1;
+  repeated double amounts = 2;
+  optional string currency = 3;
+  optional string message = 4;
 }

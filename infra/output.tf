@@ -10,8 +10,12 @@ output "SendDonate_url" {
   value = google_cloudfunctions2_function.SendDonate.service_config[0].uri
 }
 
+locals {
+  firebase_out_path = "${local.base_path}/app/src/lib/firebase"
+}
+
 resource "local_file" "firebase_webapp_config" {
-  filename = "${local.base_path}/app/src/lib/firebaseWebConfig.json"
+  filename = "${local.firebase_out_path}/firebaseWebConfig.json"
 
   content  = jsonencode({
     apiKey             = data.google_firebase_web_app_config.default.api_key,
@@ -33,7 +37,7 @@ locals {
 }
 
 resource "local_file" "firebase_appcheck_config" {
-  filename = "${local.base_path}/app/src/lib/firebaseAppCheck.json"
+  filename = "${local.firebase_out_path}/firebaseAppCheck.json"
 
   content  = jsonencode({
     siteKey: local.siteKey

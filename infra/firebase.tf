@@ -46,7 +46,7 @@ resource "google_firestore_backup_schedule" "daily" {
   depends_on = [google_firestore_database.default]
 }
 
-resource "google_firebaserules_ruleset" "default" {
+resource "google_firebaserules_ruleset" "firestore" {
   provider = google-beta
   project = google_project.default.project_id
 
@@ -60,16 +60,16 @@ resource "google_firebaserules_ruleset" "default" {
   depends_on = [google_firestore_database.default]
 }
 
-resource "google_firebaserules_release" "default" {
+resource "google_firebaserules_release" "firestore" {
   provider = google-beta
   name = "cloud.firestore"
-  ruleset_name = google_firebaserules_ruleset.default.name
+  ruleset_name = google_firebaserules_ruleset.firestore.name
   project = google_project.default.project_id
 
-  depends_on = [google_firestore_database.default]
+  depends_on = [google_firebaserules_ruleset.firestore]
 }
 
-resource "google_app_engine_application" "default-bucket-fs" {
+resource "google_app_engine_application" "default-bucket" {
   provider = google-beta
   project = google_project.default.project_id
 
@@ -78,13 +78,17 @@ resource "google_app_engine_application" "default-bucket-fs" {
   depends_on = [google_firestore_database.default]
 }
 
-resource "google_firebase_storage_bucket" "default-bucket-fs" {
+resource "google_firebase_storage_bucket" "default" {
   provider = google-beta
   project = google_project.default.project_id
-  bucket_id = google_app_engine_application.default-bucket-fs.default_bucket
+  bucket_id = google_app_engine_application.default-bucket.default_bucket
 }
 
-resource "google_firebaserules_ruleset" "default-bucket-fs" {
+locals {
+  firebase_bucket = split("/", google_firebase_storage_bucket.default.name)[3]
+}
+
+resource "google_firebaserules_ruleset" "storage" {
   provider = google-beta
   project = google_project.default.project_id
   source {
@@ -96,11 +100,11 @@ resource "google_firebaserules_ruleset" "default-bucket-fs" {
   depends_on = [google_firebase_project.default]
 }
 
-resource "google_firebaserules_release" "default-bucket-fs" {
+resource "google_firebaserules_release" "storage" {
   provider = google-beta
   project = google_project.default.project_id
-  name = "firebase.storage/${google_app_engine_application.default-bucket-fs.default_bucket}"
-  ruleset_name = "projects/${google_project.default.project_id}/rulesets/${google_firebaserules_ruleset.default-bucket-fs.name}"
+  name = "firebase.storage/${google_app_engine_application.default-bucket.default_bucket}"
+  ruleset_name = "projects/${google_project.default.project_id}/rulesets/${google_firebaserules_ruleset.storage.name}"
 }
 
 resource "google_firebase_database_instance" "default" {

@@ -1,30 +1,80 @@
 <script lang="ts">
-    import {Button, CloseButton, Drawer, Fileupload, Hr, Input, Label, Select, Textarea,} from "flowbite-svelte";
+    import {
+        Button, ButtonGroup,
+        CloseButton,
+        Drawer,
+        Fileupload,
+        Hr,
+        Input,
+        InputAddon,
+        Label, P, Popover,
+        Select,
+        Textarea,
+    } from "flowbite-svelte";
     import {uploadToStorage} from "$lib/firebase/storage";
-    import {BellActiveSolid, ImageOutline, PhoneOutline, PlusSolid} from "flowbite-svelte-icons";
+    import {
+        BellActiveSolid,
+        ImageOutline,
+        PhoneOutline,
+        PlusSolid,
+        QuestionCircleSolid,
+        VolumeUpSolid
+    } from "flowbite-svelte-icons";
     import {sineIn} from "svelte/easing";
-    import {fade} from "svelte/transition";
+    import {fade, slide} from "svelte/transition";
     import {v4 as uuidv4} from "uuid";
     import ColorPicker, {ChromeVariant} from "svelte-awesome-color-picker";
-    import {AlertStyle, AlertType, AnimationType, TriggerType} from "$lib/pb/user_pb";
+    import {
+        AlertStyle,
+        AlertType,
+        AmountTrigger,
+        AnimationType, Currency,
+        TextToSpeechSettings
+    } from "$lib/pb/user_pb";
     import {onMount} from "svelte";
     import GifPicker from "$lib/comp/GifPicker.svelte";
     import type {Gif} from "$lib/ext/tenor";
     import axios from "axios";
+    import {Alert} from "$lib/pb/user_pb";
+    import {userStore} from "$lib/user";
+    import SoundPicker from "$lib/comp/SoundPicker.svelte";
+
+    const getUuid = () => {
+        return uuidv4().replace(/-/g, "");
+    }
 
     const addNew = async () => {
-        if(!gifFileList || !soundFileList || gifFileList.length === 0 || soundFileList.length === 0) {
+        if (!gifFile) {
+            console.error("GIF is missing");
+            return;
+        }
+        if (!soundFile) {
+            console.error("Sound is missing");
             return;
         }
 
-        const gifFile = gifFileList[0];
-        const soundFile = soundFileList[0];
-
         try {
-            const id = uuidv4().replace(/-/g, "");
-            const gifUrl = await uploadToStorage("gifs", id, gifFile, false); // TODO: change name etc
-            const soundUrl = await uploadToStorage("sounds", id, soundFile, false);
+            const id = getUuid();
+            const gifUrl = await uploadToStorage("gifs", getUuid(), gifFile, false);
+            const soundUrl = await uploadToStorage("sounds", getUuid(), soundFile, false);
 
+            let alert = new Alert();
+            alert.id = id;
+            alert.type = type;
+            alert.template = template;
+
+            alert.style = new AlertStyle();
+            alert.style.animation = animation;
+            alert.style.gifUrl = gifUrl;
+            alert.style.soundUrl = soundUrl;
+            alert.style.textColor = textColor;
+            alert.style.accentColor = accentColor;
+
+            alert.amountTrigger = new AmountTrigger()
+            alert.amountTrigger.min = startValue;
+            alert.amountTrigger.max = endValue;
+
+            alert.ttsSettings = new TextToSpeechSettings()
             hidden = true;
         } catch (e) {
             console.error(e); // TODO: Show error to user
@@ -34,10 +84,10 @@
     export let hidden = true;
     export let styles: Map<string, AlertStyle> = new Map();
 
-    let soundFileList: FileList;
-
     let startValue = 0;
     let endValue = 10;
+
+    let intervalValue = 10;
 
     let template = "[USER] donated [AMOUNT] [CURRENCY]!";
 
@@ -51,20 +101,13 @@
     let animation = AnimationType.BOUNCE;
 
     let types = [
-        { "value": AlertType.DONATE, "name": "Donation" },
+        { "value": AlertType.DONATE, "name": "Donation / Cheer" },
         { "value": AlertType.SUBSCRIBE, "name": "Subscription" },
+        { "value": AlertType.SUBGIFT, "name": "Gifted Subscription" },
         { "value": AlertType.FOLLOW, "name": "Follow" },
-        { "value": AlertType.BITS, "name": "Bits" },
         { "value": AlertType.RAID, "name": "Raid" },
     ];
     let type = AlertType.DONATE;
-
-    let triggers = [
-        { "value": TriggerType.AMOUNT,  "name": "Amount" },
-        { "value": TriggerType.TIME,  "name": "Time" }
-    ]
-    let trigger = TriggerType.AMOUNT;
-
 
     interface Preset {
         value: AlertStyle
@@ -76,7 +119,9 @@
     let gifPickerOpen = false;
     let gifFile: File|undefined = undefined;
     $: gifImage = gifFile ? URL.createObjectURL(gifFile) : null;
-    $: console.log(gifImage);
+
+    let soundPickerOpen = false;
+    let soundFile: File|undefined = undefined;
 
     // Drawer settings
     let transitionParams = {
@@ -86,10 +131,31 @@
     };
     let divClass = "overflow-y-auto z-50 p-4 rounded-xl m-0 md:m-4 bg-gray-100 dark:bg-gray-800";
 
+    let currency: Currency|undefined = undefined;
+    let currencySymbol = "?";
+    $: if(currency) {
+        switch(currency) {
+            case Currency.PLN:
+                currencySymbol = "zł";
+                break;
+            default:
+                currencySymbol = "?";
+                break;
+        }
+    }
+
     onMount(() => {
         styles.forEach((style, key) => {
             presets.push({ "value": style, "name": key });
         })
+
+        return userStore.subscribe((user) => {
+            if (!user) {
+                currency = undefined;
+                return;
+            }
+            currency = user.currency;
+        });
     })
 </script>
 
@@ -109,30 +175,40 @@
         </Label>
 
 
-        <Label class="px-4">
-            Template
-            <Textarea bind:value={template} />
-        </Label>
 
-        <Hr/>
-
-        <Label>
-            Trigger
-            <Select bind:value={trigger} items={triggers}/>
-        </Label>
-
-        <div class="space-x-4 flex flex-row px-4">
+        <div class="px-4 space-y-2">
             <Label>
-                From
-                <Input type="number" bind:value={startValue} />
+                Template
+                <Textarea bind:value={template} />
             </Label>
 
+            <div class="space-x-4 flex flex-row">
+                <Label>
+                    From
+                    <ButtonGroup>
+                        <Input type="number" bind:value={startValue} />
+                        <InputAddon>{currencySymbol}</InputAddon>
+                    </ButtonGroup>
+                </Label>
 
-            <Label>
-                To
-                <Input type="number" bind:value={endValue} />
-            </Label>
+                <Label>
+                    To
+                    <ButtonGroup>
+                        <Input type="number" bind:value={endValue} />
+                        <InputAddon>{currencySymbol}</InputAddon>
+                    </ButtonGroup>
+                </Label>
+            </div>
+
+            {#if type === AlertType.DONATE}
+                <div transition:slide>
+                    <P weight="light" class="text-sm text-justify text-gray-500 dark:text-gray-400">
+                        100 Bits are equal to 1 USD or its equivalent in other currencies.
+                    </P>
+                </div>
+            {/if}
         </div>
+
 
 
         <Hr/>
@@ -149,25 +225,19 @@
                 <Select bind:value={animation} items={animations}/>
             </Label>
 
-            <Label>
-                GIF
+            <Button class="w-full" size="xl" outline on:click={() => { gifPickerOpen = true; }}>
+                <ImageOutline class="w-5 h-5 me-1" />
+                Pick or Upload GIF
+            </Button>
 
-                <div class="flex flex-col space-y-2">
-                    <Button size="xl" outline on:click={() => { gifPickerOpen = true; }}>
-                        <ImageOutline class="w-5 h-5 me-1" />
-                        Pick or Upload GIF
-                    </Button>
-                </div>
+            {#if gifImage}
+                <img src={gifImage} alt="GIF" class="px-8 py-2 rounded-lg w-full" transition:fade />
+            {/if}
 
-                {#if gifImage}
-                    <img src={gifImage} alt="GIF" class="px-8 py-2 rounded-lg w-full" in:fade />
-                {/if}
-            </Label>
-
-            <Label>
-                Sound
-                <Fileupload size="sm" bind:files={soundFileList} accept="audio/*" />
-            </Label>
+            <Button class="w-full" size="xl" outline on:click={() => { soundPickerOpen = true; }}>
+                <VolumeUpSolid class="w-5 h-5 me-1" />
+                Pick or Upload Sound
+            </Button>
 
             <div class="pt-2">
                 <Label>
@@ -191,3 +261,4 @@
 </Drawer>
 
 <GifPicker bind:file={gifFile} searchTerm="money" bind:open={gifPickerOpen} />
+<SoundPicker bind:file={soundFile} bind:open={soundPickerOpen} />
