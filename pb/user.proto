@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package stredono;
+
+option go_package="github.com/pkulik0/stredono/pb";
+
+message User {
+  string username = 1;
+  string uid = 2;
+  string url = 3;
+  string description = 4;
+  string avatarUrl = 5;
+  float minimumAmount = 6;
+
+  repeated Alert alerts = 7;
+}
+
+enum AlertType {
+  DONATE = 0;
+  FOLLOW = 1;
+  SUBSCRIBE = 2;
+  BITS = 3;
+  RAID = 4;
+}
+
+enum TextToSpeechService {
+  GOOGLE = 0;
+  ELEVENLABS = 1;
+}
+
+message TextToSpeechSettings {
+  TextToSpeechService service = 1;
+  string voice = 2;
+  string language = 3;
+}
+
+message AmountTrigger {
+  double min = 1;
+  optional double max = 2;
+  string currency = 3;
+}
+
+message TimeTrigger {
+  int64 interval = 1;
+}
+
+enum TriggerType {
+  AMOUNT = 0;
+  TIME = 1;
+}
+
+message Alert {
+  string id = 1;
+  AlertType type = 2;
+  string template = 4;
+
+  AlertStyle style = 5;
+  TextToSpeechSettings ttsSettings = 6;
+
+  TriggerType triggerType = 7;
+  optional AmountTrigger amountTrigger = 8;
+  optional TimeTrigger timeTrigger = 9;
+}
+
+enum AnimationType {
+  SHAKE = 0;
+  BOUNCE = 1;
+}
+
+message AlertStyle {
+  string gifUrl = 1;
+  string soundUrl = 2;
+
+  AnimationType animation = 3;
+
+  string textColor = 4;
+  string accentColor = 5;
+}

@@ -1,7 +1,7 @@
 import {collection, onSnapshot, query, where, getDocs} from "firebase/firestore";
-import {auth, db} from "$lib/firebase";
+import {auth, db} from "$lib/firebase/firebase";
 import {DonateStatus, SendDonateRequest} from "$lib/pb/functions_pb";
-import {userStore} from "$lib/stores";
+import {userStore} from "$lib/user";
 import {writable, type Writable} from "svelte/store";
 
 export type DonationsMap = {[key: number]: { donate: SendDonateRequest[], startDate: Date, endDate: Date }}
@@ -126,13 +126,17 @@ const getDonationsSubscriber = () => {
 let unsubscribe: (() => void) | null = null;
 
 userStore.subscribe((user) => {
-    if(user) {
-        unsubscribe = getDonationsSubscriber();
-    } else {
-        if(unsubscribe) {
-            unsubscribe();
-            unsubscribe = null;
+    try {
+        if(user) {
+            unsubscribe = getDonationsSubscriber();
+        } else {
+            if(unsubscribe) {
+                unsubscribe();
+                unsubscribe = null;
+            }
+            donationStore.set({});
         }
-        donationStore.set({});
+    } catch (e) {
+        console.error(e);
     }
 })

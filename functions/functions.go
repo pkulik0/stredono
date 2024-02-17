@@ -7,7 +7,7 @@ import (
 func init() {
 	functions.HTTP("OnRegister", OnRegister)
 
-	functions.HTTP("SendDonate", Send)
+	functions.HTTP("SendDonate", DonateSend)
 	functions.HTTP("ConfirmPayment", Confirm)
 	functions.HTTP("GetListeners", GetListeners)
 

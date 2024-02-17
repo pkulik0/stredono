@@ -1,35 +1,51 @@
 <script lang="ts">
     import NavBar from "./NavBar.svelte";
-    import {onAuthStateChanged} from "firebase/auth";
-    import {auth} from "$lib/firebase.js";
-    import {userStore} from "$lib/stores";
-    import {goto} from "$app/navigation";
-    import {fade, fly} from "svelte/transition";
     import {page} from "$app/stores";
-    import {Breadcrumb, BreadcrumbItem} from "flowbite-svelte";
+    import {Breadcrumb, BreadcrumbItem, Toast} from "flowbite-svelte";
+    import {onAuthStateChanged} from "firebase/auth";
+    import {auth} from "$lib/firebase/firebase";
+    import {getUserListener, userStore} from "$lib/user";
+    import {goto} from "$app/navigation";
+    import {onMount} from "svelte";
+    import {notificationsStore} from "$lib/notifications";
+    import Notification from "./Notification.svelte";
+    import {DownloadOutline} from "flowbite-svelte-icons";
+    import {fly} from "svelte/transition";
 
-    $: currentPage = $page.url;
-    $: pagesOnPath = currentPage.pathname.split("/").filter(Boolean);
 
-    if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark')
-    }
+    let userListUnsub: (() => void) | undefined;
 
-    onAuthStateChanged(auth, async (u) => {
-        if(u) {
-            userStore.set(u)
-            if (window.location.pathname === "/") {
-                await goto("/panel")
-            }
+    onMount(() => {
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
         } else {
-            userStore.set(null)
+            document.documentElement.classList.remove('dark')
+        }
+
+        onAuthStateChanged(auth, async (u) => {
+            if(u) {
+                userListUnsub = await getUserListener(u.uid);
+
+                if (window.location.pathname === "/") {
+                    await goto("/panel")
+                }
+                return
+            }
+
+            if(userListUnsub) {
+                userListUnsub();
+                userListUnsub = undefined;
+            }
+            userStore.set(undefined)
+
             if (window.location.pathname !== "/") {
                 await goto("/")
             }
-        }
-    });
+        });
+    })
+
+    $: currentPage = $page.url;
+    $: pagesOnPath = currentPage.pathname.split("/").filter(Boolean);
 </script>
 
 <div class="h-screen w-full">
@@ -49,3 +65,9 @@
         </div>
     </div>
 </div>
+
+{#each $notificationsStore as notification}
+    <div transition:fly>
+        <Notification {notification} />
+    </div>
+{/each}

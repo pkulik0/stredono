@@ -1,9 +1,9 @@
 <script lang="ts">
     import {Button, Card, Checkbox, Helper, Input, Label} from "flowbite-svelte";
     import {isSignInWithEmailLink, signInWithEmailLink, sendSignInLinkToEmail} from "firebase/auth";
-    import {auth} from "$lib/firebase";
+    import {auth} from "$lib/firebase/firebase";
     import {onMount} from "svelte";
-    import {userStore} from "$lib/stores";
+    import {userStore} from "$lib/user";
     import {goto} from "$app/navigation";
     import {ArrowRightSolid} from "flowbite-svelte-icons";
 
@@ -36,9 +36,8 @@
             return;
         }
         try {
-            const cred = await signInWithEmailLink(auth, email, window.location.href);
+            await signInWithEmailLink(auth, email, window.location.href);
             window.localStorage.removeItem(lsKey);
-            userStore.set(cred.user);
             await goto("/panel");
         } catch (e) {
             console.error(e);

@@ -7,26 +7,26 @@
     } from "flowbite-svelte";
     import {page} from "$app/stores";
     import {onMount} from "svelte";
-    import {FetchError, getProfileByUsername} from "$lib/page";
+    import {FetchError, getUserByUsername} from "$lib/user";
     import {goto} from "$app/navigation";
     import {emailStore, senderStore} from "$lib/stores";
     import Form from "./Form.svelte";
-    import ProfileHeader from "$lib/comp/ProfileHeader.svelte";
-    import type {Profile} from "$lib/pb/profile_pb";
+    import UserHeader from "$lib/comp/UserHeader.svelte";
+    import type {User} from "$lib/pb/user_pb";
 
     const sendDonate = async () => {
-        if(!profile) throw new Error("Profile is undefined");
+        if(!user) throw new Error("User is undefined");
         if ($senderStore === "" || $emailStore === "") return;
 
         const amountFloat = parseFloat(amount);
-        if (amountFloat < profile.minimumAmount) return; // TODO: show error
+        if (amountFloat < user.minimumAmount) return; // TODO: show error
 
         const sdReq = new SendDonateRequest({
             amount: amountFloat,
             currency: currency,
             email: $emailStore,
             sender: $senderStore,
-            recipientId: profile.uid,
+            recipientId: user.uid,
             message: message,
             status: DonateStatus.INITIATED
         });
@@ -42,7 +42,7 @@
     }
 
     let recipient = $page.params.recipient;
-    let profile: Profile|undefined = undefined;
+    let user: User|undefined = undefined;
 
     let amount:string = "5";
     let message:string = "";
@@ -52,7 +52,9 @@
     let hasListeners: boolean = true;
 
     const getListeners = async () => {
-        const res = await axios.get(PUBLIC_FUNC_LINK + "getListeners?uid=" + profile!.uid)
+        if(!user) return;
+
+        const res = await axios.get(PUBLIC_FUNC_LINK + "getListeners?uid=" + user.uid)
         if(res.status !== 200) {
             console.error(res.data); // TODO: handle error
             return;
@@ -62,8 +64,8 @@
 
     onMount(async () => {
         try {
-            profile = await getProfileByUsername(recipient);
-            amount = profile.minimumAmount.toString();
+            user = await getUserByUsername(recipient);
+            amount = user.minimumAmount.toString();
 
             getListeners().then(r => {})
             setInterval(getListeners, 10000)
@@ -77,12 +79,12 @@
     });
 </script>
 
-{#if profile}
+{#if user}
     <div class="flex justify-center items-center h-screen">
         <Card padding="xl" size="lg">
 
             <div class="px-[5%]">
-                <ProfileHeader {profile}/>
+                <UserHeader {user}/>
 
                 <Form {recipient} {sendDonate} {isBlocked} {hasListeners} bind:amount bind:message bind:currency/>
             </div>

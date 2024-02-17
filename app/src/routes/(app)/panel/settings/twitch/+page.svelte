@@ -11,11 +11,11 @@
         Range,
         Select
     } from "flowbite-svelte";
-    import {getTwitchAuthUrl} from "$lib/twitch";
+    import {getTwitchAuthUrl} from "$lib/ext/twitch";
     import CheckboxDropdown from "$lib/comp/CheckboxDropdown.svelte";
     import axios from "axios";
     import {PUBLIC_FUNC_LINK} from "$env/static/public";
-    import {auth} from "$lib/firebase";
+    import {auth} from "$lib/firebase/firebase";
 
     const connectTwitch = async () => {
         window.location.href = await getTwitchAuthUrl();

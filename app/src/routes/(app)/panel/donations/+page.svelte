@@ -6,7 +6,7 @@
     import {ChevronLeftOutline, ChevronRightOutline} from "flowbite-svelte-icons";
     import {page} from "$app/stores";
     import {goto} from "$app/navigation";
-    import {userStore} from "$lib/stores";
+    import {userStore} from "$lib/user";
 
     onMount(() => {
         return donationStore.subscribe((value) => {

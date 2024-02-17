@@ -1,23 +1,7 @@
-import {initializeApp} from "firebase/app";
-import {getAuth} from "firebase/auth";
-import {getFirestore} from "firebase/firestore";
 import {getDownloadURL, getMetadata, getStorage, ref, uploadBytes} from "firebase/storage";
-import {getMessaging} from "firebase/messaging";
-import {initializeAppCheck, ReCaptchaEnterpriseProvider} from "firebase/app-check";
-import firebaseConfig from "./firebaseWebConfig.json";
-import appcheckConfig from "./firebaseAppCheck.json";
+import {auth, app} from "$lib/firebase/firebase";
 
-const app = initializeApp(firebaseConfig);
-
-export const auth = getAuth(app);
-export const db = getFirestore(app);
 export const storage = getStorage(app);
-export const messaging = getMessaging(app);
-
-const appCheck = initializeAppCheck(app, {
-    provider: new ReCaptchaEnterpriseProvider(appcheckConfig.siteKey),
-    isTokenAutoRefreshEnabled: true
-})
 
 export const uploadToStorage = async (folder: string, name: string, file: File, overwrite: boolean): Promise<string> => {
     const user = auth.currentUser;

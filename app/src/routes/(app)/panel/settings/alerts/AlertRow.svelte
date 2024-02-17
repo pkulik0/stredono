@@ -1,7 +1,7 @@
 <script lang="ts">
     import {Button, Hr, Img, TableBodyCell, TableBodyRow} from "flowbite-svelte";
     import {EditSolid, EyeSolid, PauseSolid, TrashBinSolid} from "flowbite-svelte-icons";
-    import type {Alert} from "$lib/pb/alerts_pb";
+    import type {Alert} from "$lib/pb/user_pb";
 
     export let alert: Alert;
 
@@ -13,17 +13,17 @@
 
 <TableBodyRow>
     <TableBodyCell class="{cellClass}">
-        <Img src={alert.gifUrl} alt="{alert.id} GIF" class="rounded w-100 min-w-[100px] md:min-w-[150px]" />
+        <Img src={alert.style?.gifUrl ?? ""} alt="{alert.id} GIF" class="rounded w-100 min-w-[100px] md:min-w-[150px]" />
     </TableBodyCell>
     <TableBodyCell class="{cellClass}">
         <audio controls>
-            <source src={alert.soundUrl} type="audio/mpeg" />
+            <source src={alert.style?.soundUrl ?? ""} type="audio/mpeg" />
             Your browser does not support the audio element.
         </audio>
     </TableBodyCell>
     <TableBodyCell class="{cellClass}">{alert.template}</TableBodyCell>
-    <TableBodyCell class="{cellClass}">{alert.from}</TableBodyCell>
-    <TableBodyCell class="{cellClass}">{alert.to}</TableBodyCell>
+    <TableBodyCell class="{cellClass}">{alert.amountTrigger?.min || '?'}</TableBodyCell>
+    <TableBodyCell class="{cellClass}">{alert.amountTrigger?.max || '?'}</TableBodyCell>
     <TableBodyCell class="{cellClass}">
         <Button color="red" outline class="{btnClass}">
             <TrashBinSolid class="{iconClass}" />

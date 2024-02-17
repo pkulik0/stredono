@@ -1,71 +1,74 @@
 <script lang="ts">
     import {Button, Card, Fileupload, Helper, Hr, Input, Label, Textarea,} from "flowbite-svelte";
-    import Header from "$lib/comp/ProfileHeader.svelte";
-    import type {Profile} from "$lib/pb/profile_pb";
+    import UserHeader from "$lib/comp/UserHeader.svelte";
+    import {saveUser, userStore} from "$lib/user";
     import {onMount} from "svelte";
-    import {getProfileByUsername, saveProfileToDb} from "$lib/page";
-    import {getTwitchAuthUrl} from "$lib/twitch";
-    import {uploadToStorage} from "$lib/firebase";
-    import {usernameStore} from "$lib/stores";
-
-    let profile: Profile|undefined = undefined;
-
-    onMount(() => {
-        return usernameStore.subscribe(async (username) => {
-            if (!username) {
-                profile = undefined;
-                return
-            }
-
-            profile = await getProfileByUsername(username);
-            name = profile.name;
-            description = profile.description;
-            url = profile.url;
-        });
-    });
+    import {uploadToStorage} from "$lib/firebase/storage";
+    import type {User} from "$lib/pb/user_pb";
+    import {sendNotification, Notification} from "$lib/notifications";
 
     let files: FileList|undefined = undefined;
-    let name: string = "";
+    let username: string = "";
     let url: string = "";
     let description: string = "";
     let avatarUrl: string = ""
 
+    let user: User|undefined = undefined;
+
+    onMount(() => {
+        return userStore.subscribe((u) => {
+            user = u;
+
+            if(u) {
+                username = u.username;
+                url = u.url;
+                description = u.description;
+                avatarUrl = u.avatarUrl;
+                return
+            }
+
+            username = "";
+            url = "";
+            description = "";
+            avatarUrl = "";
+        })
+    })
+
     $: if(files) {
         const file = files.item(0);
-        if (file) avatarUrl = URL.createObjectURL(file);
+        avatarUrl = file ? URL.createObjectURL(file) : "";
     }
 
-    $: if (profile) {
-        profile.name = name;
-        profile.description = description;
-        profile.url = url;
-        if (avatarUrl) profile.avatarUrl = avatarUrl;
+    $: if(user) {
+        user.username = username;
+        user.url = url;
+        user.description = description;
+        user.avatarUrl = avatarUrl;
     }
 
     const clickSave = async () => {
-        if(!profile) return;
-        const username = $usernameStore;
-        if (!username) return;
-
+        if(!user) return;
 
         const avatarFile = files?.item(0);
         if (avatarFile) {
-            profile.avatarUrl = await uploadToStorage("page", "avatar", avatarFile, true);
+            user.avatarUrl = await uploadToStorage("public", "avatar", avatarFile, true);
         }
-        await saveProfileToDb(username, profile);
+
+        await saveUser(user)
+        sendNotification(new Notification("Profile saved"))
     }
 </script>
 
 <div class="flex flex-col justify-center items-center">
     <Card padding="xl" size="lg">
-        <Header {profile}/>
+        <UserHeader interactive={false} {user}/>
     </Card>
 
     <div class="space-y-6 mt-10 w-full max-w-xl">
 
         <Label class="flex-1">
             Display Name
-            <Input bind:value={name} type="text"/>
+            <Input bind:value={username} type="text"/>
         </Label>
 
         <Label>

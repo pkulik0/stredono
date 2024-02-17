@@ -1,6 +1,6 @@
 import axios from "axios";
 import {PUBLIC_FUNC_LINK} from "$env/static/public";
-import {auth} from "$lib/firebase";
+import {auth} from "$lib/firebase/firebase";
 
 export const getTwitchAuthUrl = async (): Promise<string> => {
     const user = auth.currentUser;

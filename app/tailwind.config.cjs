@@ -8,6 +8,9 @@ const config = {
 
 	theme: {
 		extend: {
+			zIndex: {
+				'100': '100',
+			},
 			colors: {
 				// flowbite-svelte
 				primary: {
