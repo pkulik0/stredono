@@ -1,5 +1,13 @@
 {
   "database": {
-    "rules": "rtdb.rules.json"
+    "rules": "rules/rtdb.rules.json"
+  },
+  "hosting": {
+    "public": "app/build",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
   }
 }

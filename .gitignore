@@ -1,13 +1,10 @@
-.idea
-.vscode
+*.tfstate*
+*secret.tfvars*
 
-go.work*
+.terraform
+.idea
+.firebase
 
 node_modules
 
-*.tfstate*
-*.tfvars*
-.terraform
-
-service.json
-*_source.zip
+go.work*

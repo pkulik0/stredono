@@ -19,7 +19,7 @@ data "archive_file" "source" {
   type        = "zip"
   source_dir  = "${local.base_path}/functions"
   excludes    = ["cmd"]
-  output_path = "${path.module}/functions_source.zip"
+  output_path = "${path.module}/.terraform/functions_source.zip"
 }
 
 resource "google_storage_bucket_object" "functions_source" {

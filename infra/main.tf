@@ -13,7 +13,8 @@ terraform {
 }
 
 locals {
-  base_path = "${path.module}/.."
+  base_path  = "${path.module}/.."
+  rules_path = "${local.base_path}/rules"
 
   firebase_location   = "eur3"
   app_engine_location = "europe-west"
@@ -79,16 +80,12 @@ resource "google_project_service" "default" {
   disable_on_destroy = false
 }
 
-data "google_project" "project" {
-  provider   = google-beta
-  project_id = google_project.default.project_id
-}
 
 resource "google_project_iam_member" "default" {
   provider   = google-beta
-  project    = data.google_project.project.project_id
+  project    = google_project.default.project_id
   role       = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member     = "serviceAccount:service-${data.google_project.project.number}@gs-project-accounts.iam.gserviceaccount.com"
+  member     = "serviceAccount:service-${google_project.default.number}@gs-project-accounts.iam.gserviceaccount.com"
   depends_on = [google_project_service.default]
 }
 

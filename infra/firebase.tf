@@ -53,7 +53,7 @@ resource "google_firebaserules_ruleset" "firestore" {
   source {
     files {
       name    = "firestore.rules"
-      content = file("${local.base_path}/firestore.rules")
+      content = file("${local.rules_path}/firestore.rules")
     }
   }
 
@@ -94,7 +94,7 @@ resource "google_firebaserules_ruleset" "storage" {
   project  = google_project.default.project_id
   source {
     files {
-      content = file("${local.base_path}/storage.rules")
+      content = file("${local.rules_path}/storage.rules")
       name    = "storage.rules"
     }
   }
@@ -120,17 +120,56 @@ resource "google_firebase_database_instance" "default" {
   depends_on = [google_firebase_project.default]
 }
 
+resource "google_firebase_hosting_site" "default" {
+  provider = google-beta
+  project  = google_project.default.number
+  site_id  = google_project.default.project_id
+  app_id   = google_firebase_web_app.stredono_web.app_id
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
 // Realtime Database Rules aren't supported by the google-beta provider yet, so we use the firebase CLI to deploy them
-resource "null_resource" "run_firebase_deploy" {
+resource "null_resource" "deploy_fb_rtdb_rules" {
   triggers = {
     firebase_json_hash = filesha256("${local.base_path}/firebase.json")
-    rtdb_rules_hash    = filesha256("${local.base_path}/rtdb.rules.json")
+    rtdb_rules_hash    = filesha256("${local.rules_path}/rtdb.rules.json")
   }
-
-  depends_on = [google_firestore_database.default]
 
   provisioner "local-exec" {
     command     = "firebase deploy --only database --project ${google_project.default.project_id}"
     working_dir = path.module
   }
+
+  depends_on = [google_firestore_database.default, google_firebase_hosting_site.default]
+}
+
+resource "null_resource" "build_app" {
+  count = var.is_local ? 1 : 0
+
+  provisioner "local-exec" {
+    command     = "npm run build"
+    working_dir = "${local.base_path}/app"
+  }
+}
+
+data "external" "build_dir_hash" {
+  program    = ["python3", "${path.module}/scripts/dir_hash.py", "${local.base_path}/app/build"]
+  depends_on = [null_resource.build_app]
+}
+
+resource "null_resource" "deploy_fb_hosting" {
+  triggers = {
+    firebase_json_hash = filesha256("${local.base_path}/firebase.json")
+    hosting_hash       = data.external.build_dir_hash.result.hash
+  }
+
+  provisioner "local-exec" {
+    command     = "firebase deploy --only hosting --project ${google_project.default.project_id}"
+    working_dir = path.module
+  }
+
+  depends_on = [google_firestore_database.default, google_firebase_hosting_site.default]
 }
