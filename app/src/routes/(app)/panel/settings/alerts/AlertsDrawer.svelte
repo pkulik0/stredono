@@ -242,12 +242,14 @@
             <div class="pt-2 flex space-x-6 m-auto inlin">
                 <Label>
                     Text Color <br/>
-                    <ColorPicker textInputModes={["hex"]} label="" isAlpha={false} isDialog sliderDirection="horizontal" components={ChromeVariant} bind:hex={textColor} />
+                    <input type="color" bind:value={textColor} />
+<!--                    <ColorPicker textInputModes={["hex"]} label="" isAlpha={false} isDialog sliderDirection="horizontal" components={ChromeVariant} bind:hex={textColor} />-->
                 </Label>
 
                 <Label>
                     Accent Color <br/>
-                    <ColorPicker textInputModes={["hex"]} label="" isAlpha={false} isDialog sliderDirection="horizontal" components={ChromeVariant} bind:hex={accentColor} />
+                    <input type="color" bind:value={accentColor} />
+<!--                    <ColorPicker textInputModes={["hex"]} label="" isAlpha={false} isDialog sliderDirection="horizontal" components={ChromeVariant} bind:hex={accentColor} />-->
                 </Label>
             </div>
         </div>

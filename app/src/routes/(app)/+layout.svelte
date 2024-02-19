@@ -41,7 +41,7 @@
     })
 </script>
 
-<div class="h-screen w-full overflow-hidden">
+<div class="h-screen w-full">
     <slot />
 </div>
 

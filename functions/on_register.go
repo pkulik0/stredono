@@ -3,6 +3,7 @@ package functions
 import (
 	"encoding/json"
 	"github.com/golang-jwt/jwt"
+	"github.com/pkulik0/stredono/functions/pb"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
@@ -75,8 +76,14 @@ func onRegister(w http.ResponseWriter, r *http.Request) {
 
 	log.Infof("OnRegister Claims: %s", claims)
 
-	aud := claims["aud"]
-	matched, err := regexp.Match(`^https://onregister-[a-z0-9-.]+\.run\.app$`, []byte(aud.(string)))
+	aud, ok := claims["aud"].(string)
+	if !ok {
+		log.Errorf("Failed to get audience")
+		http.Error(w, BadRequestMessage, http.StatusBadRequest)
+		return
+	}
+
+	matched, err := regexp.Match(`^https://onregister-[a-z0-9-.]+\.run\.app$`, []byte(aud))
 	if err != nil {
 		log.Errorf("Failed to match audience: %s", err)
 		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
@@ -84,6 +91,36 @@ func onRegister(w http.ResponseWriter, r *http.Request) {
 	}
 	if !matched {
 		http.Error(w, "Invalid audience", http.StatusBadRequest)
+		return
+	}
+
+	uid, ok := claims["sub"].(string)
+	if !ok {
+		log.Errorf("Failed to get subject")
+		http.Error(w, BadRequestMessage, http.StatusBadRequest)
+		return
+	}
+
+	user := &pb.User{
+		Username:      "",
+		Uid:           uid,
+		Url:           "",
+		Description:   "",
+		MinimumAmount: 1,
+		Currency:      pb.Currency_PLN,
+		Alerts:        make([]*pb.Alert, 0),
+	}
+
+	firestoreClient, ok := GetFirestore(r.Context())
+	if !ok {
+		log.Errorf("Failed to get firestore client")
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
+		return
+	}
+	_, err = firestoreClient.Collection("users").Doc(uid).Create(r.Context(), user)
+	if err != nil {
+		log.Errorf("Failed to set user: %s", err)
+		http.Error(w, ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 

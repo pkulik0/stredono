@@ -27,4 +27,4 @@
     </div>
 </div>
 
-<ParticlesBackground intensity={10}/>
+<ParticlesBackground intensity={50}/>
