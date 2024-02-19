@@ -1,5 +1,6 @@
 <script lang="ts">
     import {donationStore, type DonationsMap, fetchOldDonations} from "$lib/donations";
+    import { auth } from '$lib/firebase/firebase';
     import {Breadcrumb, BreadcrumbItem, Card, Checkbox, Helper, Hr, Input, Label, P, Pagination} from "flowbite-svelte";
     import {onMount} from "svelte";
     import DonationList from "$lib/comp/DonationList.svelte";
@@ -58,7 +59,7 @@
     };
 
     const previousWeek = async () => {
-        const user = $userStore;
+        const user = auth.currentUser;
         if (!user) throw new Error('Not logged in');
 
         const startDate = donations[donationsIndex].startDate

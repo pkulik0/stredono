@@ -1,9 +1,9 @@
 <script lang="ts">
     import {Toast} from "flowbite-svelte";
     import {BadgeCheckOutline, BellOutline, ExclamationCircleOutline, CloseOutline} from "flowbite-svelte-icons";
-    import {fly, slide} from "svelte/transition";
+    import {fly} from "svelte/transition";
     import {onMount} from "svelte";
-    import {type Notification, notificationsStore} from "$lib/notifications";
+    import {type Notification} from "$lib/notifications";
 
     export let notification: Notification;
 

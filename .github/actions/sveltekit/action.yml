@@ -1,0 +1,42 @@
+name: 'SvelteKit Build and Test'
+description: 'Build and test SvelteKit code'
+inputs:
+  node-version:
+    description: 'The version of Node to use'
+    required: true
+  pnpm-version:
+    description: 'The version of pnpm to use'
+    required: true
+  working-dir:
+    description: 'The source directory'
+    required: false
+    default: './'
+
+runs:
+  using: "composite"
+  steps:
+      - name: Get pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ inputs.pnpm-version }}
+
+      - name: Use Node.js ${{ inputs.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm i
+        shell: bash
+        working-directory: ${{ inputs.dir }}
+
+      - name: Build static files
+        run: pnpm build
+        shell: bash
+        working-directory: ${{ inputs.dir }}
+
+      - name: Test app
+        run: pnpm test
+        shell: bash
+        working-directory: ${{ inputs.dir }}

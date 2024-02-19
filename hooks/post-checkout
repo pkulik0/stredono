@@ -1,0 +1,10 @@
+#!/bin/sh
+
+branch_checkout=$3
+
+if [ "$branch_checkout" -eq 0 ]; then
+    exit 0
+fi
+
+current_branch=$(git branch --show-current)
+python3 scripts/change-workspace.py "$current_branch"

@@ -3,12 +3,11 @@ import {getAuth} from "firebase/auth";
 import {initializeFirestore, persistentLocalCache, CACHE_SIZE_UNLIMITED} from "firebase/firestore";
 import {getMessaging} from "firebase/messaging";
 import {initializeAppCheck, ReCaptchaEnterpriseProvider} from "firebase/app-check";
-import firebaseConfig from "./firebaseWebConfig.json";
-import appcheckConfig from "./firebaseAppCheck.json";
+import TerraformOutput from "../terraform_output.json";
 
-export const app = initializeApp(firebaseConfig);
+export const app = initializeApp(TerraformOutput.FirebaseWebappConfig);
 initializeAppCheck(app, {
-    provider: new ReCaptchaEnterpriseProvider(appcheckConfig.siteKey),
+    provider: new ReCaptchaEnterpriseProvider(TerraformOutput.RecaptchaSiteKey),
     isTokenAutoRefreshEnabled: true
 })
 

@@ -3,7 +3,7 @@ package functions
 import (
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/pkulik0/stredono/pb"
+	"github.com/pkulik0/stredono/functions/pb"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 	"io"

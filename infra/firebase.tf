@@ -153,17 +153,19 @@ resource "null_resource" "build_app" {
     command     = "npm run build"
     working_dir = "${local.base_path}/app"
   }
+
+  depends_on = [google_firebase_hosting_site.default]
 }
 
-data "external" "build_dir_hash" {
-  program    = ["python3", "${path.module}/scripts/dir_hash.py", "${local.base_path}/app/build"]
+data "external" "calculate_build_dir_hash" {
+  program    = ["python3", "${local.base_path}/scripts/hash-directory.py", "${local.base_path}/app/build"]
   depends_on = [null_resource.build_app]
 }
 
 resource "null_resource" "deploy_fb_hosting" {
   triggers = {
     firebase_json_hash = filesha256("${local.base_path}/firebase.json")
-    hosting_hash       = data.external.build_dir_hash.result.hash
+    hosting_hash       = data.external.calculate_build_dir_hash.result.hash
   }
 
   provisioner "local-exec" {
@@ -171,5 +173,5 @@ resource "null_resource" "deploy_fb_hosting" {
     working_dir = path.module
   }
 
-  depends_on = [google_firestore_database.default, google_firebase_hosting_site.default]
+  depends_on = [null_resource.build_app, data.external.calculate_build_dir_hash, google_firebase_hosting_site.default]
 }

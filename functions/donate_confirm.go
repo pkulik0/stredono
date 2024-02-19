@@ -4,7 +4,7 @@ import (
 	"cloud.google.com/go/pubsub"
 	"fmt"
 	"github.com/golang/protobuf/proto"
-	"github.com/pkulik0/stredono/pb"
+	"github.com/pkulik0/stredono/functions/pb"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )

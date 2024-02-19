@@ -78,7 +78,7 @@ func CloudMiddleware(config CloudConfig, next HandlerFunc) HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		conf := &firebase.Config{ProjectID: ProjectID, DatabaseURL: DatabaseURL}
+		conf := &firebase.Config{ProjectID: ProjectId, DatabaseURL: FirebaseDatabaseUrl}
 		app, err := firebase.NewApp(ctx, conf)
 
 		if err != nil {
@@ -169,7 +169,7 @@ func CloudMiddleware(config CloudConfig, next HandlerFunc) HandlerFunc {
 		}
 
 		if config.Pubsub {
-			client, err := pubsub.NewClient(r.Context(), ProjectID)
+			client, err := pubsub.NewClient(r.Context(), ProjectId)
 			if err != nil {
 				log.Errorf("failed to get pubsub client | %s", err)
 				http.Error(w, ServerErrorMessage, http.StatusInternalServerError)

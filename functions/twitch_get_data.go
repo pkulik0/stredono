@@ -3,7 +3,7 @@ package functions
 import (
 	"cloud.google.com/go/firestore"
 	"github.com/nicklaw5/helix"
-	"github.com/pkulik0/stredono/pb"
+	"github.com/pkulik0/stredono/functions/pb"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 )

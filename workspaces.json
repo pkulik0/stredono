@@ -1,0 +1,16 @@
+{
+  "workspaces": [
+    {
+      "name": "default",
+      "branches": ["main"]
+    },
+    {
+      "name": "development",
+      "branches": ["dev"]
+    },
+    {
+      "name": "testing",
+      "branches": ["test"]
+    }
+  ]
+}

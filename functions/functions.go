@@ -4,6 +4,8 @@ import (
 	"github.com/GoogleCloudPlatform/functions-framework-go/functions"
 )
 
+const GcSecretsPath = "project/" + ProjectNumber + "/secrets/"
+
 func init() {
 	functions.HTTP("OnRegister", OnRegister)
 

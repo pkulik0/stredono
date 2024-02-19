@@ -1,0 +1,19 @@
+{
+  "FirebaseWebappConfig": {
+    "apiKey": "AIzaSyC12RlBrIfTGxf7fplRdmYkBVs267JEGSg",
+    "appId": "1:244188423824:web:1489cdb50b733a192dda15",
+    "authDomain": "stredono-6394ee11.firebaseapp.com",
+    "databaseURL": "https://stredono-6394ee11-default-rtdb.europe-west1.firebasedatabase.app",
+    "measurementId": "",
+    "messagingSenderId": "244188423824",
+    "projectId": "stredono-6394ee11",
+    "storageBucket": "stredono-6394ee11.appspot.com"
+  },
+  "PublicFiles": {
+    "audio": [
+      "public/audio/elevator-signal.wav"
+    ]
+  },
+  "RecaptchaSiteKey": "6Le8EHQpAAAAANuH1lMyNMbNOgNYkpTyUQlHs6pt",
+  "SendDonateUrl": "https://senddonate-bogpf7lo6q-ew.a.run.app"
+}

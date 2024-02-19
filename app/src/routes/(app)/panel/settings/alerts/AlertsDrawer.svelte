@@ -92,7 +92,7 @@
     let template = "[USER] donated [AMOUNT] [CURRENCY]!";
 
     let textColor = "#FFFFFF";
-    let accentColor = "#e55430";
+    let accentColor = "#3374ff";
 
     let animations = [
         { "value": AnimationType.BOUNCE, "name": "Bounce" },
@@ -159,7 +159,7 @@
     })
 </script>
 
-<Drawer activateClickOutside={false} transitionType="fly" {transitionParams} bind:hidden {divClass} placement="right" width="w-96">
+<Drawer activateClickOutside={false} transitionType="fly" {transitionParams} bind:hidden {divClass} placement="right" width="w-100">
     <div class="flex items-center">
         <h5 id="drawer-label" class="inline-flex items-center mb-6 text-base font-semibold text-gray-500 uppercase dark:text-gray-400">
             <BellActiveSolid class="w-4 h-4 me-2.5" />
@@ -203,7 +203,7 @@
             {#if type === AlertType.DONATE}
                 <div transition:slide>
                     <P weight="light" class="text-sm text-justify text-gray-500 dark:text-gray-400">
-                        100 Bits are equal to 1 USD or its equivalent in other currencies.
+                        Cheers use the same alerts as tips. 100 Bits are equal to 1 USD or its equivalent in other currencies.
                     </P>
                 </div>
             {/if}
@@ -239,7 +239,7 @@
                 Pick or Upload Sound
             </Button>
 
-            <div class="pt-2">
+            <div class="pt-2 flex space-x-6 m-auto inlin">
                 <Label>
                     Text Color <br/>
                     <ColorPicker textInputModes={["hex"]} label="" isAlpha={false} isDialog sliderDirection="horizontal" components={ChromeVariant} bind:hex={textColor} />

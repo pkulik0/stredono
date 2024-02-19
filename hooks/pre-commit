@@ -1,7 +1,13 @@
 #!/bin/sh
 
-ret=$(terraform fmt -recursive -check)
-if [ -n "$ret" ]; then
-  echo "Some terraform files are not formatted. Run 'terraform fmt' to fix the formatting. $ret"
+terraform validate
+if "$?"; then
+  echo "Some terraform files are not valid. $?"
+  exit 1
+fi
+
+terraform fmt -recursive -check
+if "$?"; then
+  echo "Some terraform files are not formatted. Run 'terraform fmt' to fix the formatting. $?"
   exit 1
 fi

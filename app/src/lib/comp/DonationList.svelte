@@ -48,4 +48,9 @@
             </Dropdown>
         </ListgroupItem>
     {/each}
+    {#if items.length === 0}
+        <ListgroupItem class="flex items-center justify-center h-16">
+            <p class="text-gray-500 dark:text-gray-400">You haven't received any donations recently.</p>
+        </ListgroupItem>
+    {/if}
 </Listgroup>

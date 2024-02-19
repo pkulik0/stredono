@@ -1,4 +1,5 @@
 <script lang="ts">
+    import FileDropzone from '$lib/comp/FileDropzone.svelte';
     import {Button, Card, Fileupload, Helper, Hr, Input, Label, Textarea,} from "flowbite-svelte";
     import UserHeader from "$lib/comp/UserHeader.svelte";
     import {saveUser, userStore} from "$lib/user";
@@ -7,10 +8,10 @@
     import type {User} from "$lib/pb/user_pb";
     import {sendNotification, Notification} from "$lib/notifications";
 
-    let files: FileList|undefined = undefined;
     let username: string = "";
     let url: string = "";
     let description: string = "";
+    let avatarFile: File|undefined = undefined;
     let avatarUrl: string = ""
 
     let user: User|undefined = undefined;
@@ -34,9 +35,8 @@
         })
     })
 
-    $: if(files) {
-        const file = files.item(0);
-        avatarUrl = file ? URL.createObjectURL(file) : "";
+    $: if(avatarFile) {
+        avatarUrl = URL.createObjectURL(avatarFile);
     }
 
     $: if(user) {
@@ -49,7 +49,6 @@
     const clickSave = async () => {
         if(!user) return;
 
-        const avatarFile = files?.item(0);
         if (avatarFile) {
             user.avatarUrl = await uploadToStorage("public", "avatar", avatarFile, true);
         }
@@ -76,19 +75,17 @@
             <Textarea bind:value={description} />
         </Label>
 
-        <Hr/>
-
-        <Label>
-            Avatar
-            <Fileupload bind:files={files} accept="image/*" />
-        </Label>
-
         <Label>
             Your Link
             <Input bind:value={url} type="text"/>
-            <Helper>
-                Allowed domains: twitch.tv
+            <Helper class="mt-1">
+                Clicking on your profile picture will take visitors to this link
             </Helper>
+        </Label>
+
+        <Label>
+            Avatar
+            <FileDropzone description=".png .jpg .jpeg .webp" bind:file={avatarFile} />
         </Label>
 
         <Button class="w-full" on:click={clickSave}>Save</Button>

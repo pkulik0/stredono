@@ -1,0 +1,48 @@
+name: 'Terraform Setup'
+description: 'Initializes Terraform workspace and generate output'
+inputs:
+  working-dir:
+    description: 'The directory where the terraform files are located'
+    required: true
+  terraform-version:
+    description: 'The version of Terraform to use'
+    required: false
+    default: 'latest'
+  workspace:
+    description: 'The Terraform workspace to use'
+    required: false
+    default: 'default'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: ${{ inputs.terraform-version }}
+
+    - name: Terraform Init
+      run: terraform init
+      working-directory: ${{ inputs.dir }}
+      shell: bash
+
+    - name: Terraform Workspace New
+      run: terraform workspace new ${{ inputs.workspace }}
+      working-directory: ${{ inputs.dir }}
+      shell: bash
+      continue-on-error: true
+
+    - name: Terraform Workspace Select
+      run: terraform workspace select ${{ inputs.workspace }}
+      working-directory: ${{ inputs.dir }}
+      shell: bash
+
+    - name: Terraform Format
+      run: terraform fmt -check
+      working-directory: ${{ inputs.dir }}
+      shell: bash
+
+    - name: Terraform Output
+      run: terraform output -json > ../terraform-output-${{ inputs.workspace }}.json
+      working-directory: ${{ inputs.dir }}
+      shell: bash

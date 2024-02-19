@@ -1,0 +1,23 @@
+name: 'Terraform Plan and Apply'
+description: 'Run terraform plan and apply'
+inputs:
+  working-dir:
+    description: 'The directory where the terraform files are located'
+    required: true
+  vars:
+    description: 'The Terraform variables file'
+    required: false
+    default: 'ci.tfvars'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Terraform Plan
+      run: terraform plan -input=false -var-file=${{ inputs.vars }}
+      working-directory: ${{ inputs.dir }}
+      shell: bash
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve -input=false -var-file=${{ inputs.vars }}
+      working-directory: ${{ inputs.dir }}
+      shell: bash
