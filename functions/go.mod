@@ -10,10 +10,11 @@ require (
 	firebase.google.com/go v3.13.0+incompatible
 	firebase.google.com/go/v4 v4.13.0
 	github.com/GoogleCloudPlatform/functions-framework-go v1.5.1
+	github.com/golang-jwt/jwt v3.2.1+incompatible
 	github.com/golang/protobuf v1.5.3
 	github.com/google/uuid v1.6.0
 	github.com/nicklaw5/helix v1.25.0
-	github.com/pkulik0/stredono/pb v0.0.0-20240211230413-068a71834c12
+	github.com/pkulik0/stredono/functions/pb v0.0.0-20240219135253-196409c15d69
 	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/oauth2 v0.17.0
 	google.golang.org/protobuf v1.32.0
@@ -23,7 +24,6 @@ require (
 	cloud.google.com/go v0.112.0 // indirect
 	cloud.google.com/go/compute v1.23.3 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
-	cloud.google.com/go/functions v1.16.0 // indirect
 	cloud.google.com/go/iam v1.1.6 // indirect
 	cloud.google.com/go/longrunning v0.5.4 // indirect
 	github.com/MicahParks/keyfunc v1.9.0 // indirect
@@ -31,7 +31,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/golang-jwt/jwt v3.2.1+incompatible // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
