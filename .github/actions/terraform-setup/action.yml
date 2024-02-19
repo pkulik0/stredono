@@ -23,26 +23,26 @@ runs:
 
     - name: Terraform Init
       run: terraform init
-      working-directory: ${{ inputs.dir }}
+      working-directory: ${{ inputs.working-dir }}
       shell: bash
 
     - name: Terraform Workspace New
       run: terraform workspace new ${{ inputs.workspace }}
-      working-directory: ${{ inputs.dir }}
+      working-directory: ${{ inputs.working-dir }}
       shell: bash
       continue-on-error: true
 
     - name: Terraform Workspace Select
       run: terraform workspace select ${{ inputs.workspace }}
-      working-directory: ${{ inputs.dir }}
+      working-directory: ${{ inputs.working-dir }}
       shell: bash
 
     - name: Terraform Format
       run: terraform fmt -check
-      working-directory: ${{ inputs.dir }}
+      working-directory: ${{ inputs.working-dir }}
       shell: bash
 
     - name: Terraform Output
       run: terraform output -json > ../terraform-output-${{ inputs.workspace }}.json
-      working-directory: ${{ inputs.dir }}
+      working-directory: ${{ inputs.working-dir }}
       shell: bash

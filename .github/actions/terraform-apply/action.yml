@@ -14,10 +14,10 @@ runs:
   steps:
     - name: Terraform Plan
       run: terraform plan -input=false -var-file=${{ inputs.vars }}
-      working-directory: ${{ inputs.dir }}
+      working-directory: ${{ inputs.working-dir }}
       shell: bash
 
     - name: Terraform Apply
       run: terraform apply -auto-approve -input=false -var-file=${{ inputs.vars }}
-      working-directory: ${{ inputs.dir }}
+      working-directory: ${{ inputs.working-dir }}
       shell: bash

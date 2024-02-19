@@ -29,14 +29,14 @@ runs:
       - name: Install dependencies
         run: pnpm i
         shell: bash
-        working-directory: ${{ inputs.dir }}
+        working-directory: ${{ inputs.working-dir }}
 
       - name: Build static files
         run: pnpm build
         shell: bash
-        working-directory: ${{ inputs.dir }}
+        working-directory: ${{ inputs.working-dir }}
 
       - name: Test app
         run: pnpm test
         shell: bash
-        working-directory: ${{ inputs.dir }}
+        working-directory: ${{ inputs.working-dir }}
