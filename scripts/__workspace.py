@@ -23,7 +23,7 @@ def find_dir_by_content_ext(x, location=os.curdir):
 
 
 OUTPUT_NAME = "terraform_output"
-CONFIG_PATH = "workspaces.json"
+CONFIG_PATH = "workspaces.yml"
 INFRA_PATH = find_dir_by_content_ext(".tf")
 GO_PACKAGE = find_dir_by_content_ext(".go")
 GO_FILE = f"{GO_PACKAGE}/{OUTPUT_NAME}.go"

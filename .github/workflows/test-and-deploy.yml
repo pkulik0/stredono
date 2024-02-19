@@ -23,6 +23,15 @@ jobs:
         run: npm install -g firebase-tools
         shell: bash
 
+      - name: Set up Python 3.12.x
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12.x
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+        working-directory: scripts
+
       - name: Build and Test Cloud Functions
         uses: ./.github/actions/go
         with:
@@ -40,7 +49,8 @@ jobs:
         id: get_branch
         uses: ./.github/actions/branch-name
 
-      - uses: ./.github/actions/terraform
+      - name: Deploy Infrastructure
+        uses: ./.github/actions/terraform
         with:
           working-dir: 'infra'
           workspace: ${{ steps.get_branch.outputs.branch }}

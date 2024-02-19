@@ -1,0 +1,7 @@
+workspaces:
+  default:
+    branches: [main]
+  development:
+    branches: [dev]
+  testing:
+    branches: [test]

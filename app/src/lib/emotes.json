@@ -1,5 +1,10 @@
 [
     {
+        "src": "/emotes/bloodtrail.png",
+        "width": 123,
+        "height": 84
+    },
+    {
         "src": "/emotes/kac.webp",
         "width": 188,
         "height": 128
@@ -10,6 +15,11 @@
         "height": 128
     },
     {
+        "src": "/emotes/biblethump.png",
+        "width": 108,
+        "height": 90
+    },
+    {
         "src": "/emotes/5head.webp",
         "width": 104,
         "height": 128
@@ -18,6 +28,11 @@
         "src": "/emotes/clueless.webp",
         "width": 144,
         "height": 128
+    },
+    {
+        "src": "/emotes/trihard.png",
+        "width": 112,
+        "height": 112
     },
     {
         "src": "/emotes/copium.webp",
@@ -60,6 +75,16 @@
         "height": 128
     },
     {
+        "src": "/emotes/kappa.png",
+        "width": 75,
+        "height": 84
+    },
+    {
+        "src": "/emotes/4head.png",
+        "width": 60,
+        "height": 90
+    },
+    {
         "src": "/emotes/ez.webp",
         "width": 128,
         "height": 128
@@ -83,6 +108,11 @@
         "src": "/emotes/pog.webp",
         "width": 128,
         "height": 128
+    },
+    {
+        "src": "/emotes/goldenkappa.png",
+        "width": 86,
+        "height": 112
     },
     {
         "src": "/emotes/pepelaugh.webp",

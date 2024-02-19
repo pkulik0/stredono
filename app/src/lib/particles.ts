@@ -42,7 +42,7 @@ const emitter = (x: number, y: number, intensity: number) => ({
 			},
 		},
 		size: {
-			value: 28,
+			value: 20,
 		},
 		move: {
 			speed: 8,
