@@ -1,10 +1,17 @@
 #!/bin/sh
 
 branch_checkout=$3
-
 if [ "$branch_checkout" -eq 0 ]; then
     exit 0
 fi
 
 current_branch=$(git branch --show-current)
-python3 scripts/change-workspace.py "$current_branch"
+python3 scripts/workspace-change.py "$current_branch"
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+python3 scripts/workspace-regenerate.py
+if [ $? -ne 0 ]; then
+    exit 1
+fi

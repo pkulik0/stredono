@@ -159,7 +159,7 @@
     })
 </script>
 
-<Drawer activateClickOutside={false} transitionType="fly" {transitionParams} bind:hidden {divClass} placement="right" width="w-100">
+<Drawer activateClickOutside={false} transitionType="fly" {transitionParams} bind:hidden {divClass} placement="right" width="w-96">
     <div class="flex items-center">
         <h5 id="drawer-label" class="inline-flex items-center mb-6 text-base font-semibold text-gray-500 uppercase dark:text-gray-400">
             <BellActiveSolid class="w-4 h-4 me-2.5" />

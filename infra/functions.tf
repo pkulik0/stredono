@@ -9,7 +9,7 @@ resource "google_storage_bucket" "fn_bucket" {
   provider                    = google-beta
   project                     = google_project.default.project_id
   name                        = "${google_project.default.project_id}-gcf-source"
-  location                    = local.storage_location
+  location                    = var.storage_location
   uniform_bucket_level_access = true
 
   depends_on = [google_project_service.default]
@@ -30,16 +30,22 @@ resource "google_storage_bucket_object" "functions_source" {
   depends_on = [google_storage_bucket.fn_bucket, data.archive_file.source]
 }
 
-resource "google_cloudfunctions2_function" "OnRegister" {
+locals {
+  public_functions = { for function in google_cloudfunctions2_function.cloud_functions : function.name => function.location if var.cloud_functions[function.name].public }
+}
+
+resource "google_cloudfunctions2_function" "cloud_functions" {
+  for_each = var.cloud_functions
+
   provider = google-beta
   project  = google_project.default.project_id
 
-  name     = "onregister"
-  location = local.functions_location
+  name     = each.key
+  location = each.value.location
 
   build_config {
-    runtime     = local.go_runtime
-    entry_point = "OnRegister"
+    runtime     = each.value.runtime
+    entry_point = each.value.entry
     source {
       storage_source {
         bucket = google_storage_bucket.fn_bucket.name
@@ -49,59 +55,30 @@ resource "google_cloudfunctions2_function" "OnRegister" {
   }
 
   service_config {
-    min_instance_count               = 0
-    max_instance_count               = 1
-    available_memory                 = "256M"
-    max_instance_request_concurrency = 1
-    timeout_seconds                  = 60
-    ingress_settings                 = "ALLOW_ALL"
+    min_instance_count               = each.value.min_instances
+    max_instance_count               = each.value.max_instances
+    available_memory                 = each.value.memory
+    max_instance_request_concurrency = each.value.concurrency
+    timeout_seconds                  = each.value.timeout
+    ingress_settings                 = each.value.public ? "ALLOW_ALL" : "ALLOW_INTERNAL_ONLY"
     service_account_email            = google_service_account.account.email
   }
 
   depends_on = [google_storage_bucket_object.functions_source, google_service_account.account]
 }
 
-// Cloud Run (v1) Invoker role for Gen 2 (used to be cloudfunctions.invoker for Gen 1)
+// run.invoker for Gen 2 (used to be cloudfunctions.invoker for Gen 1)
 resource "google_cloud_run_service_iam_member" "invoker" {
+  for_each = local.public_functions
+
   provider = google-beta
   project  = google_project.default.project_id
 
-  location = google_cloudfunctions2_function.OnRegister.location
-  service  = google_cloudfunctions2_function.OnRegister.name
+  service  = lower(each.key)
+  location = each.value
 
   member = "allUsers"
   role   = "roles/run.invoker"
 
-  depends_on = [google_cloudfunctions2_function.OnRegister]
-}
-
-resource "google_cloudfunctions2_function" "SendDonate" {
-  provider = google-beta
-  project  = google_project.default.project_id
-
-  name     = "SendDonate"
-  location = local.functions_location
-
-  build_config {
-    runtime     = local.go_runtime
-    entry_point = "SendDonate"
-    source {
-      storage_source {
-        bucket = google_storage_bucket.fn_bucket.name
-        object = google_storage_bucket_object.functions_source.name
-      }
-    }
-  }
-
-  service_config {
-    min_instance_count               = 0
-    max_instance_count               = 1
-    available_memory                 = "256M"
-    max_instance_request_concurrency = 1
-    timeout_seconds                  = 60
-    ingress_settings                 = "ALLOW_ALL"
-    service_account_email            = google_service_account.account.email
-  }
-
-  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account]
+  depends_on = [google_cloudfunctions2_function.cloud_functions]
 }

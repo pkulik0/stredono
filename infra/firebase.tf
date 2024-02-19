@@ -9,7 +9,7 @@ resource "google_firestore_database" "default" {
   provider         = google-beta
   project          = google_project.default.project_id
   name             = "(default)"
-  location_id      = local.firebase_location
+  location_id      = var.firebase_location
   type             = "FIRESTORE_NATIVE"
   concurrency_mode = "OPTIMISTIC"
 
@@ -73,7 +73,7 @@ resource "google_app_engine_application" "default-bucket" {
   provider = google-beta
   project  = google_project.default.project_id
 
-  location_id = local.app_engine_location
+  location_id = var.app_engine_location
 
   depends_on = [google_firestore_database.default]
 }
@@ -113,7 +113,7 @@ resource "google_firebase_database_instance" "default" {
   provider = google-beta
   project  = google_project.default.project_id
 
-  region      = local.rtdb-location
+  region      = var.rtdb_location
   instance_id = "${google_project.default.project_id}-default-rtdb"
   type        = "DEFAULT_DATABASE"
 
@@ -146,32 +146,52 @@ resource "null_resource" "deploy_fb_rtdb_rules" {
   depends_on = [google_firestore_database.default, google_firebase_hosting_site.default]
 }
 
-resource "null_resource" "build_app" {
-  count = var.is_local ? 1 : 0
+resource "google_firebase_web_app" "stredono_web" {
+  provider = google-beta
+  project  = google_project.default.project_id
 
-  provisioner "local-exec" {
-    command     = "npm run build"
-    working_dir = "${local.base_path}/app"
-  }
+  display_name = "Stredono Web"
 
-  depends_on = [google_firebase_hosting_site.default]
+  deletion_policy = "DELETE"
+  depends_on      = [google_firebase_project.default]
 }
 
-data "external" "calculate_build_dir_hash" {
-  program    = ["python3", "${local.base_path}/scripts/hash-directory.py", "${local.base_path}/app/build"]
-  depends_on = [null_resource.build_app]
+data "google_firebase_web_app_config" "default" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  web_app_id = google_firebase_web_app.stredono_web.app_id
+
+  depends_on = [google_firebase_web_app.stredono_web]
 }
 
-resource "null_resource" "deploy_fb_hosting" {
-  triggers = {
-    firebase_json_hash = filesha256("${local.base_path}/firebase.json")
-    hosting_hash       = data.external.calculate_build_dir_hash.result.hash
+resource "google_recaptcha_enterprise_key" "primary" {
+  provider     = google-beta
+  project      = google_project.default.project_id
+  display_name = "Stredono Main Key"
+
+  web_settings {
+    integration_type  = "SCORE"
+    allowed_domains   = []
+    allow_all_domains = true
   }
 
-  provisioner "local-exec" {
-    command     = "firebase deploy --only hosting --project ${google_project.default.project_id}"
-    working_dir = path.module
-  }
+  depends_on = [google_project_service.default]
+}
 
-  depends_on = [null_resource.build_app, data.external.calculate_build_dir_hash, google_firebase_hosting_site.default]
+resource "google_firebase_app_check_service_config" "default" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  for_each = toset([
+    "firebasestorage.googleapis.com",
+    "firebasedatabase.googleapis.com",
+    "firestore.googleapis.com",
+    "identitytoolkit.googleapis.com",
+  ])
+
+  service_id       = each.key
+  enforcement_mode = "ENFORCED"
+
+  depends_on = [google_recaptcha_enterprise_key.primary]
 }

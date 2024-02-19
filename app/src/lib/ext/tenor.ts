@@ -1,4 +1,4 @@
-import {PUBLIC_TENOR_KEY} from "$env/static/public";
+import TerraformOutput from "$lib/terraform_output.json";
 import axios from "axios";
 
 export interface Gif {
@@ -23,7 +23,7 @@ const tenorResponseToGifs = (data: any): Gif[] => {
 }
 
 const getTenorUrl = (endpoint: string, limit: number, next: string) => {
-    let url = `${tenorUrl}/${endpoint}?key=${PUBLIC_TENOR_KEY}&contentfilter=high&limit=${limit}&ar_range=wide`;
+    let url = `${tenorUrl}/${endpoint}?key=${TerraformOutput.TenorApiKey}&contentfilter=high&limit=${limit}&ar_range=wide`;
     if (next) {
         url += `&pos=${next}`;
     }

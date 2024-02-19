@@ -1,6 +1,6 @@
 <script lang="ts">
     import axios from 'axios';
-    import {PUBLIC_FUNC_LINK, PUBLIC_SEND_DONATE_LINK} from "$env/static/public";
+    import TerraformOutput from "$lib/terraform_output.json";
     import {DonateStatus, SendDonateRequest, SendDonateResponse} from "$lib/pb/functions_pb";
     import {
         Card,
@@ -31,7 +31,7 @@
             status: DonateStatus.INITIATED
         });
 
-        const res = await axios.post(PUBLIC_SEND_DONATE_LINK, sdReq.toBinary(), { responseType: 'arraybuffer' })
+        const res = await axios.post(TerraformOutput.FunctionUrls.SendTip, sdReq.toBinary(), { responseType: 'arraybuffer' })
         if(res.status !== 200) {
             console.error(res.data); // TODO: handle error
             return;
@@ -54,7 +54,7 @@
     const getListeners = async () => {
         if(!user) return;
 
-        const res = await axios.get(PUBLIC_FUNC_LINK + "getListeners?uid=" + user.uid)
+        const res = await axios.get(TerraformOutput.FunctionUrls.GetListeners + "?uid=" + user.uid)
         if(res.status !== 200) {
             console.error(res.data); // TODO: handle error
             return;

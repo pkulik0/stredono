@@ -15,15 +15,6 @@ terraform {
 locals {
   base_path  = "${path.module}/.."
   rules_path = "${local.base_path}/rules"
-
-  firebase_location   = "eur3"
-  app_engine_location = "europe-west"
-  storage_location    = "EU"
-  functions_location  = "europe-west1"
-  rtdb-location       = "europe-west1"
-  kms_location        = "europe"
-
-  go_runtime = "go121"
 }
 
 provider "google-beta" {
@@ -93,7 +84,7 @@ resource "google_kms_key_ring" "default" {
   provider = google-beta
   project  = google_project.default.project_id
 
-  location   = local.kms_location
+  location   = var.kms_location
   name       = "${google_project.default.project_id}-keyring"
   depends_on = [google_project_iam_member.default]
 }
@@ -116,7 +107,7 @@ resource "google_storage_bucket" "terraform_state" {
   project  = google_project.default.project_id
 
   name     = "stredono-terraform-state"
-  location = local.storage_location
+  location = var.storage_location
 
   force_destroy = false
   storage_class = "STANDARD"
@@ -130,4 +121,81 @@ resource "google_storage_bucket" "terraform_state" {
   }
 
   depends_on = [google_kms_crypto_key.default]
+}
+
+data "external" "public_files" {
+  program     = ["python3", "scripts/list-files.py", "public"]
+  working_dir = local.base_path
+}
+
+resource "google_storage_bucket_object" "public_files" {
+  provider = google-beta
+
+  for_each = data.external.public_files.result
+
+  name   = each.value
+  source = "${local.base_path}/${each.value}"
+
+  bucket = local.firebase_bucket
+
+  depends_on = [google_firebase_storage_bucket.default, data.external.public_files]
+}
+
+locals {
+  public_dirs = distinct([for k, v in data.external.public_files.result : split("/", v)[1]])
+}
+
+output "frontend_public_files" {
+  value = {
+    for k, v in local.public_dirs : v => [for file in google_storage_bucket_object.public_files : file.name if split("/", file.name)[1] == v]
+  }
+}
+
+resource "google_pubsub_topic" "donations_topic" {
+  provider = google-beta
+  project  = google_project.default.project_id
+  name     = "donations"
+
+  depends_on = [google_project_service.default]
+}
+
+resource "google_identity_platform_config" "default" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  autodelete_anonymous_users = true
+
+  sign_in {
+    allow_duplicate_emails = false
+
+    anonymous {
+      enabled = false
+    }
+
+    email {
+      enabled           = true
+      password_required = false
+    }
+  }
+
+  blocking_functions {
+    triggers {
+      event_type   = "beforeCreate"
+      function_uri = [for f in google_cloudfunctions2_function.cloud_functions : f.service_config[0].uri if f.name == "OnRegister"][0]
+    }
+
+    forward_inbound_credentials {
+      id_token      = true
+      access_token  = true
+      refresh_token = true
+    }
+  }
+
+  authorized_domains = [
+    "localhost",
+    "${google_project.default.project_id}.firebaseapp.com",
+    "${google_project.default.project_id}.web.app"
+  ]
+
+  depends_on = [google_project_service.default, google_cloudfunctions2_function.cloud_functions]
 }

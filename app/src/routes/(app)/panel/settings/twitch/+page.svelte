@@ -14,7 +14,6 @@
     import {getTwitchAuthUrl} from "$lib/ext/twitch";
     import CheckboxDropdown from "$lib/comp/CheckboxDropdown.svelte";
     import axios from "axios";
-    import {PUBLIC_FUNC_LINK} from "$env/static/public";
     import {auth} from "$lib/firebase/firebase";
 
     const connectTwitch = async () => {
@@ -26,14 +25,15 @@
         if (!user) return;
         const token = await user.getIdToken(true);
 
-        const res = await axios.get(PUBLIC_FUNC_LINK + "getTwitchData", {
-            headers: {
-                "Authorization": "Bearer " + token
-            }
-        });
-        if (res.status === 200) {
-            console.log(res.data);
-        }
+        //TODO: get twitch data
+        // const res = await axios.get(PUBLIC_FUNC_LINK + "getTwitchData", {
+        //     headers: {
+        //         "Authorization": "Bearer " + token
+        //     }
+        // });
+        // if (res.status === 200) {
+        //     console.log(res.data);
+        // }
     }
 
     let follows: boolean = false;

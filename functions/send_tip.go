@@ -40,13 +40,13 @@ func validateNewDonate(req *pb.SendDonateRequest) error {
 	return nil
 }
 
-func DonateSend(w http.ResponseWriter, r *http.Request) {
+func SendTip(w http.ResponseWriter, r *http.Request) {
 	CorsMiddleware(CloudMiddleware(CloudConfig{
 		Firestore: true,
-	}, donateSend))(w, r)
+	}, sendTip))(w, r)
 }
 
-func donateSend(w http.ResponseWriter, r *http.Request) {
+func sendTip(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Errorf("Failed to read request: %s", err)

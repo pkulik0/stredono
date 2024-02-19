@@ -1,5 +1,5 @@
-name: 'Terraform Setup'
-description: 'Initializes Terraform workspace and generate output'
+name: 'Terraform Deploy'
+description: 'Deploy infrastructure using Terraform'
 inputs:
   working-dir:
     description: 'The directory where the terraform files are located'
@@ -8,10 +8,14 @@ inputs:
     description: 'The version of Terraform to use'
     required: false
     default: 'latest'
-  workspace:
-    description: 'The Terraform workspace to use'
+  brunch:
+    description: 'The branch name'
     required: false
     default: 'default'
+  vars:
+    description: 'The Terraform variables file'
+    required: false
+    default: 'ci.tfvars'
 
 runs:
   using: "composite"
@@ -21,20 +25,18 @@ runs:
       with:
         terraform_version: ${{ inputs.terraform-version }}
 
+    - name: Install Python dependencies
+      run: pip install -r requirements.txt
+      working-directory: scripts
+      shell: bash
+
     - name: Terraform Init
       run: terraform init
       working-directory: ${{ inputs.working-dir }}
       shell: bash
 
-    - name: Terraform Workspace New
-      run: terraform workspace new ${{ inputs.workspace }}
-      working-directory: ${{ inputs.working-dir }}
-      shell: bash
-      continue-on-error: true
-
-    - name: Terraform Workspace Select
-      run: terraform workspace select ${{ inputs.workspace }}
-      working-directory: ${{ inputs.working-dir }}
+    - name: Select Workspace
+      run: python3 scripts/workspace-change.py ${{ inputs.branch }}
       shell: bash
 
     - name: Terraform Format
@@ -42,7 +44,17 @@ runs:
       working-directory: ${{ inputs.working-dir }}
       shell: bash
 
-    - name: Terraform Output
-      run: terraform output -json > ../terraform-output-${{ inputs.workspace }}.json
+    - name: Terraform Validate
+      run: terraform validate
+      working-directory: ${{ inputs.working-dir }}
+      shell: bash
+
+    - name: Terraform Plan
+      run: terraform plan -input=false -var-file=${{ inputs.vars }}
+      working-directory: ${{ inputs.working-dir }}
+      shell: bash
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve -input=false -var-file=${{ inputs.vars }}
       working-directory: ${{ inputs.working-dir }}
       shell: bash

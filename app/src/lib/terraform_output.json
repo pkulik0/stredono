@@ -9,11 +9,21 @@
     "projectId": "stredono-6394ee11",
     "storageBucket": "stredono-6394ee11.appspot.com"
   },
+  "FunctionUrls": {
+    "ConfirmPayment": "https://confirmpayment-bogpf7lo6q-ew.a.run.app",
+    "GetListeners": "https://getlisteners-bogpf7lo6q-ew.a.run.app",
+    "OnRegister": "https://onregister-bogpf7lo6q-ew.a.run.app",
+    "SendTip": "https://sendtip-bogpf7lo6q-ew.a.run.app",
+    "TwitchConnect": "https://twitchconnect-bogpf7lo6q-ew.a.run.app",
+    "TwitchGetData": "https://twitchgetdata-bogpf7lo6q-ew.a.run.app",
+    "TwitchSubscribe": "https://twitchsubscribe-bogpf7lo6q-ew.a.run.app",
+    "TwitchWebhook": "https://twitchwebhook-bogpf7lo6q-ew.a.run.app"
+  },
   "PublicFiles": {
     "audio": [
       "public/audio/elevator-signal.wav"
     ]
   },
   "RecaptchaSiteKey": "6Le8EHQpAAAAANuH1lMyNMbNOgNYkpTyUQlHs6pt",
-  "SendDonateUrl": "https://senddonate-bogpf7lo6q-ew.a.run.app"
+  "TenorApiKey": "LIVDSRZULELA"
 }

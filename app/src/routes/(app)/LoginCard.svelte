@@ -53,7 +53,7 @@
     });
 </script>
 
-<Card shadow size="md" padding="xl">
+<div class="w-full max-w-lg">
     {#if !success}
         <div transition:slide>
             <Label class="mb-2">
@@ -85,4 +85,4 @@
             </Helper>
         </div>
     {/if}
-</Card>
+</div>

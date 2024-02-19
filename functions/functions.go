@@ -9,8 +9,8 @@ const GcSecretsPath = "project/" + ProjectNumber + "/secrets/"
 func init() {
 	functions.HTTP("OnRegister", OnRegister)
 
-	functions.HTTP("SendDonate", DonateSend)
-	functions.HTTP("ConfirmPayment", Confirm)
+	functions.HTTP("SendTip", SendTip)
+	functions.HTTP("ConfirmPayment", ConfirmPayment)
 	functions.HTTP("GetListeners", GetListeners)
 
 	functions.HTTP("ConnectTwitch", Connect)

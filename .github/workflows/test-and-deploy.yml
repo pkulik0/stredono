@@ -4,10 +4,17 @@ on:
   push:
   pull_request:
 
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Print Branch Name
+        run: echo "Running on branch ${{ env.BRANCH_NAME }}"
+        shell: bash
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -16,27 +23,21 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-      - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v2
-
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
         shell: bash
-
-      - name: Set up Python 3.12.x
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12.x
-
-      - name: Install Python dependencies
-        run: pip install -r requirements.txt
-        working-directory: scripts
 
       - name: Build and Test Cloud Functions
         uses: ./.github/actions/go
         with:
           go-version: '1.22.x'
           working-dir: 'functions'
+
+      - name: Deploy Infrastructure
+        uses: ./.github/actions/terraform
+        with:
+          working-dir: 'infra'
+          branch: ${{ env.BRANCH_NAME }}
 
       - name: Test and Build SvelteKit
         uses: ./.github/actions/sveltekit
@@ -45,12 +46,6 @@ jobs:
           pnpm-version: '8.x'
           working-dir: 'app'
 
-      - name: Get branch name
-        id: get_branch
-        uses: ./.github/actions/branch-name
-
-      - name: Deploy Infrastructure
-        uses: ./.github/actions/terraform
-        with:
-          working-dir: 'infra'
-          workspace: ${{ steps.get_branch.outputs.branch }}
+      - name: Deploy Firebase Hosting
+        run: firebase deploy --only hosting
+        working-directory: app
