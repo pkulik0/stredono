@@ -10,10 +10,10 @@
     const newDonation = (pbDonate: SendDonateRequest) => {
         console.log(pbDonate);
         const donate: Donate = {
-            amount: pbDonate.amount,
-            currency: pbDonate.currency,
-            message: pbDonate.message,
-            user: pbDonate.sender
+            amount: pbDonate.Amount,
+            currency: pbDonate.Currency,
+            message: pbDonate.Message,
+            user: pbDonate.Sender
         };
         donations = [donate, ...donations];
 

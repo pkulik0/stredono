@@ -1,0 +1,8 @@
+with-expecter: true
+outpkg: mocks
+packages:
+  github.com/pkulik0/stredono/cloud/platform:
+    config:
+      recursive: true
+      dir: platform/mocks
+      all: true

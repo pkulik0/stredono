@@ -15,19 +15,6 @@ export interface Donate {
     message: string;
 }
 
-const firstToLower = (str: string) => {
-    return str[0].toLowerCase() + str.slice(1);
-}
-
-const keysToLower = (obj: any) => {
-    const newObj: any = {};
-    for(const key in obj) {
-        newObj[firstToLower(key)] = obj[key];
-    }
-    return newObj;
-
-}
-
 const dateToFirestoreTimestamp = (date: Date) => {
     return Math.floor(date.getTime() / 1000);
 }
@@ -68,8 +55,8 @@ export const fetchOldDonations = async (date: Date, page: number) => {
         }
 
         snapshot.forEach((doc) => {
-            const sdReq = SendDonateRequest.fromJson(keysToLower(doc.data()));
-            if(sdReq.status < DonateStatus.PAYMENT_SUCCESS) return;
+            const sdReq = SendDonateRequest.fromJson(doc.data());
+            if(sdReq.Status < DonateStatus.PAYMENT_SUCCESS) return;
             pastDonations[page].donate.push(sdReq);
         });
 
@@ -102,18 +89,18 @@ const getDonationsSubscriber = () => {
             let latestDonations = donations[0].donate;
 
             snapshot.docChanges().forEach((change) => {
-                const sdReq = SendDonateRequest.fromJson(keysToLower(change.doc.data()));
-                if(sdReq.status < DonateStatus.PAYMENT_SUCCESS) return;
+                const sdReq = SendDonateRequest.fromJson(change.doc.data());
+                if(sdReq.Status < DonateStatus.PAYMENT_SUCCESS) return;
 
                 if(change.type === "added" || change.type === "modified") {
-                    const index = latestDonations.findIndex((d) => d.id === sdReq.id);
+                    const index = latestDonations.findIndex((d) => d.Id === sdReq.Id);
                     if(index === -1) {
                         latestDonations.push(sdReq);
                         return;
                     }
                     latestDonations[index] = sdReq;
                 } else if(change.type === "removed") {
-                    latestDonations =  latestDonations.filter((d) => d.id !== sdReq.id);
+                    latestDonations =  latestDonations.filter((d) => d.Id !== sdReq.Id);
                 }
             })
 

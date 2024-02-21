@@ -193,8 +193,9 @@ resource "google_identity_platform_config" "default" {
 
   authorized_domains = [
     "localhost",
+    "stredono.com",
     "${google_project.default.project_id}.firebaseapp.com",
-    "${google_project.default.project_id}.web.app"
+    "${google_project.default.project_id}.web.app",
   ]
 
   depends_on = [google_project_service.default, google_cloudfunctions2_function.cloud_functions]

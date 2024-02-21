@@ -24,7 +24,7 @@
                 alerts = undefined;
                 return;
             }
-            alerts = user.alerts
+            alerts = user.Alerts
         });
     });
 

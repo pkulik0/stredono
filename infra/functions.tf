@@ -5,6 +5,14 @@ resource "google_service_account" "account" {
   depends_on   = [google_project_service.default]
 }
 
+resource "google_project_iam_member" "firebase_admin" {
+  provider = google-beta
+  project = google_project.default.project_id
+  role    = "roles/firebase.admin"
+  member  = "serviceAccount:${google_service_account.account.email}"
+  depends_on = [google_service_account.account]
+}
+
 resource "google_storage_bucket" "fn_bucket" {
   provider                    = google-beta
   project                     = google_project.default.project_id
@@ -62,6 +70,10 @@ resource "google_cloudfunctions2_function" "cloud_functions" {
     timeout_seconds                  = each.value.timeout
     ingress_settings                 = each.value.public ? "ALLOW_ALL" : "ALLOW_INTERNAL_ONLY"
     service_account_email            = google_service_account.account.email
+  }
+
+  lifecycle {
+
   }
 
   depends_on = [google_storage_bucket_object.functions_source, google_service_account.account]

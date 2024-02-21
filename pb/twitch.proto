@@ -5,17 +5,17 @@ package stredono;
 option go_package="github.com/pkulik0/stredono/pb";
 
 message TwitchReward {
-  string id = 1;
-  string name = 2;
-  int64 cost = 3;
-  bool isEnabled = 4;
+  string Id = 1;
+  string Name = 2;
+  int64 Cost = 3;
+  bool IsEnabled = 4;
 }
 
 message TwitchUser {
-  string id = 1;
-  string displayName = 2;
-  string login = 3;
-  string avatarUrl = 4;
-  string description = 5;
-  int64 creationTimestamp = 6;
+  string Id = 1;
+  string DisplayName = 2;
+  string Login = 3;
+  string AvatarUrl = 4;
+  string Description = 5;
+  int64 CreationTimestamp = 6;
 }

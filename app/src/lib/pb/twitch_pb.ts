@@ -11,24 +11,24 @@ import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
  */
 export class TwitchReward extends Message<TwitchReward> {
   /**
-   * @generated from field: string id = 1;
+   * @generated from field: string Id = 1;
    */
-  id = "";
+  Id = "";
 
   /**
-   * @generated from field: string name = 2;
+   * @generated from field: string Name = 2;
    */
-  name = "";
+  Name = "";
 
   /**
-   * @generated from field: int64 cost = 3;
+   * @generated from field: int64 Cost = 3;
    */
-  cost = protoInt64.zero;
+  Cost = protoInt64.zero;
 
   /**
-   * @generated from field: bool isEnabled = 4;
+   * @generated from field: bool IsEnabled = 4;
    */
-  isEnabled = false;
+  IsEnabled = false;
 
   constructor(data?: PartialMessage<TwitchReward>) {
     super();
@@ -38,10 +38,10 @@ export class TwitchReward extends Message<TwitchReward> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "stredono.TwitchReward";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "cost", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
-    { no: 4, name: "isEnabled", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 1, name: "Id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "Name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "Cost", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 4, name: "IsEnabled", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TwitchReward {
@@ -66,34 +66,34 @@ export class TwitchReward extends Message<TwitchReward> {
  */
 export class TwitchUser extends Message<TwitchUser> {
   /**
-   * @generated from field: string id = 1;
+   * @generated from field: string Id = 1;
    */
-  id = "";
+  Id = "";
 
   /**
-   * @generated from field: string displayName = 2;
+   * @generated from field: string DisplayName = 2;
    */
-  displayName = "";
+  DisplayName = "";
 
   /**
-   * @generated from field: string login = 3;
+   * @generated from field: string Login = 3;
    */
-  login = "";
+  Login = "";
 
   /**
-   * @generated from field: string avatarUrl = 4;
+   * @generated from field: string AvatarUrl = 4;
    */
-  avatarUrl = "";
+  AvatarUrl = "";
 
   /**
-   * @generated from field: string description = 5;
+   * @generated from field: string Description = 5;
    */
-  description = "";
+  Description = "";
 
   /**
-   * @generated from field: int64 creationTimestamp = 6;
+   * @generated from field: int64 CreationTimestamp = 6;
    */
-  creationTimestamp = protoInt64.zero;
+  CreationTimestamp = protoInt64.zero;
 
   constructor(data?: PartialMessage<TwitchUser>) {
     super();
@@ -103,12 +103,12 @@ export class TwitchUser extends Message<TwitchUser> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "stredono.TwitchUser";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "displayName", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "login", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "avatarUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "creationTimestamp", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 1, name: "Id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "DisplayName", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "Login", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "AvatarUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "Description", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "CreationTimestamp", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TwitchUser {

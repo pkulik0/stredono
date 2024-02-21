@@ -13,17 +13,17 @@
 
 <TableBodyRow>
     <TableBodyCell class="{cellClass}">
-        <Img src={alert.style?.gifUrl ?? ""} alt="{alert.id} GIF" class="rounded w-100 min-w-[100px] md:min-w-[150px]" />
+        <Img src={alert.Style?.GifUrl ?? ""} alt="{alert.Id} GIF" class="rounded w-100 min-w-[100px] md:min-w-[150px]" />
     </TableBodyCell>
     <TableBodyCell class="{cellClass}">
         <audio controls>
-            <source src={alert.style?.soundUrl ?? ""} type="audio/mpeg" />
+            <source src={alert.Style?.SoundUrl ?? ""} type="audio/mpeg" />
             Your browser does not support the audio element.
         </audio>
     </TableBodyCell>
-    <TableBodyCell class="{cellClass}">{alert.template}</TableBodyCell>
-    <TableBodyCell class="{cellClass}">{alert.amountTrigger?.min || '?'}</TableBodyCell>
-    <TableBodyCell class="{cellClass}">{alert.amountTrigger?.max || '?'}</TableBodyCell>
+    <TableBodyCell class="{cellClass}">{alert.Template}</TableBodyCell>
+    <TableBodyCell class="{cellClass}">{alert.AmountTrigger?.Min || '?'}</TableBodyCell>
+    <TableBodyCell class="{cellClass}">{alert.AmountTrigger?.Max || '?'}</TableBodyCell>
     <TableBodyCell class="{cellClass}">
         <Button color="red" outline class="{btnClass}">
             <TrashBinSolid class="{iconClass}" />

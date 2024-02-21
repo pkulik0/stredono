@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package stredono;
+
+option go_package="github.com/pkulik0/stredono/cloud/pb";
+
+enum TipStatus {
+    INITIATED = 0;
+    PAYMENT_PENDING = 1;
+    PAYMENT_SUCCESS = 2;
+}
+
+message Tip {
+    string Id = 1;
+    string Sender = 2;
+    string Email = 3;
+    string Message = 4;
+    double Amount = 5;
+    string Currency = 6;
+    string RecipientId = 7;
+    TipStatus Status = 8;
+    int64 Timestamp = 9;
+}

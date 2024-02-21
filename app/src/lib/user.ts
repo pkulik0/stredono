@@ -20,8 +20,10 @@ export const getUserListener = async (uid: string) => {
 }
 
 export const saveUser = async (user: User) => {
-    const userDoc = doc(db, "users", user.uid);
-    await setDoc(userDoc, user.toJson() as any);
+    const userDoc = doc(db, "users", user.Uid);
+    await setDoc(userDoc, user.toJson({
+        useProtoFieldName: true
+    }) as any);
 }
 
 export const getUserByUsername = async (username: string): Promise<User> => {

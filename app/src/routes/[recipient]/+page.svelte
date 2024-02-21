@@ -19,16 +19,16 @@
         if ($senderStore === "" || $emailStore === "") return;
 
         const amountFloat = parseFloat(amount);
-        if (amountFloat < user.minimumAmount) return; // TODO: show error
+        if (amountFloat < user.MinimumAmount) return; // TODO: show error
 
         const sdReq = new SendDonateRequest({
-            amount: amountFloat,
-            currency: currency,
-            email: $emailStore,
-            sender: $senderStore,
-            recipientId: user.uid,
-            message: message,
-            status: DonateStatus.INITIATED
+            Amount: amountFloat,
+            Currency: currency,
+            Email: $emailStore,
+            Sender: $senderStore,
+            RecipientId: user.Uid,
+            Message: message,
+            Status: DonateStatus.INITIATED
         });
 
         const res = await axios.post(TerraformOutput.FunctionUrls.SendTip, sdReq.toBinary(), { responseType: 'arraybuffer' })
@@ -38,7 +38,7 @@
         }
 
         const sdRes = SendDonateResponse.fromBinary(new Uint8Array(res.data));
-        window.location.href = sdRes.redirectUrl;
+        window.location.href = sdRes.RedirectUrl;
     }
 
     let recipient = $page.params.recipient;
@@ -54,7 +54,7 @@
     const getListeners = async () => {
         if(!user) return;
 
-        const res = await axios.get(TerraformOutput.FunctionUrls.GetListeners + "?uid=" + user.uid)
+        const res = await axios.get(TerraformOutput.FunctionUrls.GetListeners + "?uid=" + user.Uid)
         if(res.status !== 200) {
             console.error(res.data); // TODO: handle error
             return;
@@ -65,7 +65,7 @@
     onMount(async () => {
         try {
             user = await getUserByUsername(recipient);
-            amount = user.minimumAmount.toString();
+            amount = user.MinimumAmount.toString();
 
             getListeners().then(r => {})
             setInterval(getListeners, 10000)

@@ -8,7 +8,7 @@
     import type {User} from "$lib/pb/user_pb";
     import {sendNotification, Notification} from "$lib/notifications";
 
-    let username: string = "";
+    let displayName: string = "";
     let url: string = "";
     let description: string = "";
     let avatarFile: File|undefined = undefined;
@@ -21,14 +21,14 @@
             user = u;
 
             if(u) {
-                username = u.username;
-                url = u.url;
-                description = u.description;
-                avatarUrl = u.avatarUrl;
+                displayName = u.DisplayName;
+                url = u.Url;
+                description = u.Description;
+                avatarUrl = u.AvatarUrl;
                 return
             }
 
-            username = "";
+            displayName = "";
             url = "";
             description = "";
             avatarUrl = "";
@@ -40,17 +40,17 @@
     }
 
     $: if(user) {
-        user.username = username;
-        user.url = url;
-        user.description = description;
-        user.avatarUrl = avatarUrl;
+        user.Username = displayName;
+        user.Url = url;
+        user.Description = description;
+        user.AvatarUrl = avatarUrl;
     }
 
     const clickSave = async () => {
         if(!user) return;
 
         if (avatarFile) {
-            user.avatarUrl = await uploadToStorage("public", "avatar", avatarFile, true);
+            user.AvatarUrl = await uploadToStorage("public", "avatar", avatarFile, true);
         }
 
         await saveUser(user)
@@ -67,7 +67,7 @@
 
         <Label class="flex-1">
             Display Name
-            <Input bind:value={username} type="text"/>
+            <Input bind:value={displayName} type="text"/>
         </Label>
 
         <Label>
@@ -84,7 +84,7 @@
         </Label>
 
         <Label>
-            Avatar
+            Picture
             <FileDropzone description=".png .jpg .jpeg .webp" bind:file={avatarFile} />
         </Label>
 

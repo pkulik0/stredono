@@ -6,10 +6,10 @@
     export let user: User | undefined
     export let interactive: boolean = true;
 
-    $: avatarUrl = user?.avatarUrl ?? "";
-    $: url = user?.url ?? "";
-    $: profileName = user?.username ?? "Stredono";
-    $: description = user?.description ?? "Description";
+    $: avatarUrl = user?.AvatarUrl ?? "";
+    $: url = user?.Url ?? "";
+    $: profileName = user?.Username ?? "Stredono";
+    $: description = user?.Description ?? "Description";
 
     $: avatarClass = url ? "hover:opacity-75" : "";
 

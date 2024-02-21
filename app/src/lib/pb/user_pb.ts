@@ -115,44 +115,49 @@ proto3.util.setEnumType(AnimationType, "stredono.AnimationType", [
  */
 export class User extends Message<User> {
   /**
-   * @generated from field: string username = 1;
+   * @generated from field: string Username = 1;
    */
-  username = "";
+  Username = "";
 
   /**
-   * @generated from field: string uid = 2;
+   * @generated from field: string DisplayName = 2;
    */
-  uid = "";
+  DisplayName = "";
 
   /**
-   * @generated from field: string url = 3;
+   * @generated from field: string Uid = 3;
    */
-  url = "";
+  Uid = "";
 
   /**
-   * @generated from field: string description = 4;
+   * @generated from field: string Url = 4;
    */
-  description = "";
+  Url = "";
 
   /**
-   * @generated from field: string avatarUrl = 5;
+   * @generated from field: string Description = 5;
    */
-  avatarUrl = "";
+  Description = "";
 
   /**
-   * @generated from field: double minimumAmount = 6;
+   * @generated from field: string AvatarUrl = 6;
    */
-  minimumAmount = 0;
+  AvatarUrl = "";
 
   /**
-   * @generated from field: stredono.Currency currency = 7;
+   * @generated from field: double MinimumAmount = 7;
    */
-  currency = Currency.UNKNOWN;
+  MinimumAmount = 0;
 
   /**
-   * @generated from field: repeated stredono.Alert alerts = 8;
+   * @generated from field: stredono.Currency Currency = 8;
    */
-  alerts: Alert[] = [];
+  Currency = Currency.UNKNOWN;
+
+  /**
+   * @generated from field: repeated stredono.Alert Alerts = 9;
+   */
+  Alerts: Alert[] = [];
 
   constructor(data?: PartialMessage<User>) {
     super();
@@ -162,14 +167,15 @@ export class User extends Message<User> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "stredono.User";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "username", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "uid", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "url", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "avatarUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "minimumAmount", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 7, name: "currency", kind: "enum", T: proto3.getEnumType(Currency) },
-    { no: 8, name: "alerts", kind: "message", T: Alert, repeated: true },
+    { no: 1, name: "Username", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "DisplayName", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "Uid", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "Url", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "Description", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "AvatarUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "MinimumAmount", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 8, name: "Currency", kind: "enum", T: proto3.getEnumType(Currency) },
+    { no: 9, name: "Alerts", kind: "message", T: Alert, repeated: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): User {
@@ -194,19 +200,19 @@ export class User extends Message<User> {
  */
 export class TextToSpeechSettings extends Message<TextToSpeechSettings> {
   /**
-   * @generated from field: stredono.TextToSpeechService service = 1;
+   * @generated from field: stredono.TextToSpeechService Service = 1;
    */
-  service = TextToSpeechService.GOOGLE;
+  Service = TextToSpeechService.GOOGLE;
 
   /**
-   * @generated from field: string voice = 2;
+   * @generated from field: string Voice = 2;
    */
-  voice = "";
+  Voice = "";
 
   /**
-   * @generated from field: string language = 3;
+   * @generated from field: string Language = 3;
    */
-  language = "";
+  Language = "";
 
   constructor(data?: PartialMessage<TextToSpeechSettings>) {
     super();
@@ -216,9 +222,9 @@ export class TextToSpeechSettings extends Message<TextToSpeechSettings> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "stredono.TextToSpeechSettings";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "service", kind: "enum", T: proto3.getEnumType(TextToSpeechService) },
-    { no: 2, name: "voice", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "language", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "Service", kind: "enum", T: proto3.getEnumType(TextToSpeechService) },
+    { no: 2, name: "Voice", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "Language", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TextToSpeechSettings {
@@ -243,14 +249,14 @@ export class TextToSpeechSettings extends Message<TextToSpeechSettings> {
  */
 export class AmountTrigger extends Message<AmountTrigger> {
   /**
-   * @generated from field: double min = 1;
+   * @generated from field: double Min = 1;
    */
-  min = 0;
+  Min = 0;
 
   /**
-   * @generated from field: double max = 2;
+   * @generated from field: double Max = 2;
    */
-  max = 0;
+  Max = 0;
 
   constructor(data?: PartialMessage<AmountTrigger>) {
     super();
@@ -260,8 +266,8 @@ export class AmountTrigger extends Message<AmountTrigger> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "stredono.AmountTrigger";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "min", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 2, name: "max", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 1, name: "Min", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 2, name: "Max", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): AmountTrigger {
@@ -286,34 +292,34 @@ export class AmountTrigger extends Message<AmountTrigger> {
  */
 export class Alert extends Message<Alert> {
   /**
-   * @generated from field: string id = 1;
+   * @generated from field: string Id = 1;
    */
-  id = "";
+  Id = "";
 
   /**
-   * @generated from field: stredono.AlertType type = 2;
+   * @generated from field: stredono.AlertType Type = 2;
    */
-  type = AlertType.DONATE;
+  Type = AlertType.DONATE;
 
   /**
-   * @generated from field: optional stredono.AmountTrigger amountTrigger = 3;
+   * @generated from field: optional stredono.AmountTrigger AmountTrigger = 3;
    */
-  amountTrigger?: AmountTrigger;
+  AmountTrigger?: AmountTrigger;
 
   /**
-   * @generated from field: string template = 4;
+   * @generated from field: string Template = 4;
    */
-  template = "";
+  Template = "";
 
   /**
-   * @generated from field: stredono.AlertStyle style = 5;
+   * @generated from field: stredono.AlertStyle Style = 5;
    */
-  style?: AlertStyle;
+  Style?: AlertStyle;
 
   /**
-   * @generated from field: optional stredono.TextToSpeechSettings ttsSettings = 6;
+   * @generated from field: optional stredono.TextToSpeechSettings TtsSettings = 6;
    */
-  ttsSettings?: TextToSpeechSettings;
+  TtsSettings?: TextToSpeechSettings;
 
   constructor(data?: PartialMessage<Alert>) {
     super();
@@ -323,12 +329,12 @@ export class Alert extends Message<Alert> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "stredono.Alert";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "type", kind: "enum", T: proto3.getEnumType(AlertType) },
-    { no: 3, name: "amountTrigger", kind: "message", T: AmountTrigger, opt: true },
-    { no: 4, name: "template", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "style", kind: "message", T: AlertStyle },
-    { no: 6, name: "ttsSettings", kind: "message", T: TextToSpeechSettings, opt: true },
+    { no: 1, name: "Id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "Type", kind: "enum", T: proto3.getEnumType(AlertType) },
+    { no: 3, name: "AmountTrigger", kind: "message", T: AmountTrigger, opt: true },
+    { no: 4, name: "Template", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "Style", kind: "message", T: AlertStyle },
+    { no: 6, name: "TtsSettings", kind: "message", T: TextToSpeechSettings, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Alert {
@@ -353,29 +359,29 @@ export class Alert extends Message<Alert> {
  */
 export class AlertStyle extends Message<AlertStyle> {
   /**
-   * @generated from field: string gifUrl = 1;
+   * @generated from field: string GifUrl = 1;
    */
-  gifUrl = "";
+  GifUrl = "";
 
   /**
-   * @generated from field: string soundUrl = 2;
+   * @generated from field: string SoundUrl = 2;
    */
-  soundUrl = "";
+  SoundUrl = "";
 
   /**
-   * @generated from field: stredono.AnimationType animation = 3;
+   * @generated from field: stredono.AnimationType Animation = 3;
    */
-  animation = AnimationType.SHAKE;
+  Animation = AnimationType.SHAKE;
 
   /**
-   * @generated from field: string textColor = 4;
+   * @generated from field: string TextColor = 4;
    */
-  textColor = "";
+  TextColor = "";
 
   /**
-   * @generated from field: string accentColor = 5;
+   * @generated from field: string AccentColor = 5;
    */
-  accentColor = "";
+  AccentColor = "";
 
   constructor(data?: PartialMessage<AlertStyle>) {
     super();
@@ -385,11 +391,11 @@ export class AlertStyle extends Message<AlertStyle> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "stredono.AlertStyle";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "gifUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "soundUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "animation", kind: "enum", T: proto3.getEnumType(AnimationType) },
-    { no: 4, name: "textColor", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "accentColor", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "GifUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "SoundUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "Animation", kind: "enum", T: proto3.getEnumType(AnimationType) },
+    { no: 4, name: "TextColor", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "AccentColor", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): AlertStyle {
@@ -414,24 +420,24 @@ export class AlertStyle extends Message<AlertStyle> {
  */
 export class Event extends Message<Event> {
   /**
-   * @generated from field: repeated string users = 1;
+   * @generated from field: repeated string Users = 1;
    */
-  users: string[] = [];
+  Users: string[] = [];
 
   /**
-   * @generated from field: repeated double amounts = 2;
+   * @generated from field: repeated double Amounts = 2;
    */
-  amounts: number[] = [];
+  Amounts: number[] = [];
 
   /**
-   * @generated from field: optional string currency = 3;
+   * @generated from field: optional string Currency = 3;
    */
-  currency?: string;
+  Currency?: string;
 
   /**
-   * @generated from field: optional string message = 4;
+   * @generated from field: optional string Message = 4;
    */
-  message?: string;
+  Message?: string;
 
   constructor(data?: PartialMessage<Event>) {
     super();
@@ -441,10 +447,10 @@ export class Event extends Message<Event> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "stredono.Event";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "users", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
-    { no: 2, name: "amounts", kind: "scalar", T: 1 /* ScalarType.DOUBLE */, repeated: true },
-    { no: 3, name: "currency", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
-    { no: 4, name: "message", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 1, name: "Users", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 2, name: "Amounts", kind: "scalar", T: 1 /* ScalarType.DOUBLE */, repeated: true },
+    { no: 3, name: "Currency", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 4, name: "Message", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Event {
@@ -461,6 +467,49 @@ export class Event extends Message<Event> {
 
   static equals(a: Event | PlainMessage<Event> | undefined, b: Event | PlainMessage<Event> | undefined): boolean {
     return proto3.util.equals(Event, a, b);
+  }
+}
+
+/**
+ * @generated from message stredono.Token
+ */
+export class Token extends Message<Token> {
+  /**
+   * @generated from field: string Access = 1;
+   */
+  Access = "";
+
+  /**
+   * @generated from field: string Refresh = 2;
+   */
+  Refresh = "";
+
+  constructor(data?: PartialMessage<Token>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.Token";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "Access", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "Refresh", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Token {
+    return new Token().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Token {
+    return new Token().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Token {
+    return new Token().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: Token | PlainMessage<Token> | undefined, b: Token | PlainMessage<Token> | undefined): boolean {
+    return proto3.util.equals(Token, a, b);
   }
 }
 

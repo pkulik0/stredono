@@ -1,7 +1,15 @@
 variable "is_local" {
-  description = "Whether the deployment is local or not"
+  description = "Whether the deployment is done locally or not"
   type        = bool
   default     = true
+}
+
+locals {
+  domains = [
+    "${google_project.default.project_id}.firebaseapp.com",
+    "${google_project.default.project_id}.web.app",
+    "stredono.com",
+  ]
 }
 
 variable "tenor_api_key" {

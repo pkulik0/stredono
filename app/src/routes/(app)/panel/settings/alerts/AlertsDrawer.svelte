@@ -59,22 +59,22 @@
             const soundUrl = await uploadToStorage("sounds", getUuid(), soundFile, false);
 
             let alert = new Alert();
-            alert.id = id;
-            alert.type = type;
-            alert.template = template;
+            alert.Id = id;
+            alert.Type = type;
+            alert.Template = template;
 
-            alert.style = new AlertStyle();
-            alert.style.animation = animation;
-            alert.style.gifUrl = gifUrl;
-            alert.style.soundUrl = soundUrl;
-            alert.style.textColor = textColor;
-            alert.style.accentColor = accentColor;
+            alert.Style = new AlertStyle();
+            alert.Style.Animation = animation;
+            alert.Style.GifUrl = gifUrl;
+            alert.Style.SoundUrl = soundUrl;
+            alert.Style.TextColor = textColor;
+            alert.Style.AccentColor = accentColor;
 
-            alert.amountTrigger = new AmountTrigger()
-            alert.amountTrigger.min = startValue;
-            alert.amountTrigger.max = endValue;
+            alert.AmountTrigger = new AmountTrigger()
+            alert.AmountTrigger.Min = startValue;
+            alert.AmountTrigger.Max = endValue;
 
-            alert.ttsSettings = new TextToSpeechSettings()
+            alert.TtsSettings = new TextToSpeechSettings()
             hidden = true;
         } catch (e) {
             console.error(e); // TODO: Show error to user
@@ -154,7 +154,7 @@
                 currency = undefined;
                 return;
             }
-            currency = user.currency;
+            currency = user.Currency;
         });
     })
 </script>

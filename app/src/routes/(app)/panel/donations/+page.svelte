@@ -35,9 +35,9 @@
     let searchInMessage = true;
     $: filteredItems = items.filter((item) => {
         const term = searchTerm.toLowerCase().trim();
-        const sender = item.sender.toLowerCase();
-        const email = item.email.toLowerCase();
-        const message = item.message.toLowerCase();
+        const sender = item.Sender.toLowerCase();
+        const email = item.Email.toLowerCase();
+        const message = item.Message.toLowerCase();
 
         if (!searchInEmail && !searchInMessage && !searchInSender) return true;
 
