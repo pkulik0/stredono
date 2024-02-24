@@ -5,13 +5,12 @@
         MessageDotsSolid,
         BellSolid,
         VolumeUpSolid,
-        UsersGroupSolid,
         DollarSolid,
         WalletSolid,
-        ArrowLeftToBracketSolid, ArrowRightToBracketSolid
+        ArrowRightToBracketSolid
     } from 'flowbite-svelte-icons';
     import {page} from "$app/stores";
-    import {auth} from "$lib/firebase/firebase";
+    import {auth} from "$lib/ext/firebase/firebase";
 
     let iconClass = "w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white"
     $: activeUrl = $page.url.pathname;

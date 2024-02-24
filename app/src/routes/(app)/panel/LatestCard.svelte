@@ -1,19 +1,19 @@
 <script lang="ts">
+    import type { Tip } from '$lib/pb/stredono_pb';
     import { Card, TextPlaceholder} from "flowbite-svelte";
-    import type {SendDonateRequest} from "$lib/pb/functions_pb";
     import {onMount} from "svelte";
-    import {donationStore} from "$lib/donations";
+    import {tipsStore} from "$lib/donations";
     import DonationList from "$lib/comp/DonationList.svelte";
 
-    let items: SendDonateRequest[]|undefined = undefined;
+    let items: Tip[]|undefined = undefined;
     $: itemsSlice = items?.slice(Math.min(items?.length - size, 0)).reverse();
 
     export let size = 4;
 
     onMount(() => {
-        return donationStore.subscribe(donations => {
+        return tipsStore.subscribe(donations => {
             if(!donations.hasOwnProperty(0)) return;
-            items = donations[0].donate;
+            items = donations[0].tips;
         });
     })
 

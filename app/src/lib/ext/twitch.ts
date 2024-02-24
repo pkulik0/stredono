@@ -1,5 +1,5 @@
 import axios from "axios";
-import {auth} from "$lib/firebase/firebase";
+import {auth} from "$lib/ext/firebase/firebase";
 
 export const getTwitchAuthUrl = async (): Promise<string> => {
     const user = auth.currentUser;

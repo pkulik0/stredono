@@ -16,12 +16,12 @@ resource "google_firestore_database" "default" {
   depends_on = [google_firebase_project.default]
 }
 
-resource "google_firestore_index" "donations" {
+resource "google_firestore_index" "tips" {
   provider = google-beta
   project  = google_project.default.project_id
 
   database   = google_firestore_database.default.name
-  collection = "donations"
+  collection = "tips"
 
   fields {
     field_path = "RecipientId"

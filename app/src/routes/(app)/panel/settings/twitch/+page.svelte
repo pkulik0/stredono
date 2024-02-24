@@ -4,17 +4,15 @@
         AccordionItem,
         Button,
         Checkbox,
-        Heading,
-        Helper, Hr,
+        Helper,
         Input,
         Label,
-        Range,
         Select
     } from "flowbite-svelte";
     import {getTwitchAuthUrl} from "$lib/ext/twitch";
     import CheckboxDropdown from "$lib/comp/CheckboxDropdown.svelte";
     import axios from "axios";
-    import {auth} from "$lib/firebase/firebase";
+    import {auth} from "$lib/ext/firebase/firebase";
 
     const connectTwitch = async () => {
         window.location.href = await getTwitchAuthUrl();

@@ -2,20 +2,38 @@ syntax = "proto3";
 
 package stredono;
 
-option go_package="github.com/pkulik0/stredono/pb";
+option go_package="github.com/pkulik0/stredono/cloud/pb";
 
 enum Currency {
   UNKNOWN = 0;
   BITS = 1;
   PLN = 2;
 }
+
+enum TipStatus {
+  INITIATED = 0;
+  PAYMENT_PENDING = 1;
+  PAYMENT_SUCCESS = 2;
+}
+
+message Tip {
+  string Sender = 1;
+  string Email = 2;
+  string Message = 3;
+  double Amount = 4;
+  Currency Currency = 5;
+  string RecipientId = 6;
+  TipStatus Status = 7;
+  int64 Timestamp = 8;
+}
+
 message User {
   string Username = 1;
   string DisplayName = 2;
   string Uid = 3;
   string Url = 4;
   string Description = 5;
-  string AvatarUrl = 6;
+  string PictureUrl = 6;
 
   double MinimumAmount = 7;
   Currency Currency = 8;

@@ -1,14 +1,15 @@
+import { Tip, TipStatus } from '$lib/pb/stredono_pb';
 import {collection, onSnapshot, query, where, getDocs} from "firebase/firestore";
-import {auth, db} from "$lib/firebase/firebase";
-import {DonateStatus, SendDonateRequest} from "$lib/pb/functions_pb";
+import {auth, db} from "$lib/ext/firebase/firebase";
 import {userStore} from "$lib/user";
 import {writable, type Writable} from "svelte/store";
 
-export type DonationsMap = {[key: number]: { donate: SendDonateRequest[], startDate: Date, endDate: Date }}
+export type TipsMap = {[key: number]: { tips: Tip[], startDate: Date, endDate: Date }}
+const idToEntry: Map<string, { key: number, index: number }> = new Map();
 
-export const donationStore: Writable<DonationsMap> = writable({});
+export const tipsStore: Writable<TipsMap> = writable({});
 
-export interface Donate {
+export interface WebTip {
     user: string;
     amount: number;
     currency: string;
@@ -28,7 +29,7 @@ const getWeekBeginning = (): Date => {
     return now;
 }
 
-export const fetchOldDonations = async (date: Date, page: number) => {
+export const fetchOldTips = async (date: Date, page: number) => {
     if (page < 1) throw new Error("Invalid page number");
 
     const user = auth.currentUser;
@@ -40,71 +41,77 @@ export const fetchOldDonations = async (date: Date, page: number) => {
     const endDate = new Date(date);
     endDate.setDate(endDate.getDate() - 7 * (page - 1));
 
-    const q = query(collection(db, "donations"),
+    const q = query(collection(db, "tips"),
         where("RecipientId", "==", user.uid),
         where("Timestamp", ">=", dateToFirestoreTimestamp(startDate)),
         where("Timestamp", "<", dateToFirestoreTimestamp(endDate))
     );
     const snapshot = await getDocs(q);
 
-    donationStore.update((pastDonations) => {
-        pastDonations[page] = {
-            donate: [],
+    tipsStore.update((pastTips) => {
+        pastTips[page] = {
+            tips: [],
             startDate: startDate,
             endDate: endDate
         }
 
         snapshot.forEach((doc) => {
-            const sdReq = SendDonateRequest.fromJson(doc.data());
-            if(sdReq.Status < DonateStatus.PAYMENT_SUCCESS) return;
-            pastDonations[page].donate.push(sdReq);
+            const tip = Tip.fromJson(doc.data());
+            if(tip.Status < TipStatus.PAYMENT_SUCCESS) return;
+            pastTips[page].tips.push(tip);
         });
 
-        return pastDonations
+        return pastTips
     })
 }
 
-const getDonationsSubscriber = () => {
+const getTipsSubscriber = () => {
     const user = auth.currentUser;
     if(!user) throw new Error("Not logged in");
 
     const date = getWeekBeginning()
-    const q = query(collection(db, "donations"),
+    const q = query(collection(db, "tips"),
         where("RecipientId", "==", user.uid),
         where("Timestamp", ">=", dateToFirestoreTimestamp(date))
     );
 
     return onSnapshot(q, (snapshot) => {
-        donationStore.update((donations) => {
-            if(!donations[0]) {
+        tipsStore.update((tips) => {
+            if(!tips[0]) {
                 const endDate = new Date(date);
                 endDate.setDate(endDate.getDate() + 7);
 
-                donations[0] = {
-                    donate: [],
+                tips[0] = {
+                    tips: [],
                     startDate: date,
                     endDate: endDate
                 }
             }
-            let latestDonations = donations[0].donate;
 
             snapshot.docChanges().forEach((change) => {
-                const sdReq = SendDonateRequest.fromJson(change.doc.data());
-                if(sdReq.Status < DonateStatus.PAYMENT_SUCCESS) return;
+                const id = change.doc.id;
+
+                const tip = Tip.fromJson(change.doc.data());
+                if(tip.Status < TipStatus.PAYMENT_SUCCESS) return;
 
                 if(change.type === "added" || change.type === "modified") {
-                    const index = latestDonations.findIndex((d) => d.Id === sdReq.Id);
-                    if(index === -1) {
-                        latestDonations.push(sdReq);
+                    const entry = idToEntry.get(id)
+                    if (entry) {
+                        tips[entry.key].tips[entry.index] = tip;
                         return;
                     }
-                    latestDonations[index] = sdReq;
+
+                    const len = tips[0].tips.push(tip);
+                    idToEntry.set(id, { key: 0, index: len - 1 });
                 } else if(change.type === "removed") {
-                    latestDonations =  latestDonations.filter((d) => d.Id !== sdReq.Id);
+                    const entry = idToEntry.get(id);
+                    if(entry) {
+                        tips[entry.key].tips.splice(entry.index, 1);
+                    }
                 }
             })
 
-            return donations;
+            return tips;
         })
 
     });
@@ -115,13 +122,13 @@ let unsubscribe: (() => void) | null = null;
 userStore.subscribe((user) => {
     try {
         if(user) {
-            unsubscribe = getDonationsSubscriber();
+            unsubscribe = getTipsSubscriber();
         } else {
             if(unsubscribe) {
                 unsubscribe();
                 unsubscribe = null;
             }
-            donationStore.set({});
+            tipsStore.set({});
         }
     } catch (e) {
         console.error(e);

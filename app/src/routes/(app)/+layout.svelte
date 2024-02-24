@@ -1,7 +1,6 @@
 <script lang="ts">
-    import ParticlesBackground from '$lib/comp/ParticlesBackground.svelte';
     import {onAuthStateChanged} from "firebase/auth";
-    import {auth} from "$lib/firebase/firebase";
+    import {auth} from "$lib/ext/firebase/firebase";
     import {getUserListener, userStore} from "$lib/user";
     import {goto} from "$app/navigation";
     import {onMount} from "svelte";

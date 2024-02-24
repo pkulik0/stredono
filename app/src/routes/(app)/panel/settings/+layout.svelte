@@ -1,5 +1,5 @@
-<script>
-import SideBar from "./SideBar.svelte";
+<script lang="ts">
+    import SideBar from "./SideBar.svelte";
 </script>
 
 <div class="flex">

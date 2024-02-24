@@ -16,4 +16,6 @@ var (
 	ErrorInvalidSignature    = errors.New("invalid signature")
 	ErrorUnknownMessageType  = errors.New("unknown message type")
 	ErrorUnknownEventType    = errors.New("unknown event type")
+	ErrorUnauthorized        = errors.New("unauthorized")
+	ErrorInvalidPayload      = errors.New("invalid payload")
 )

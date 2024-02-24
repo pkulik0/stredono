@@ -1,5 +1,5 @@
 import {getDownloadURL, getMetadata, getStorage, ref, uploadBytes} from "firebase/storage";
-import {auth, app} from "$lib/firebase/firebase";
+import {auth, app} from "$lib/ext/firebase/firebase";
 
 export const storage = getStorage(app);
 

@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	platform "github.com/pkulik0/stredono/cloud/platform"
+	modules "github.com/pkulik0/stredono/cloud/platform/modules"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -21,19 +21,19 @@ func (_m *MockNoSqlDb) EXPECT() *MockNoSqlDb_Expecter {
 }
 
 // Collection provides a mock function with given fields: path
-func (_m *MockNoSqlDb) Collection(path string) platform.Collection {
+func (_m *MockNoSqlDb) Collection(path string) modules.Collection {
 	ret := _m.Called(path)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Collection")
 	}
 
-	var r0 platform.Collection
-	if rf, ok := ret.Get(0).(func(string) platform.Collection); ok {
+	var r0 modules.Collection
+	if rf, ok := ret.Get(0).(func(string) modules.Collection); ok {
 		r0 = rf(path)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(platform.Collection)
+			r0 = ret.Get(0).(modules.Collection)
 		}
 	}
 
@@ -58,12 +58,12 @@ func (_c *MockNoSqlDb_Collection_Call) Run(run func(path string)) *MockNoSqlDb_C
 	return _c
 }
 
-func (_c *MockNoSqlDb_Collection_Call) Return(_a0 platform.Collection) *MockNoSqlDb_Collection_Call {
+func (_c *MockNoSqlDb_Collection_Call) Return(_a0 modules.Collection) *MockNoSqlDb_Collection_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockNoSqlDb_Collection_Call) RunAndReturn(run func(string) platform.Collection) *MockNoSqlDb_Collection_Call {
+func (_c *MockNoSqlDb_Collection_Call) RunAndReturn(run func(string) modules.Collection) *MockNoSqlDb_Collection_Call {
 	_c.Call.Return(run)
 	return _c
 }

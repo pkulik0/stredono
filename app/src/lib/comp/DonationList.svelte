@@ -1,11 +1,11 @@
 <script lang="ts">
+    import type { Tip } from '$lib/pb/stredono_pb';
     import {Button, Dropdown, DropdownItem, Listgroup, ListgroupItem} from "flowbite-svelte";
     import {DotsVerticalSolid, RedoOutline, RefreshOutline, ShieldSolid} from "flowbite-svelte-icons";
-    import {SendDonateRequest} from "$lib/pb/functions_pb";
     import {slide, fade} from "svelte/transition";
     import {streamModeStore} from "$lib/stores";
 
-    export let items: SendDonateRequest[]
+    export let items: Tip[]
 
     let menuButtonClass = "flex";
 </script>
@@ -15,19 +15,19 @@
         <ListgroupItem class="flex items-center space-x-4 rtl:space-x-reverse">
             <div class="flex-[0.3]">
                 <p class="text-sm font-bold text-gray-900 truncate dark:text-white">
-                    {item.sender}
+                    {item.Sender}
                 </p>
                 {#if $streamModeStore === false}
                     <p class="text-sm text-gray-500 truncate dark:text-gray-400" transition:slide>
-                        <span transition:fade>{item.email}</span>
+                        <span transition:fade>{item.Email}</span>
                     </p>
                 {/if}
             </div>
             <div class="flex-[0.70]">
-                {item.message}
+                {item.Message}
             </div>
             <div class="inline-flex text-base font-semibold text-gray-900 dark:text-white">
-                {item.amount} {item.currency}
+                {item.Amount} {item.Currency}
             </div>
             <Button size="sm" color="primary" outline class="text-xs">
                 <DotsVerticalSolid class="dots-menu" />

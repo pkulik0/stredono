@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { Currency } from '$lib/pb/stredono_pb';
     import {Alert, Button, ButtonGroup, Hr, Input, InputAddon, Label, Textarea} from "flowbite-svelte";
     import {ExclamationCircleSolid} from "flowbite-svelte-icons";
     import {emailStore, senderStore} from "$lib/stores";
@@ -9,7 +10,16 @@
 
     export let amount: string;
     export let message: string;
-    export let currency: string;
+    export let currency: Currency;
+
+    $: currencyName = (() => {
+        switch(currency) {
+            case Currency.PLN:
+                return "zł";
+            default:
+                return "?";
+        }
+    })();
 
     export let recipient: string;
     export let hasListeners: boolean;
@@ -36,7 +46,7 @@
         </Label>
         <ButtonGroup class="w-full">
             <Input type="number" bind:value={amount} min="1" />
-            <InputAddon>{currency}</InputAddon>
+            <InputAddon>{currencyName}</InputAddon>
         </ButtonGroup>
     </div>
 

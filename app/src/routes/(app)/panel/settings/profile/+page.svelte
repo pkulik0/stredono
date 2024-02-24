@@ -1,11 +1,11 @@
 <script lang="ts">
     import FileDropzone from '$lib/comp/FileDropzone.svelte';
+    import type { User } from '$lib/pb/stredono_pb';
     import {Button, Card, Fileupload, Helper, Hr, Input, Label, Textarea,} from "flowbite-svelte";
     import UserHeader from "$lib/comp/UserHeader.svelte";
     import {saveUser, userStore} from "$lib/user";
     import {onMount} from "svelte";
-    import {uploadToStorage} from "$lib/firebase/storage";
-    import type {User} from "$lib/pb/user_pb";
+    import {uploadToStorage} from "$lib/ext/firebase/storage";
     import {sendNotification, Notification} from "$lib/notifications";
 
     let displayName: string = "";

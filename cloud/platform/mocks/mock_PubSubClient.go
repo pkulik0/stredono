@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	platform "github.com/pkulik0/stredono/cloud/platform"
+	modules "github.com/pkulik0/stredono/cloud/platform/modules"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -66,19 +66,19 @@ func (_c *MockPubSubClient_Stop_Call) RunAndReturn(run func() error) *MockPubSub
 }
 
 // Topic provides a mock function with given fields: name
-func (_m *MockPubSubClient) Topic(name string) platform.PubSubTopic {
+func (_m *MockPubSubClient) Topic(name string) modules.PubSubTopic {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Topic")
 	}
 
-	var r0 platform.PubSubTopic
-	if rf, ok := ret.Get(0).(func(string) platform.PubSubTopic); ok {
+	var r0 modules.PubSubTopic
+	if rf, ok := ret.Get(0).(func(string) modules.PubSubTopic); ok {
 		r0 = rf(name)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(platform.PubSubTopic)
+			r0 = ret.Get(0).(modules.PubSubTopic)
 		}
 	}
 
@@ -103,12 +103,12 @@ func (_c *MockPubSubClient_Topic_Call) Run(run func(name string)) *MockPubSubCli
 	return _c
 }
 
-func (_c *MockPubSubClient_Topic_Call) Return(_a0 platform.PubSubTopic) *MockPubSubClient_Topic_Call {
+func (_c *MockPubSubClient_Topic_Call) Return(_a0 modules.PubSubTopic) *MockPubSubClient_Topic_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockPubSubClient_Topic_Call) RunAndReturn(run func(string) platform.PubSubTopic) *MockPubSubClient_Topic_Call {
+func (_c *MockPubSubClient_Topic_Call) RunAndReturn(run func(string) modules.PubSubTopic) *MockPubSubClient_Topic_Call {
 	_c.Call.Return(run)
 	return _c
 }

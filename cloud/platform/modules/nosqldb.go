@@ -1,4 +1,4 @@
-package platform
+package modules
 
 import (
 	"context"
@@ -9,11 +9,17 @@ type WriteResult struct {
 	Time time.Time
 }
 
+type AddResult struct {
+	WriteResult
+	Doc Document
+}
+
 type DbOpts struct {
 	MergeAll bool
 }
 
 type Document interface {
+	Id() string
 	Create(ctx context.Context, data interface{}) (*WriteResult, error)
 	Set(ctx context.Context, data interface{}, opts *DbOpts) (*WriteResult, error)
 	Get(ctx context.Context) (DocumentSnapshot, error)
@@ -25,6 +31,7 @@ type DocumentSnapshot interface {
 
 type Collection interface {
 	Doc(path string) Document
+	Add(ctx context.Context, data interface{}) (*AddResult, error)
 }
 
 type NoSqlDb interface {

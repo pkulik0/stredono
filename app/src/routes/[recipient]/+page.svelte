@@ -1,7 +1,7 @@
 <script lang="ts">
+    import { Currency, Tip, TipStatus, User } from '$lib/pb/stredono_pb';
+    import { terraformOutput } from '$lib/terraform_output';
     import axios from 'axios';
-    import TerraformOutput from "$lib/terraform_output.json";
-    import {DonateStatus, SendDonateRequest, SendDonateResponse} from "$lib/pb/functions_pb";
     import {
         Card,
     } from "flowbite-svelte";
@@ -12,7 +12,6 @@
     import {emailStore, senderStore} from "$lib/stores";
     import Form from "./Form.svelte";
     import UserHeader from "$lib/comp/UserHeader.svelte";
-    import type {User} from "$lib/pb/user_pb";
 
     const sendDonate = async () => {
         if(!user) throw new Error("User is undefined");
@@ -21,55 +20,56 @@
         const amountFloat = parseFloat(amount);
         if (amountFloat < user.MinimumAmount) return; // TODO: show error
 
-        const sdReq = new SendDonateRequest({
+        const sdReq = new Tip({
             Amount: amountFloat,
             Currency: currency,
             Email: $emailStore,
             Sender: $senderStore,
             RecipientId: user.Uid,
             Message: message,
-            Status: DonateStatus.INITIATED
+            Status: TipStatus.INITIATED
         });
 
-        const res = await axios.post(TerraformOutput.FunctionUrls.SendTip, sdReq.toBinary(), { responseType: 'arraybuffer' })
+        const res = await axios.post(terraformOutput.FunctionUrls.TipSend, sdReq.toBinary(), { responseType: 'arraybuffer' })
         if(res.status !== 200) {
             console.error(res.data); // TODO: handle error
             return;
         }
-
-        const sdRes = SendDonateResponse.fromBinary(new Uint8Array(res.data));
-        window.location.href = sdRes.RedirectUrl;
+        window.location.href = res.data;
     }
+
+    console.log(terraformOutput.FunctionUrls.TipSend)
 
     let recipient = $page.params.recipient;
     let user: User|undefined = undefined;
 
     let amount:string = "5";
     let message:string = "";
-    let currency:string = "PLN";
+    let currency:Currency = Currency.UNKNOWN;
 
     $: isBlocked = $emailStore === ""
     let hasListeners: boolean = true;
 
-    const getListeners = async () => {
-        if(!user) return;
-
-        const res = await axios.get(TerraformOutput.FunctionUrls.GetListeners + "?uid=" + user.Uid)
-        if(res.status !== 200) {
-            console.error(res.data); // TODO: handle error
-            return;
-        }
-        hasListeners = res.data !== 0;
-    }
+    // const getListeners = async () => {
+    //     if(!user) return;
+    //
+    //     const res = await axios.get(terraformOutput.FunctionUrls.GetListeners + "?uid=" + user.Uid)
+    //     if(res.status !== 200) {
+    //         console.error(res.data); // TODO: handle error
+    //         return;
+    //     }
+    //     hasListeners = res.data !== 0;
+    // }
 
     onMount(async () => {
         try {
             user = await getUserByUsername(recipient);
-            amount = user.MinimumAmount.toString();
+            if(!user) return;
 
-            getListeners().then(r => {})
-            setInterval(getListeners, 10000)
+            amount = user.MinimumAmount.toString();
+            currency = user.Currency;
         } catch (e) {
+            console.error(e);
             if(e instanceof FetchError) {
                 await goto("/");
                 return;
@@ -86,7 +86,7 @@
             <div class="px-[5%]">
                 <UserHeader {user}/>
 
-                <Form {recipient} {sendDonate} {isBlocked} {hasListeners} bind:amount bind:message bind:currency/>
+                <Form {recipient} {sendDonate} {isBlocked} {hasListeners} bind:amount bind:message {currency}/>
             </div>
         </Card>
     </div>

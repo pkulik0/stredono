@@ -1,7 +1,7 @@
 <script lang="ts">
     import 'animate.css';
+    import type { Alert } from '$lib/pb/stredono_pb';
     import {fade} from "svelte/transition";
-    import type {Alert, Event} from "$lib/pb/user_pb";
 
     export let alerts: Alert[]
     export let event: Event

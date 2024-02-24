@@ -1,4 +1,4 @@
-package cloud
+package user
 
 import (
 	"context"
@@ -8,6 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkulik0/stredono/cloud/pb"
 	"github.com/pkulik0/stredono/cloud/platform"
+	"github.com/pkulik0/stredono/cloud/platform/modules"
+	"github.com/pkulik0/stredono/cloud/platform/providers"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
@@ -15,13 +17,18 @@ import (
 	"strings"
 )
 
-func OnRegister(w http.ResponseWriter, r *http.Request) {
-	platform.CloudMiddleware(&platform.CloudConfig{
+func RegisterEntrypoint(w http.ResponseWriter, r *http.Request) {
+	ctx, err := providers.CreateContext(r.Context(), &providers.Config{
 		DocDb: true,
-		Auth: platform.AuthConfig{
-			Client: true,
-		},
-	}, onRegister)(w, r)
+		Auth:  true,
+	})
+	if err != nil {
+		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
+		return
+	}
+	r = r.WithContext(ctx)
+
+	register(w, r)
 }
 
 const (
@@ -157,7 +164,7 @@ func handleRegistration(ctx context.Context, claims jwt.Claims) error {
 		return errorInvalidProvider
 	}
 
-	db, ok := platform.GetDocDb(ctx)
+	db, ok := providers.GetDocDb(ctx)
 	if !ok {
 		return errorContextValue
 	}
@@ -166,7 +173,7 @@ func handleRegistration(ctx context.Context, claims jwt.Claims) error {
 }
 
 func handleOauthRegistration(ctx context.Context, user *pb.User, claims *userClaimsOauth, provider string) error {
-	db, ok := platform.GetDocDb(ctx)
+	db, ok := providers.GetDocDb(ctx)
 	if !ok {
 		return errorContextValue
 	}
@@ -176,7 +183,7 @@ func handleOauthRegistration(ctx context.Context, user *pb.User, claims *userCla
 			Access:  claims.OauthAccessToken,
 			Refresh: claims.OauthRefreshToken,
 		},
-	}, &platform.DbOpts{MergeAll: true})
+	}, &modules.DbOpts{MergeAll: true})
 	if err != nil {
 		return err
 	}
@@ -198,6 +205,14 @@ func getGoogleSigningKeys() (map[string]string, error) {
 	return keys, nil
 }
 
+type onRegisterPayload struct {
+	JwtToken string `json:"jwt"`
+}
+
+type onRegisterRequest struct {
+	Data onRegisterPayload `json:"data"`
+}
+
 func requestToClaims(r *http.Request, signingKeys map[string]string) (jwt.Claims, error) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -205,11 +220,7 @@ func requestToClaims(r *http.Request, signingKeys map[string]string) (jwt.Claims
 	}
 	defer r.Body.Close()
 
-	requestBody := struct {
-		Data struct {
-			JwtToken string `json:"jwt"`
-		} `json:"data"`
-	}{}
+	requestBody := onRegisterRequest{}
 	if err := json.Unmarshal(body, &requestBody); err != nil {
 		return nil, err
 	}
@@ -230,7 +241,7 @@ func requestToClaims(r *http.Request, signingKeys map[string]string) (jwt.Claims
 	return token.Claims, nil
 }
 
-func onRegister(w http.ResponseWriter, r *http.Request) {
+func register(w http.ResponseWriter, r *http.Request) {
 	signingKeys, err := getGoogleSigningKeys()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

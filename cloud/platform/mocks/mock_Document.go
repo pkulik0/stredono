@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	platform "github.com/pkulik0/stredono/cloud/platform"
+	modules "github.com/pkulik0/stredono/cloud/platform/modules"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -23,23 +23,23 @@ func (_m *MockDocument) EXPECT() *MockDocument_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, data
-func (_m *MockDocument) Create(ctx context.Context, data interface{}) (*platform.WriteResult, error) {
+func (_m *MockDocument) Create(ctx context.Context, data interface{}) (*modules.WriteResult, error) {
 	ret := _m.Called(ctx, data)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *platform.WriteResult
+	var r0 *modules.WriteResult
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}) (*platform.WriteResult, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) (*modules.WriteResult, error)); ok {
 		return rf(ctx, data)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}) *platform.WriteResult); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) *modules.WriteResult); ok {
 		r0 = rf(ctx, data)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*platform.WriteResult)
+			r0 = ret.Get(0).(*modules.WriteResult)
 		}
 	}
 
@@ -71,34 +71,34 @@ func (_c *MockDocument_Create_Call) Run(run func(ctx context.Context, data inter
 	return _c
 }
 
-func (_c *MockDocument_Create_Call) Return(_a0 *platform.WriteResult, _a1 error) *MockDocument_Create_Call {
+func (_c *MockDocument_Create_Call) Return(_a0 *modules.WriteResult, _a1 error) *MockDocument_Create_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockDocument_Create_Call) RunAndReturn(run func(context.Context, interface{}) (*platform.WriteResult, error)) *MockDocument_Create_Call {
+func (_c *MockDocument_Create_Call) RunAndReturn(run func(context.Context, interface{}) (*modules.WriteResult, error)) *MockDocument_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Get provides a mock function with given fields: ctx
-func (_m *MockDocument) Get(ctx context.Context) (platform.DocumentSnapshot, error) {
+func (_m *MockDocument) Get(ctx context.Context) (modules.DocumentSnapshot, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 platform.DocumentSnapshot
+	var r0 modules.DocumentSnapshot
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (platform.DocumentSnapshot, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (modules.DocumentSnapshot, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) platform.DocumentSnapshot); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) modules.DocumentSnapshot); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(platform.DocumentSnapshot)
+			r0 = ret.Get(0).(modules.DocumentSnapshot)
 		}
 	}
 
@@ -129,38 +129,83 @@ func (_c *MockDocument_Get_Call) Run(run func(ctx context.Context)) *MockDocumen
 	return _c
 }
 
-func (_c *MockDocument_Get_Call) Return(_a0 platform.DocumentSnapshot, _a1 error) *MockDocument_Get_Call {
+func (_c *MockDocument_Get_Call) Return(_a0 modules.DocumentSnapshot, _a1 error) *MockDocument_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockDocument_Get_Call) RunAndReturn(run func(context.Context) (platform.DocumentSnapshot, error)) *MockDocument_Get_Call {
+func (_c *MockDocument_Get_Call) RunAndReturn(run func(context.Context) (modules.DocumentSnapshot, error)) *MockDocument_Get_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Id provides a mock function with given fields:
+func (_m *MockDocument) Id() string {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Id")
+	}
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// MockDocument_Id_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Id'
+type MockDocument_Id_Call struct {
+	*mock.Call
+}
+
+// Id is a helper method to define mock.On call
+func (_e *MockDocument_Expecter) Id() *MockDocument_Id_Call {
+	return &MockDocument_Id_Call{Call: _e.mock.On("Id")}
+}
+
+func (_c *MockDocument_Id_Call) Run(run func()) *MockDocument_Id_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockDocument_Id_Call) Return(_a0 string) *MockDocument_Id_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockDocument_Id_Call) RunAndReturn(run func() string) *MockDocument_Id_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Set provides a mock function with given fields: ctx, data, opts
-func (_m *MockDocument) Set(ctx context.Context, data interface{}, opts *platform.DbOpts) (*platform.WriteResult, error) {
+func (_m *MockDocument) Set(ctx context.Context, data interface{}, opts *modules.DbOpts) (*modules.WriteResult, error) {
 	ret := _m.Called(ctx, data, opts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Set")
 	}
 
-	var r0 *platform.WriteResult
+	var r0 *modules.WriteResult
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}, *platform.DbOpts) (*platform.WriteResult, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}, *modules.DbOpts) (*modules.WriteResult, error)); ok {
 		return rf(ctx, data, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}, *platform.DbOpts) *platform.WriteResult); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}, *modules.DbOpts) *modules.WriteResult); ok {
 		r0 = rf(ctx, data, opts)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*platform.WriteResult)
+			r0 = ret.Get(0).(*modules.WriteResult)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, interface{}, *platform.DbOpts) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, interface{}, *modules.DbOpts) error); ok {
 		r1 = rf(ctx, data, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -177,24 +222,24 @@ type MockDocument_Set_Call struct {
 // Set is a helper method to define mock.On call
 //   - ctx context.Context
 //   - data interface{}
-//   - opts *platform.DbOpts
+//   - opts *modules.DbOpts
 func (_e *MockDocument_Expecter) Set(ctx interface{}, data interface{}, opts interface{}) *MockDocument_Set_Call {
 	return &MockDocument_Set_Call{Call: _e.mock.On("Set", ctx, data, opts)}
 }
 
-func (_c *MockDocument_Set_Call) Run(run func(ctx context.Context, data interface{}, opts *platform.DbOpts)) *MockDocument_Set_Call {
+func (_c *MockDocument_Set_Call) Run(run func(ctx context.Context, data interface{}, opts *modules.DbOpts)) *MockDocument_Set_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(interface{}), args[2].(*platform.DbOpts))
+		run(args[0].(context.Context), args[1].(interface{}), args[2].(*modules.DbOpts))
 	})
 	return _c
 }
 
-func (_c *MockDocument_Set_Call) Return(_a0 *platform.WriteResult, _a1 error) *MockDocument_Set_Call {
+func (_c *MockDocument_Set_Call) Return(_a0 *modules.WriteResult, _a1 error) *MockDocument_Set_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockDocument_Set_Call) RunAndReturn(run func(context.Context, interface{}, *platform.DbOpts) (*platform.WriteResult, error)) *MockDocument_Set_Call {
+func (_c *MockDocument_Set_Call) RunAndReturn(run func(context.Context, interface{}, *modules.DbOpts) (*modules.WriteResult, error)) *MockDocument_Set_Call {
 	_c.Call.Return(run)
 	return _c
 }

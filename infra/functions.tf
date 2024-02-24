@@ -25,7 +25,7 @@ resource "google_storage_bucket" "fn_bucket" {
 
 data "archive_file" "source" {
   type        = "zip"
-  source_dir  = "${local.base_path}/functions"
+  source_dir  = "${local.base_path}/cloud"
   excludes    = ["cmd"]
   output_path = "${path.module}/.terraform/functions_source.zip"
 }

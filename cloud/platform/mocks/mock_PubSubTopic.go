@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	platform "github.com/pkulik0/stredono/cloud/platform"
+	modules "github.com/pkulik0/stredono/cloud/platform/modules"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -23,7 +23,7 @@ func (_m *MockPubSubTopic) EXPECT() *MockPubSubTopic_Expecter {
 }
 
 // Publish provides a mock function with given fields: ctx, msg
-func (_m *MockPubSubTopic) Publish(ctx context.Context, msg *platform.PubSubMessage) {
+func (_m *MockPubSubTopic) Publish(ctx context.Context, msg *modules.PubSubMessage) {
 	_m.Called(ctx, msg)
 }
 
@@ -34,14 +34,14 @@ type MockPubSubTopic_Publish_Call struct {
 
 // Publish is a helper method to define mock.On call
 //   - ctx context.Context
-//   - msg *platform.PubSubMessage
+//   - msg *modules.PubSubMessage
 func (_e *MockPubSubTopic_Expecter) Publish(ctx interface{}, msg interface{}) *MockPubSubTopic_Publish_Call {
 	return &MockPubSubTopic_Publish_Call{Call: _e.mock.On("Publish", ctx, msg)}
 }
 
-func (_c *MockPubSubTopic_Publish_Call) Run(run func(ctx context.Context, msg *platform.PubSubMessage)) *MockPubSubTopic_Publish_Call {
+func (_c *MockPubSubTopic_Publish_Call) Run(run func(ctx context.Context, msg *modules.PubSubMessage)) *MockPubSubTopic_Publish_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*platform.PubSubMessage))
+		run(args[0].(context.Context), args[1].(*modules.PubSubMessage))
 	})
 	return _c
 }
@@ -51,7 +51,7 @@ func (_c *MockPubSubTopic_Publish_Call) Return() *MockPubSubTopic_Publish_Call {
 	return _c
 }
 
-func (_c *MockPubSubTopic_Publish_Call) RunAndReturn(run func(context.Context, *platform.PubSubMessage)) *MockPubSubTopic_Publish_Call {
+func (_c *MockPubSubTopic_Publish_Call) RunAndReturn(run func(context.Context, *modules.PubSubMessage)) *MockPubSubTopic_Publish_Call {
 	_c.Call.Return(run)
 	return _c
 }

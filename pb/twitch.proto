@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package stredono;
 
-option go_package="github.com/pkulik0/stredono/pb";
+option go_package="github.com/pkulik0/stredono/cloud/pb";
 
 message TwitchReward {
   string Id = 1;

@@ -18,6 +18,12 @@ variable "tenor_api_key" {
   default     = "LIVDSRZULELA"
 }
 
+variable "fn_on_register" {
+  description = "The function to call when a user registers"
+  type        = string
+  default     = "UserRegister"
+}
+
 variable "cloud_functions" {
   type = map(object({
     runtime       = string
@@ -31,9 +37,9 @@ variable "cloud_functions" {
     location      = string
   }))
   default = {
-    OnRegister = {
+    UserRegister = {
       runtime       = "go121"
-      entry         = "OnRegister"
+      entry         = "UserRegister"
       public        = true
       min_instances = 0
       max_instances = 1
@@ -42,9 +48,9 @@ variable "cloud_functions" {
       timeout       = 60
       location      = "europe-west1"
     }
-    SendTip = {
+    TipSend = {
       runtime       = "go121"
-      entry         = "SendTip"
+      entry         = "TipSend"
       public        = true
       min_instances = 0
       max_instances = 1
@@ -53,9 +59,9 @@ variable "cloud_functions" {
       timeout       = 60
       location      = "europe-west1"
     }
-    ConfirmPayment = {
+    TipConfirm = {
       runtime       = "go121"
-      entry         = "ConfirmPayment"
+      entry         = "TipConfirm"
       public        = true
       min_instances = 0
       max_instances = 1
@@ -64,31 +70,9 @@ variable "cloud_functions" {
       timeout       = 60
       location      = "europe-west1"
     }
-    GetListeners = {
+    TwitchCreateSub = {
       runtime       = "go121"
-      entry         = "GetListeners"
-      public        = true
-      min_instances = 0
-      max_instances = 1
-      concurrency   = 1
-      memory        = "256M"
-      timeout       = 60
-      location      = "europe-west1"
-    }
-    TwitchConnect = {
-      runtime       = "go121"
-      entry         = "TwitchConnect"
-      public        = true
-      min_instances = 0
-      max_instances = 1
-      concurrency   = 1
-      memory        = "256M"
-      timeout       = 60
-      location      = "europe-west1"
-    }
-    TwitchSubscribe = {
-      runtime       = "go121"
-      entry         = "TwitchSubscribe"
+      entry         = "TwitchCreateSub"
       public        = true
       min_instances = 0
       max_instances = 1

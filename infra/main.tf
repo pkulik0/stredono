@@ -181,7 +181,7 @@ resource "google_identity_platform_config" "default" {
   blocking_functions {
     triggers {
       event_type   = "beforeCreate"
-      function_uri = [for f in google_cloudfunctions2_function.cloud_functions : f.service_config[0].uri if f.name == "OnRegister"][0]
+      function_uri = [for f in google_cloudfunctions2_function.cloud_functions : f.service_config[0].uri if f.name == var.fn_on_register][0]
     }
 
     forward_inbound_credentials {

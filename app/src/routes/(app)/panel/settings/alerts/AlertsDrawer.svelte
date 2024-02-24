@@ -1,41 +1,36 @@
 <script lang="ts">
     import {
+        Alert,
+        AlertStyle,
+        AlertType,
+        AmountTrigger,
+        AnimationType,
+        Currency,
+        TextToSpeechSettings
+    } from '$lib/pb/stredono_pb';
+    import {
         Button, ButtonGroup,
         CloseButton,
         Drawer,
-        Fileupload,
         Hr,
         Input,
         InputAddon,
-        Label, P, Popover,
+        Label, P,
         Select,
-        Textarea,
-    } from "flowbite-svelte";
-    import {uploadToStorage} from "$lib/firebase/storage";
+        Textarea
+    } from 'flowbite-svelte';
+    import {uploadToStorage} from "$lib/ext/firebase/storage";
     import {
         BellActiveSolid,
         ImageOutline,
-        PhoneOutline,
         PlusSolid,
-        QuestionCircleSolid,
         VolumeUpSolid
     } from "flowbite-svelte-icons";
     import {sineIn} from "svelte/easing";
     import {fade, slide} from "svelte/transition";
     import {v4 as uuidv4} from "uuid";
-    import ColorPicker, {ChromeVariant} from "svelte-awesome-color-picker";
-    import {
-        AlertStyle,
-        AlertType,
-        AmountTrigger,
-        AnimationType, Currency,
-        TextToSpeechSettings
-    } from "$lib/pb/user_pb";
     import {onMount} from "svelte";
     import GifPicker from "$lib/comp/GifPicker.svelte";
-    import type {Gif} from "$lib/ext/tenor";
-    import axios from "axios";
-    import {Alert} from "$lib/pb/user_pb";
     import {userStore} from "$lib/user";
     import SoundPicker from "$lib/comp/SoundPicker.svelte";
 

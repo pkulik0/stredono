@@ -1,9 +1,9 @@
 <script lang="ts">
-    import type {Donate} from "$lib/donations";
+    import type {WebTip} from "$lib/donations";
     import 'animate.css';
     import {fade} from "svelte/transition";
 
-    export let donate: Donate
+    export let donate: WebTip
 </script>
 
 <div id="alert" class="animate__animated animate__headShake animate__infinite" in:fade out:fade>

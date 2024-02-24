@@ -1,4 +1,4 @@
-package cloud
+package twitch
 
 // https://dev.twitch.tv/docs/eventsub/
 
@@ -9,6 +9,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"github.com/pkulik0/stredono/cloud/platform"
+	"github.com/pkulik0/stredono/cloud/platform/modules"
+	"github.com/pkulik0/stredono/cloud/platform/providers"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
@@ -163,12 +165,19 @@ func newEventsubHeaders(r *http.Request) *eventsubHeaders {
 	}
 }
 
-func TwitchWebhook(w http.ResponseWriter, r *http.Request) {
-	platform.CorsMiddleware(platform.CloudMiddleware(&platform.CloudConfig{
-		RealtimeDb:     true,
-		SecretsManager: true,
-		PubSub:         true,
-	}, twitchWebhook))(w, r)
+func WebhookEntrypoint(w http.ResponseWriter, r *http.Request) {
+	ctx, err := providers.CreateContext(r.Context(), &providers.Config{
+		RealtimeDb:    true,
+		SecretManager: true,
+		PubSub:        true,
+	})
+	if err != nil {
+		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
+		return
+	}
+	r = r.WithContext(ctx)
+
+	webhook(w, r)
 }
 
 func calculateHmacSignature(secret string, headers *eventsubHeaders, body string) string {
@@ -179,7 +188,7 @@ func calculateHmacSignature(secret string, headers *eventsubHeaders, body string
 }
 
 func getNotification(ctx context.Context, headers *eventsubHeaders, body []byte) (*eventsubNotification, error) {
-	secretManager, ok := platform.GetSecretManager(ctx)
+	secretManager, ok := providers.GetSecretManager(ctx)
 	if !ok {
 		return nil, platform.ErrorMissingContextValue
 	}
@@ -200,7 +209,7 @@ func getNotification(ctx context.Context, headers *eventsubHeaders, body []byte)
 	return notification, err
 }
 
-func twitchWebhook(w http.ResponseWriter, r *http.Request) {
+func webhook(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Errorf("Failed to read request | %s", err)
@@ -255,7 +264,7 @@ func unmarshalEvent[T any](notif *eventsubNotification, out *T) error {
 }
 
 func handleEvent(ctx context.Context, notification *eventsubNotification) error {
-	pubsubClient, ok := platform.GetPubsub(ctx)
+	pubsubClient, ok := providers.GetPubsub(ctx)
 	if !ok {
 		return platform.ErrorMissingContextValue
 	}
@@ -285,7 +294,7 @@ func handleEvent(ctx context.Context, notification *eventsubNotification) error 
 		return err
 	}
 
-	topic.Publish(ctx, &platform.PubSubMessage{
+	topic.Publish(ctx, &modules.PubSubMessage{
 		Data: data,
 		Attributes: map[string]string{
 			"uid":   uid,

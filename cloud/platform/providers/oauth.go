@@ -1,38 +1,28 @@
-package platform
+package providers
 
 import (
 	"context"
-	"github.com/nicklaw5/helix"
+	"github.com/pkulik0/stredono/cloud/platform"
+	"github.com/pkulik0/stredono/cloud/platform/modules"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/twitch"
 )
 
-const (
-	twitchClientId         = "t1kl0vkt6hv06bi4ah4691hi8fexso"
-	twitchClientSecretName = "twitch-client-secret"
-	twitchRedirectUrl      = "http://localhost:8080/connectTwitchCallback"
-)
-
-type HelixClient interface {
-	CreateEventSubSubscription(payload *helix.EventSubSubscription) (*helix.EventSubSubscriptionsResponse, error)
-	GetUsers(params *helix.UsersParams) (*helix.UsersResponse, error)
-}
-
-func GetTwitchOauth2Config(ctx context.Context) (*oauth2.Config, error) {
+func getTwitchOauth2Config(ctx context.Context) (*oauth2.Config, error) {
 	secretClient, ok := GetSecretManager(ctx)
 	if !ok {
-		return nil, ErrorMissingContextValue
+		return nil, platform.ErrorMissingContextValue
 	}
 
-	clientSecret, err := secretClient.GetSecret(ctx, twitchClientSecretName, "latest")
+	clientSecret, err := secretClient.GetSecret(ctx, modules.TwitchClientSecretName, "latest")
 	if err != nil {
 		return nil, err
 	}
 
 	return &oauth2.Config{
-		ClientID:     twitchClientId,
+		ClientID:     modules.TwitchClientId,
 		ClientSecret: string(clientSecret),
-		RedirectURL:  twitchRedirectUrl,
+		RedirectURL:  modules.TwitchRedirectUrl,
 		Scopes: []string{
 			"user:read:email",
 			"moderator:read:followers", // channel.follow

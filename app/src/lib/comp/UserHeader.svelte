@@ -1,7 +1,7 @@
 <script lang="ts">
+    import type { User } from '$lib/pb/stredono_pb';
     import {Avatar, Blockquote, Dropdown, DropdownItem, Heading} from "flowbite-svelte";
     import {DotsHorizontalOutline, ExclamationCircleSolid} from "flowbite-svelte-icons";
-    import type {User} from "$lib/pb/user_pb";
 
     export let user: User | undefined
     export let interactive: boolean = true;

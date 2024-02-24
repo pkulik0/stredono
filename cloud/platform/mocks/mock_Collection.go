@@ -3,7 +3,9 @@
 package mocks
 
 import (
-	platform "github.com/pkulik0/stredono/cloud/platform"
+	context "context"
+
+	modules "github.com/pkulik0/stredono/cloud/platform/modules"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -20,20 +22,79 @@ func (_m *MockCollection) EXPECT() *MockCollection_Expecter {
 	return &MockCollection_Expecter{mock: &_m.Mock}
 }
 
+// Add provides a mock function with given fields: ctx, data
+func (_m *MockCollection) Add(ctx context.Context, data interface{}) (*modules.AddResult, error) {
+	ret := _m.Called(ctx, data)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Add")
+	}
+
+	var r0 *modules.AddResult
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) (*modules.AddResult, error)); ok {
+		return rf(ctx, data)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}) *modules.AddResult); ok {
+		r0 = rf(ctx, data)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*modules.AddResult)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, interface{}) error); ok {
+		r1 = rf(ctx, data)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockCollection_Add_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Add'
+type MockCollection_Add_Call struct {
+	*mock.Call
+}
+
+// Add is a helper method to define mock.On call
+//   - ctx context.Context
+//   - data interface{}
+func (_e *MockCollection_Expecter) Add(ctx interface{}, data interface{}) *MockCollection_Add_Call {
+	return &MockCollection_Add_Call{Call: _e.mock.On("Add", ctx, data)}
+}
+
+func (_c *MockCollection_Add_Call) Run(run func(ctx context.Context, data interface{})) *MockCollection_Add_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(interface{}))
+	})
+	return _c
+}
+
+func (_c *MockCollection_Add_Call) Return(_a0 *modules.AddResult, _a1 error) *MockCollection_Add_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockCollection_Add_Call) RunAndReturn(run func(context.Context, interface{}) (*modules.AddResult, error)) *MockCollection_Add_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Doc provides a mock function with given fields: path
-func (_m *MockCollection) Doc(path string) platform.Document {
+func (_m *MockCollection) Doc(path string) modules.Document {
 	ret := _m.Called(path)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Doc")
 	}
 
-	var r0 platform.Document
-	if rf, ok := ret.Get(0).(func(string) platform.Document); ok {
+	var r0 modules.Document
+	if rf, ok := ret.Get(0).(func(string) modules.Document); ok {
 		r0 = rf(path)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(platform.Document)
+			r0 = ret.Get(0).(modules.Document)
 		}
 	}
 
@@ -58,12 +119,12 @@ func (_c *MockCollection_Doc_Call) Run(run func(path string)) *MockCollection_Do
 	return _c
 }
 
-func (_c *MockCollection_Doc_Call) Return(_a0 platform.Document) *MockCollection_Doc_Call {
+func (_c *MockCollection_Doc_Call) Return(_a0 modules.Document) *MockCollection_Doc_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockCollection_Doc_Call) RunAndReturn(run func(string) platform.Document) *MockCollection_Doc_Call {
+func (_c *MockCollection_Doc_Call) RunAndReturn(run func(string) modules.Document) *MockCollection_Doc_Call {
 	_c.Call.Return(run)
 	return _c
 }

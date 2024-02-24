@@ -1,4 +1,5 @@
 <script lang="ts">
+    import type { Alert } from '$lib/pb/stredono_pb';
     import {PlusSolid} from "flowbite-svelte-icons";
     import AlertsDrawer from "./AlertsDrawer.svelte";
     import {
@@ -12,7 +13,6 @@
         TableHeadCell, TextPlaceholder
     } from "flowbite-svelte";
     import {onMount} from "svelte";
-    import {Alert, AlertStyle} from "$lib/pb/user_pb";
     import {userStore} from "$lib/user";
     import AlertRow from "./AlertRow.svelte";
 

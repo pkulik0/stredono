@@ -1,7 +1,5 @@
 <script lang="ts">
     import LatestCard from "./LatestCard.svelte";
-    import {Alert, Card} from "flowbite-svelte";
-    import {InfoCircleSolid} from "flowbite-svelte-icons";
 </script>
 
 <div class="flex flex-col space-y-2">

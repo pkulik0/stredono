@@ -1,7 +1,7 @@
 <script lang="ts">
+    import type { Alert } from '$lib/pb/stredono_pb';
     import {Button, Hr, Img, TableBodyCell, TableBodyRow} from "flowbite-svelte";
     import {EditSolid, EyeSolid, PauseSolid, TrashBinSolid} from "flowbite-svelte-icons";
-    import type {Alert} from "$lib/pb/user_pb";
 
     export let alert: Alert;
 

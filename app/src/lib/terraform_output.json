@@ -10,14 +10,12 @@
     "storageBucket": "stredono-6394ee11.appspot.com"
   },
   "FunctionUrls": {
-    "ConfirmPayment": "https://confirmpayment-bogpf7lo6q-ew.a.run.app",
-    "GetListeners": "https://getlisteners-bogpf7lo6q-ew.a.run.app",
-    "OnRegister": "https://onregister-bogpf7lo6q-ew.a.run.app",
-    "SendTip": "https://sendtip-bogpf7lo6q-ew.a.run.app",
-    "TwitchConnect": "https://twitchconnect-bogpf7lo6q-ew.a.run.app",
+    "TipConfirm": "https://tipconfirm-bogpf7lo6q-ew.a.run.app",
+    "TipSend": "https://tipsend-bogpf7lo6q-ew.a.run.app",
+    "TwitchCreateSub": "https://twitchcreatesub-bogpf7lo6q-ew.a.run.app",
     "TwitchGetData": "https://twitchgetdata-bogpf7lo6q-ew.a.run.app",
-    "TwitchSubscribe": "https://twitchsubscribe-bogpf7lo6q-ew.a.run.app",
-    "TwitchWebhook": "https://twitchwebhook-bogpf7lo6q-ew.a.run.app"
+    "TwitchWebhook": "https://twitchwebhook-bogpf7lo6q-ew.a.run.app",
+    "UserRegister": "https://userregister-bogpf7lo6q-ew.a.run.app"
   },
   "PublicFiles": {
     "audio": [

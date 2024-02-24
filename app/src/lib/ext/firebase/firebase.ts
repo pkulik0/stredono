@@ -3,7 +3,7 @@ import {getAuth} from "firebase/auth";
 import {initializeFirestore, persistentLocalCache, CACHE_SIZE_UNLIMITED} from "firebase/firestore";
 import {getMessaging} from "firebase/messaging";
 import {initializeAppCheck, ReCaptchaEnterpriseProvider} from "firebase/app-check";
-import TerraformOutput from "../terraform_output.json";
+import TerraformOutput from "../../terraform_output.json";
 
 export const app = initializeApp(TerraformOutput.FirebaseWebappConfig);
 initializeAppCheck(app, {

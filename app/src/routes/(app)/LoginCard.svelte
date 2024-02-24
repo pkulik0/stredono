@@ -1,7 +1,7 @@
 <script>
-    import { Button, Card, Checkbox, Helper, Input, Label, P } from 'flowbite-svelte';
-    import {isSignInWithEmailLink, sendSignInLinkToEmail, signInWithEmailLink, signInWithRedirect, getRedirectResult, signInWithCredential, signInWithPopup} from "firebase/auth";
-    import {auth} from "$lib/firebase/firebase";
+    import { Button, Checkbox, Helper, Input, Label, P } from 'flowbite-svelte';
+    import {isSignInWithEmailLink, sendSignInLinkToEmail, signInWithEmailLink, signInWithPopup} from "firebase/auth";
+    import {auth} from "$lib/ext/firebase/firebase";
     import {onMount} from "svelte";
     import {userStore} from "$lib/user";
     import {goto} from "$app/navigation";

@@ -1,6 +1,6 @@
-import {db} from "$lib/firebase/firebase";
+import {db} from "$lib/ext/firebase/firebase";
+import { User } from '$lib/pb/stredono_pb';
 import {collection, doc, getDocs, query, where, onSnapshot, setDoc} from "firebase/firestore";
-import {User} from "$lib/pb/user_pb";
 import {writable, type Writable} from "svelte/store";
 
 export const userStore: Writable<User | undefined> = writable(undefined);
@@ -12,23 +12,20 @@ export class FetchError extends Error {
 }
 
 export const getUserListener = async (uid: string) => {
-    const usersDoc = doc(db, "users", uid);
-    return onSnapshot(usersDoc, (doc) => {
+    return onSnapshot(doc(db, "users", uid), (doc) => {
         if (!doc.exists()) return;
         userStore.set(User.fromJson(doc.data()));
     })
 }
 
 export const saveUser = async (user: User) => {
-    const userDoc = doc(db, "users", user.Uid);
-    await setDoc(userDoc, user.toJson({
+    await setDoc(doc(db, "users", user.Uid), user.toJson({
         useProtoFieldName: true
     }) as any);
 }
 
 export const getUserByUsername = async (username: string): Promise<User> => {
-    const q = query(collection(db, "users"), where("username", "==", username))
-    const snapshot = await getDocs(q)
+    const snapshot = await getDocs(query(collection(db, "users"), where("Username", "==", username)))
     if (snapshot.empty) throw new FetchError("User not found", 404)
     if (snapshot.size > 1) throw new FetchError("Multiple users found", 500)
 

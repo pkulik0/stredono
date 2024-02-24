@@ -1,21 +1,20 @@
 <script lang="ts">
-    import {donationStore, type DonationsMap, fetchOldDonations} from "$lib/donations";
-    import { auth } from '$lib/firebase/firebase';
-    import {Breadcrumb, BreadcrumbItem, Card, Checkbox, Helper, Hr, Input, Label, P, Pagination} from "flowbite-svelte";
+    import {tipsStore, type TipsMap, fetchOldTips} from "$lib/donations";
+    import { auth } from '$lib/ext/firebase/firebase';
+    import {Card, Checkbox, Hr, Input, Label, P, Pagination} from "flowbite-svelte";
     import {onMount} from "svelte";
     import DonationList from "$lib/comp/DonationList.svelte";
     import {ChevronLeftOutline, ChevronRightOutline} from "flowbite-svelte-icons";
     import {page} from "$app/stores";
     import {goto} from "$app/navigation";
-    import {userStore} from "$lib/user";
 
     onMount(() => {
-        return donationStore.subscribe((value) => {
+        return tipsStore.subscribe((value) => {
             donations = value;
         });
     });
 
-    let donations: DonationsMap = {};
+    let donations: TipsMap = {};
 
     $: activePage = Number.parseInt($page.url.searchParams.get('page') || '1')
     $: label = donations[donationsIndex] ? `${donations[donationsIndex].startDate.toLocaleDateString()} - ${donations[donationsIndex].endDate.toLocaleDateString()}` : "??/??/???? - ??/??/????";
@@ -27,7 +26,7 @@
     }];
 
     $: donationsIndex = activePage - 1;
-    $: items = donations[donationsIndex] ? donations[donationsIndex].donate : [];
+    $: items = donations[donationsIndex] ? donations[donationsIndex].tips : [];
 
     let searchTerm = "";
     let searchInSender = true;
@@ -71,7 +70,7 @@
         }
 
         if(!donations[activePage]) {
-            await fetchOldDonations(startDate, activePage);
+            await fetchOldTips(startDate, activePage);
         }
         activePage++;
     };
