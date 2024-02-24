@@ -32,7 +32,7 @@ jobs:
         uses: ./.github/actions/go
         with:
           go-version: '1.22.x'
-          working-dir: 'functions'
+          working-dir: 'cloud'
 
       - name: Deploy Infrastructure
         uses: ./.github/actions/terraform
