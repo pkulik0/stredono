@@ -134,7 +134,6 @@ func handleRegistration(ctx context.Context, claims jwt.Claims) error {
 		Description:   "Default description.", // TODO: Change to something better, based on locale
 		MinimumAmount: 1,
 		Currency:      pb.Currency_PLN,
-		Alerts:        make([]*pb.Alert, 0),
 	}
 
 	provider := registerClaims.ProviderData.ProviderId

@@ -18,7 +18,8 @@ func validateAlerts(alerts []*pb.Alert) error {
 	return nil
 }
 
-const urlRegex = "^(http|https)://[a-zA-Z0-9-]+(.[a-zA-Z0-9-]+)+(/[a-zA-Z0-9-./?%&=]*)?$"
+const urlRegex = "^https://[a-zA-Z0-9-]+(.[a-zA-Z0-9-]+)+(/[a-zA-Z0-9-./?%&=]*)?$"
+const storageUrlRegex = "^https://[a-z]*storage.googleapis.com/[a-zA-Z0-9-]+(.[a-zA-Z0-9-]+)+(/[a-zA-Z0-9-./?%&=]*)?$"
 
 func validateUser(user *pb.User, uid string) error {
 	if user == nil {
@@ -50,7 +51,7 @@ func validateUser(user *pb.User, uid string) error {
 		return errors.New("invalid currency")
 	}
 
-	matched, err = regexp.Match(urlRegex, []byte(user.PictureUrl)) // verify domain, allow only
+	matched, err = regexp.Match(storageUrlRegex, []byte(user.PictureUrl))
 	log.Printf("pic url: %s", user.PictureUrl)
 	if len(user.PictureUrl) > 0 && (err != nil || !matched) {
 		return errors.New("invalid picture url")
@@ -61,7 +62,7 @@ func validateUser(user *pb.User, uid string) error {
 		return errors.New("invalid url")
 	}
 
-	return validateAlerts(user.Alerts)
+	return nil
 }
 
 func EditEntrypoint(w http.ResponseWriter, r *http.Request) {
@@ -84,6 +85,7 @@ func edit(w http.ResponseWriter, r *http.Request) {
 
 	token, _, ok := providers.GetAuthToken(ctx, r)
 	if !ok {
+		log.Errorf("received request without token")
 		http.Error(w, platform.UnauthorizedMessage, http.StatusUnauthorized)
 		return
 	}
@@ -103,16 +105,28 @@ func edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = validateUser(user, token.UserId()); err != nil {
-		log.Errorf("invalid user | %s", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	db, ok := providers.GetDocDb(ctx)
 	if !ok {
 		log.Errorf("failed to get doc db client")
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
+		return
+	}
+
+	docs, err := db.Collection("users").Where("Username", "==", user.Username).Where("Uid", "!=", token.UserId()).Documents(ctx).GetAll()
+	if err != nil {
+		log.Errorf("failed to get user | %s", err)
+		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
+		return
+	}
+	if len(docs) > 0 {
+		log.Errorf("username already taken")
+		http.Error(w, "username already taken", http.StatusBadRequest)
+		return
+	}
+
+	if err = validateUser(user, token.UserId()); err != nil {
+		log.Errorf("invalid user | %s", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

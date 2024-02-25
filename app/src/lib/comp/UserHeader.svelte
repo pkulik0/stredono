@@ -6,9 +6,9 @@
     export let user: User | undefined
     export let interactive: boolean = true;
 
-    $: avatarUrl = user?.AvatarUrl ?? "";
+    $: pictureUrl = user?.PictureUrl ?? "";
     $: url = user?.Url ?? "";
-    $: profileName = user?.Username ?? "Stredono";
+    $: displayName = user ? (user.DisplayName.length > 0 ? user.DisplayName : user.Username) : "???";
     $: description = user?.Description ?? "Description";
 
     $: avatarClass = url ? "hover:opacity-75" : "";
@@ -27,13 +27,13 @@
 </div>
 
 <div class="flex justify-center">
-    <Avatar rounded size="xl" src={avatarUrl} href={url} target="_blank" class="{avatarClass}"/>
+    <Avatar rounded size="xl" src={pictureUrl} href={url} target="_blank" class="{avatarClass}"/>
 </div>
 
 <div class="text-center mt-6 mb-2 space-y-4">
     <Heading tag="h3">
         You're donating to
-        <span class="capitalize font-black text-primary-700">{profileName}</span>
+        <span class="capitalize font-black text-primary-700">{displayName}</span>
     </Heading>
     <Blockquote class="text-lg text-gray-500 text-center px-10">
         {description}

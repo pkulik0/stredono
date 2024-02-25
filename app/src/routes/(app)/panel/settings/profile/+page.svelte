@@ -11,8 +11,8 @@
     let displayName: string = "";
     let url: string = "";
     let description: string = "";
-    let avatarFile: File|undefined = undefined;
-    let avatarUrl: string = ""
+    let pictureFile: File|undefined = undefined;
+    let pictureUrl: string = ""
 
     let user: User|undefined = undefined;
 
@@ -24,33 +24,34 @@
                 displayName = u.DisplayName;
                 url = u.Url;
                 description = u.Description;
-                avatarUrl = u.AvatarUrl;
+                pictureUrl = u.PictureUrl;
                 return
             }
 
             displayName = "";
             url = "";
             description = "";
-            avatarUrl = "";
+            pictureUrl = "";
         })
     })
 
-    $: if(avatarFile) {
-        avatarUrl = URL.createObjectURL(avatarFile);
+    $: if(pictureFile) {
+        pictureUrl = URL.createObjectURL(pictureFile);
     }
 
     $: if(user) {
-        user.Username = displayName;
+        user.DisplayName = displayName;
         user.Url = url;
         user.Description = description;
-        user.AvatarUrl = avatarUrl;
+        user.PictureUrl = pictureUrl;
     }
 
     const clickSave = async () => {
         if(!user) return;
 
-        if (avatarFile) {
-            user.AvatarUrl = await uploadToStorage("public", "avatar", avatarFile, true);
+        if (pictureFile) {
+            pictureUrl = await uploadToStorage("public", "picture", pictureFile, true);
+            user.PictureUrl = pictureUrl;
         }
 
         await saveUser(user)
@@ -67,7 +68,7 @@
 
         <Label class="flex-1">
             Display Name
-            <Input bind:value={displayName} type="text"/>
+            <Input placeholder={user?.Username || "???"} bind:value={displayName} type="text"/>
         </Label>
 
         <Label>
@@ -85,7 +86,7 @@
 
         <Label>
             Picture
-            <FileDropzone description=".png .jpg .jpeg .webp" bind:file={avatarFile} />
+            <FileDropzone description=".png .jpg .jpeg .webp" bind:file={pictureFile} />
         </Label>
 
         <Button class="w-full" on:click={clickSave}>Save</Button>

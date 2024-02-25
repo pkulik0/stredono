@@ -15,6 +15,7 @@
     "TwitchCreateSub": "https://twitchcreatesub-bogpf7lo6q-ew.a.run.app",
     "TwitchGetData": "https://twitchgetdata-bogpf7lo6q-ew.a.run.app",
     "TwitchWebhook": "https://twitchwebhook-bogpf7lo6q-ew.a.run.app",
+    "UserEdit": "https://useredit-bogpf7lo6q-ew.a.run.app",
     "UserRegister": "https://userregister-bogpf7lo6q-ew.a.run.app"
   },
   "PublicFiles": {

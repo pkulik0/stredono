@@ -32,6 +32,16 @@ type DocumentSnapshot interface {
 type Collection interface {
 	Doc(path string) Document
 	Add(ctx context.Context, data interface{}) (*AddResult, error)
+	Where(field, op string, value interface{}) Query
+}
+
+type Query interface {
+	Documents(ctx context.Context) QuerySnapshot
+	Where(field, op string, value interface{}) Query
+}
+
+type QuerySnapshot interface {
+	GetAll() ([]DocumentSnapshot, error)
 }
 
 type NoSqlDb interface {

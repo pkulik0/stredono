@@ -18,6 +18,37 @@ type FirestoreCollection struct {
 	ref *firestore.CollectionRef
 }
 
+func (fc *FirestoreCollection) Where(field string, op string, value interface{}) modules.Query {
+	q := fc.ref.Where(field, op, value)
+	return &FirestoreQuery{query: &q}
+}
+
+type FirestoreQuery struct {
+	query *firestore.Query
+}
+
+func (fq *FirestoreQuery) Documents(ctx context.Context) modules.QuerySnapshot {
+	qs, _ := fq.query.Documents(ctx).GetAll()
+	return FirestoreQuerySnapshot{snapshots: qs}
+}
+
+func (fq *FirestoreQuery) Where(field string, op string, value interface{}) modules.Query {
+	q := fq.query.Where(field, op, value)
+	return &FirestoreQuery{query: &q}
+}
+
+type FirestoreQuerySnapshot struct {
+	snapshots []*firestore.DocumentSnapshot
+}
+
+func (fqs FirestoreQuerySnapshot) GetAll() ([]modules.DocumentSnapshot, error) {
+	var result []modules.DocumentSnapshot
+	for _, s := range fqs.snapshots {
+		result = append(result, FirestoreDocumentSnapshot{snapshot: s})
+	}
+	return result, nil
+}
+
 func (fc *FirestoreCollection) Doc(path string) modules.Document {
 	return &FirestoreDocument{ref: fc.ref.Doc(path)}
 }

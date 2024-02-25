@@ -48,6 +48,17 @@ variable "cloud_functions" {
       timeout       = 60
       location      = "europe-west1"
     }
+    UserEdit = {
+      runtime       = "go121"
+      entry         = "UserEdit"
+      public        = true
+      min_instances = 0
+      max_instances = 1
+      concurrency   = 1
+      memory        = "256M"
+      timeout       = 60
+      location      = "europe-west1"
+    }
     TipSend = {
       runtime       = "go121"
       entry         = "TipSend"

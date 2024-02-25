@@ -1,5 +1,7 @@
-import {db} from "$lib/ext/firebase/firebase";
+import { auth, db } from '$lib/ext/firebase/firebase';
 import { User } from '$lib/pb/stredono_pb';
+import { terraformOutput } from '$lib/terraform_output';
+import axios from 'axios';
 import {collection, doc, getDocs, query, where, onSnapshot, setDoc} from "firebase/firestore";
 import {writable, type Writable} from "svelte/store";
 
@@ -19,9 +21,20 @@ export const getUserListener = async (uid: string) => {
 }
 
 export const saveUser = async (user: User) => {
-    await setDoc(doc(db, "users", user.Uid), user.toJson({
-        useProtoFieldName: true
-    }) as any);
+    const authUser = auth.currentUser;
+    if (!authUser) throw new FetchError("User not logged in", 401);
+    const token = await authUser.getIdToken();
+
+    try {
+        await axios.post(terraformOutput.FunctionUrls.UserEdit, user.toBinary(), {
+            headers: {
+                'Content-Type': 'application/octet-stream',
+                'Authorization': 'Bearer ' + token
+            }
+        })
+    } catch (e) {
+        console.error(e)
+    }
 }
 
 export const getUserByUsername = async (username: string): Promise<User> => {

@@ -17,14 +17,15 @@ enum TipStatus {
 }
 
 message Tip {
-  string Sender = 1;
-  string Email = 2;
-  string Message = 3;
-  double Amount = 4;
-  Currency Currency = 5;
-  string RecipientId = 6;
-  TipStatus Status = 7;
-  int64 Timestamp = 8;
+  string SenderId = 1;
+  string DisplayName = 2;
+  string Email = 3;
+  string Message = 4;
+  double Amount = 5;
+  Currency Currency = 6;
+  string RecipientId = 7;
+  TipStatus Status = 8;
+  int64 Timestamp = 9;
 }
 
 message User {
@@ -37,8 +38,6 @@ message User {
 
   double MinimumAmount = 7;
   Currency Currency = 8;
-
-  repeated Alert Alerts = 9;
 }
 
 enum AlertType {
@@ -68,12 +67,12 @@ message AmountTrigger {
 message Alert {
   string Id = 1;
   AlertType Type = 2;
-  optional AmountTrigger AmountTrigger = 3;
+  AmountTrigger AmountTrigger = 3;
 
   string Template = 4;
 
   AlertStyle Style = 5;
-  optional TextToSpeechSettings TtsSettings = 6;
+  TextToSpeechSettings TtsSettings = 6;
 }
 
 enum AnimationType {
@@ -94,11 +93,27 @@ message AlertStyle {
 message Event {
   repeated string Users = 1;
   repeated double Amounts = 2;
-  optional string Currency = 3;
-  optional string Message = 4;
+  string Currency = 3;
+  string Message = 4;
 }
 
 message Token {
   string Access = 1;
   string Refresh = 2;
+}
+
+message TwitchReward {
+  string Id = 1;
+  string Name = 2;
+  int64 Cost = 3;
+  bool IsEnabled = 4;
+}
+
+message TwitchUser {
+  string Id = 1;
+  string DisplayName = 2;
+  string Login = 3;
+  string AvatarUrl = 4;
+  string Description = 5;
+  int64 CreationTimestamp = 6;
 }

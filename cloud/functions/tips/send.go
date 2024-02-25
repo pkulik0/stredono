@@ -27,8 +27,8 @@ func SendEntrypoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func validateTip(tip *pb.Tip) error {
-	if tip.Sender == "" {
-		return fmt.Errorf("invalid sender: %s", tip.Sender)
+	if tip.SenderId == "" {
+		return fmt.Errorf("invalid sender id: %s", tip.SenderId)
 	}
 	if tip.RecipientId == "" {
 		return fmt.Errorf("invalid recipient id: %s", tip.RecipientId)
