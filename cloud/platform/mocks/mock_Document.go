@@ -185,7 +185,7 @@ func (_c *MockDocument_Id_Call) RunAndReturn(run func() string) *MockDocument_Id
 }
 
 // Set provides a mock function with given fields: ctx, data, opts
-func (_m *MockDocument) Set(ctx context.Context, data interface{}, opts *modules.DbOpts) (*modules.WriteResult, error) {
+func (_m *MockDocument) Set(ctx context.Context, data interface{}, opts modules.DbOpts) (*modules.WriteResult, error) {
 	ret := _m.Called(ctx, data, opts)
 
 	if len(ret) == 0 {
@@ -194,10 +194,10 @@ func (_m *MockDocument) Set(ctx context.Context, data interface{}, opts *modules
 
 	var r0 *modules.WriteResult
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}, *modules.DbOpts) (*modules.WriteResult, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}, modules.DbOpts) (*modules.WriteResult, error)); ok {
 		return rf(ctx, data, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}, *modules.DbOpts) *modules.WriteResult); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}, modules.DbOpts) *modules.WriteResult); ok {
 		r0 = rf(ctx, data, opts)
 	} else {
 		if ret.Get(0) != nil {
@@ -205,7 +205,7 @@ func (_m *MockDocument) Set(ctx context.Context, data interface{}, opts *modules
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, interface{}, *modules.DbOpts) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, interface{}, modules.DbOpts) error); ok {
 		r1 = rf(ctx, data, opts)
 	} else {
 		r1 = ret.Error(1)
@@ -222,14 +222,14 @@ type MockDocument_Set_Call struct {
 // Set is a helper method to define mock.On call
 //   - ctx context.Context
 //   - data interface{}
-//   - opts *modules.DbOpts
+//   - opts modules.DbOpts
 func (_e *MockDocument_Expecter) Set(ctx interface{}, data interface{}, opts interface{}) *MockDocument_Set_Call {
 	return &MockDocument_Set_Call{Call: _e.mock.On("Set", ctx, data, opts)}
 }
 
-func (_c *MockDocument_Set_Call) Run(run func(ctx context.Context, data interface{}, opts *modules.DbOpts)) *MockDocument_Set_Call {
+func (_c *MockDocument_Set_Call) Run(run func(ctx context.Context, data interface{}, opts modules.DbOpts)) *MockDocument_Set_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(interface{}), args[2].(*modules.DbOpts))
+		run(args[0].(context.Context), args[1].(interface{}), args[2].(modules.DbOpts))
 	})
 	return _c
 }
@@ -239,7 +239,7 @@ func (_c *MockDocument_Set_Call) Return(_a0 *modules.WriteResult, _a1 error) *Mo
 	return _c
 }
 
-func (_c *MockDocument_Set_Call) RunAndReturn(run func(context.Context, interface{}, *modules.DbOpts) (*modules.WriteResult, error)) *MockDocument_Set_Call {
+func (_c *MockDocument_Set_Call) RunAndReturn(run func(context.Context, interface{}, modules.DbOpts) (*modules.WriteResult, error)) *MockDocument_Set_Call {
 	_c.Call.Return(run)
 	return _c
 }

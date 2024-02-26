@@ -44,7 +44,7 @@ func handleConfirmation(ctx context.Context, tipId string) error {
 	}
 	tip.Status = pb.TipStatus_PAYMENT_SUCCESS
 
-	_, err = docRef.Set(ctx, &tip, &modules.DbOpts{})
+	_, err = docRef.Set(ctx, &tip, modules.DbOpts{})
 	if err != nil {
 		return err
 	}

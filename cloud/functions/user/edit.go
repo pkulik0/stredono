@@ -13,11 +13,6 @@ import (
 	"regexp"
 )
 
-func validateAlerts(alerts []*pb.Alert) error {
-	// TODO: implement
-	return nil
-}
-
 const urlRegex = "^https://[a-zA-Z0-9-]+(.[a-zA-Z0-9-]+)+(/[a-zA-Z0-9-./?%&=]*)?$"
 const storageUrlRegex = "^https://[a-z]*storage.googleapis.com/[a-zA-Z0-9-]+(.[a-zA-Z0-9-]+)+(/[a-zA-Z0-9-./?%&=]*)?$"
 
@@ -39,7 +34,7 @@ func validateUser(user *pb.User, uid string) error {
 		return errors.New("invalid display name")
 	}
 
-	if user.MinimumAmount < 0 {
+	if user.MinAmount < 0 {
 		return errors.New("invalid minimum amount")
 	}
 
@@ -47,7 +42,11 @@ func validateUser(user *pb.User, uid string) error {
 		return errors.New("description too long")
 	}
 
-	if user.Currency == pb.Currency_UNKNOWN || user.Currency == pb.Currency_BITS {
+	if user.MinAuthLevel < pb.AuthLevel_NONE || user.MinAuthLevel > pb.AuthLevel_OIDC {
+		return errors.New("invalid minimum auth level")
+	}
+
+	if user.Currency <= pb.Currency_UNKNOWN || user.Currency > pb.Currency_PLN {
 		return errors.New("invalid currency")
 	}
 
@@ -105,6 +104,12 @@ func edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err = validateUser(user, token.UserId()); err != nil {
+		log.Errorf("invalid user | %s", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	db, ok := providers.GetDocDb(ctx)
 	if !ok {
 		log.Errorf("failed to get doc db client")
@@ -124,13 +129,7 @@ func edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = validateUser(user, token.UserId()); err != nil {
-		log.Errorf("invalid user | %s", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	_, err = db.Collection("users").Doc(token.UserId()).Set(ctx, user, &modules.DbOpts{})
+	_, err = db.Collection("users").Doc(token.UserId()).Set(ctx, user, modules.DbOpts{})
 	if err != nil {
 		log.Errorf("failed to set user | %s", err)
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)

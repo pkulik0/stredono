@@ -18,7 +18,8 @@ import (
 
 func TestTipSend(t *testing.T) {
 	validTip := &pb.Tip{
-		Sender:      "sender",
+		SenderId:    "senderid",
+		DisplayName: "sender",
 		RecipientId: "recipient",
 		Status:      pb.TipStatus_INITIATED,
 		Amount:      1.0,
@@ -27,7 +28,10 @@ func TestTipSend(t *testing.T) {
 	}
 
 	invalidTipSender := *validTip
-	invalidTipSender.Sender = ""
+	invalidTipSender.DisplayName = ""
+
+	invalidTipSenderId := *validTip
+	invalidTipSenderId.SenderId = ""
 
 	invalidTipRecipientId := *validTip
 	invalidTipRecipientId.RecipientId = ""
@@ -60,6 +64,11 @@ func TestTipSend(t *testing.T) {
 		{
 			name:   "empty sender",
 			tip:    &invalidTipSender,
+			status: http.StatusBadRequest,
+		},
+		{
+			name:   "empty sender id",
+			tip:    &invalidTipSenderId,
 			status: http.StatusBadRequest,
 		},
 		{
@@ -161,7 +170,8 @@ func TestTipSend(t *testing.T) {
 
 func TestTipSendMalformed(t *testing.T) {
 	tip := &pb.Tip{
-		Sender:      "sender",
+		SenderId:    "senderid",
+		DisplayName: "sender",
 		RecipientId: "recipient",
 		Status:      pb.TipStatus_INITIATED,
 		Amount:      1.0,

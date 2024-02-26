@@ -140,7 +140,7 @@ func CreateHelixContext(ctx context.Context, r *http.Request) (context.Context, 
 	if oldAccessToken != oauthToken.AccessToken {
 		_, err = db.Collection("tokens").Doc(uid).Set(ctx, map[string]interface{}{
 			"twitch": oauthToken,
-		}, &modules.DbOpts{MergeAll: true})
+		}, modules.DbOpts{MergeAll: true})
 		if err != nil {
 			return nil, err
 		}

@@ -129,6 +129,56 @@ func (_c *MockCollection_Doc_Call) RunAndReturn(run func(string) modules.Documen
 	return _c
 }
 
+// Where provides a mock function with given fields: field, op, value
+func (_m *MockCollection) Where(field string, op string, value interface{}) modules.Query {
+	ret := _m.Called(field, op, value)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Where")
+	}
+
+	var r0 modules.Query
+	if rf, ok := ret.Get(0).(func(string, string, interface{}) modules.Query); ok {
+		r0 = rf(field, op, value)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(modules.Query)
+		}
+	}
+
+	return r0
+}
+
+// MockCollection_Where_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Where'
+type MockCollection_Where_Call struct {
+	*mock.Call
+}
+
+// Where is a helper method to define mock.On call
+//   - field string
+//   - op string
+//   - value interface{}
+func (_e *MockCollection_Expecter) Where(field interface{}, op interface{}, value interface{}) *MockCollection_Where_Call {
+	return &MockCollection_Where_Call{Call: _e.mock.On("Where", field, op, value)}
+}
+
+func (_c *MockCollection_Where_Call) Run(run func(field string, op string, value interface{})) *MockCollection_Where_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].(interface{}))
+	})
+	return _c
+}
+
+func (_c *MockCollection_Where_Call) Return(_a0 modules.Query) *MockCollection_Where_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockCollection_Where_Call) RunAndReturn(run func(string, string, interface{}) modules.Query) *MockCollection_Where_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockCollection creates a new instance of MockCollection. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockCollection(t interface {

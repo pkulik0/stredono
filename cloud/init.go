@@ -2,6 +2,7 @@ package cloud
 
 import (
 	cloudfunc "github.com/GoogleCloudPlatform/functions-framework-go/functions"
+	"github.com/pkulik0/stredono/cloud/functions/alerts"
 	"github.com/pkulik0/stredono/cloud/functions/tips"
 	"github.com/pkulik0/stredono/cloud/functions/twitch"
 	"github.com/pkulik0/stredono/cloud/functions/user"
@@ -14,6 +15,8 @@ func init() {
 
 	cloudfunc.HTTP("UserRegister", platform.CorsMiddleware(user.RegisterEntrypoint))
 	cloudfunc.HTTP("UserEdit", platform.CorsMiddleware(user.EditEntrypoint))
+
+	cloudfunc.HTTP("AlertAdd", platform.CorsMiddleware(alerts.AddEntrypoint))
 
 	cloudfunc.HTTP("TipSend", platform.CorsMiddleware(tips.SendEntrypoint))
 	cloudfunc.HTTP("TipConfirm", platform.CorsMiddleware(tips.ConfirmEntrypoint))

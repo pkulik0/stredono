@@ -47,11 +47,11 @@ var (
 )
 
 type userClaims struct {
-	Aud          string `json:"aud"`
-	Uid          string `json:"sub"`
-	ProviderData struct {
-		ProviderId string `json:"provider_id"`
-	} `json:"provider_data"`
+	Aud               string `json:"aud"`
+	Uid               string `json:"sub"`
+	SignInMethod      string `json:"sign_in_method"`
+	OauthAccessToken  string `json:"oauth_access_token"`
+	OauthRefreshToken string `json:"oauth_refresh_token"`
 }
 
 func (c *userClaims) Valid() error {
@@ -65,60 +65,14 @@ func (c *userClaims) Valid() error {
 	if c.Uid == "" {
 		return errorMissingClaims
 	}
-	if c.ProviderData.ProviderId != identityProviderPassword && c.ProviderData.ProviderId != identityProviderTwitch {
-		return errorInvalidProvider
-	}
-	return nil
-}
-
-type userClaimsPassword struct {
-	userClaims
-	Email string `json:"email"`
-}
-
-func (c *userClaimsPassword) Valid() error {
-	if err := c.userClaims.Valid(); err != nil {
-		return err
-	}
-	if c.Email == "" {
+	if c.SignInMethod == "" {
 		return errorMissingClaims
 	}
 	return nil
 }
 
-type userClaimsOauth struct {
-	userClaims
-	SignInAttributes struct {
-		PreferredUsername string `json:"preferred_username"`
-	} `json:"sign_in_attributes"`
-	OauthAccessToken  string `json:"oauth_access_token"`
-	OauthRefreshToken string `json:"oauth_refresh_token"`
-}
-
-func (c *userClaimsOauth) Valid() error {
-	if err := c.userClaims.Valid(); err != nil {
-		return err
-	}
-	if c.SignInAttributes.PreferredUsername == "" {
-		return errorMissingClaims
-	}
-	if c.OauthAccessToken == "" {
-		return errorMissingClaims
-	}
-	if c.OauthRefreshToken == "" {
-		return errorMissingClaims
-	}
-	return nil
-}
-
-func handleRegistration(ctx context.Context, claims jwt.Claims) error {
-	registerClaims, ok := claims.(*userClaims)
-	if !ok {
-		return errorMissingClaims
-	}
-	if err := registerClaims.Valid(); err != nil {
-		return err
-	}
+func handleRegistration(ctx context.Context, claims *userClaims) error {
+	log.Println("handleRegistration", claims)
 
 	randomUsernameUuid, err := uuid.NewRandom()
 	if err != nil {
@@ -127,35 +81,21 @@ func handleRegistration(ctx context.Context, claims jwt.Claims) error {
 	randomUsername := strings.ReplaceAll(randomUsernameUuid.String(), "-", "")[:defaultUsernameLength]
 
 	user := &pb.User{
-		Username:      randomUsername,
-		DisplayName:   "???",
-		Uid:           registerClaims.Uid,
-		Url:           "",
-		Description:   "Default description.", // TODO: Change to something better, based on locale
-		MinimumAmount: 1,
-		Currency:      pb.Currency_PLN,
+		Username:     randomUsername,
+		DisplayName:  "Unnamed",
+		Uid:          claims.Uid,
+		Url:          "",
+		Description:  "Default description.", // TODO: Change to something better, based on locale
+		MinAmount:    1,
+		MinAuthLevel: pb.AuthLevel_NONE,
+		Currency:     pb.Currency_PLN,
 	}
 
-	provider := registerClaims.ProviderData.ProviderId
-	switch provider {
+	switch claims.SignInMethod {
 	case identityProviderPassword:
-		claimsPassword, ok := claims.(*userClaimsPassword)
-		if !ok {
-			return errorMissingClaims
-		}
-		if err := claimsPassword.Valid(); err != nil {
-			return err
-		}
-		user.DisplayName = strings.Split(claimsPassword.Email, "@")[0]
+		break
 	case identityProviderTwitch: // add new providers here
-		claimsOauth, ok := claims.(*userClaimsOauth)
-		if !ok {
-			return errorMissingClaims
-		}
-		if err := claimsOauth.Valid(); err != nil {
-			return err
-		}
-		err := handleOauthRegistration(ctx, user, claimsOauth, provider)
+		err := handleOauthRegistration(ctx, user, claims)
 		if err != nil {
 			return err
 		}
@@ -171,23 +111,22 @@ func handleRegistration(ctx context.Context, claims jwt.Claims) error {
 	return err
 }
 
-func handleOauthRegistration(ctx context.Context, user *pb.User, claims *userClaimsOauth, provider string) error {
+func handleOauthRegistration(ctx context.Context, user *pb.User, claims *userClaims) error {
 	db, ok := providers.GetDocDb(ctx)
 	if !ok {
 		return errorContextValue
 	}
 
 	_, err := db.Collection("tokens").Doc(claims.Uid).Set(ctx, map[string]interface{}{
-		provider: &pb.Token{
+		claims.SignInMethod: &pb.Token{
 			Access:  claims.OauthAccessToken,
 			Refresh: claims.OauthRefreshToken,
 		},
-	}, &modules.DbOpts{MergeAll: true})
+	}, modules.DbOpts{MergeAll: true})
 	if err != nil {
 		return err
 	}
 
-	user.DisplayName = claims.SignInAttributes.PreferredUsername
 	return nil
 }
 
@@ -212,7 +151,7 @@ type onRegisterRequest struct {
 	Data onRegisterPayload `json:"data"`
 }
 
-func requestToClaims(r *http.Request, signingKeys map[string]string) (jwt.Claims, error) {
+func requestToClaims(r *http.Request, signingKeys map[string]string) (*userClaims, error) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil, err
@@ -226,7 +165,7 @@ func requestToClaims(r *http.Request, signingKeys map[string]string) (jwt.Claims
 
 	var token *jwt.Token
 	for _, key := range signingKeys {
-		token, err = jwt.Parse(requestBody.Data.JwtToken, func(token *jwt.Token) (interface{}, error) {
+		token, err = jwt.ParseWithClaims(requestBody.Data.JwtToken, &userClaims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(key), nil
 		})
 		if err == nil {
@@ -237,7 +176,7 @@ func requestToClaims(r *http.Request, signingKeys map[string]string) (jwt.Claims
 		return nil, errorInvalidToken
 	}
 
-	return token.Claims, nil
+	return token.Claims.(*userClaims), nil
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
@@ -259,7 +198,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := w.Write([]byte("OK")); err != nil {
+	if _, err := w.Write([]byte("{\"status\":\"OK\"}")); err != nil {
 		log.Errorf("Failed to write response | %v", err)
 	}
 }

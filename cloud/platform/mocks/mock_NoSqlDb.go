@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	context "context"
+
 	modules "github.com/pkulik0/stredono/cloud/platform/modules"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -64,6 +66,53 @@ func (_c *MockNoSqlDb_Collection_Call) Return(_a0 modules.Collection) *MockNoSql
 }
 
 func (_c *MockNoSqlDb_Collection_Call) RunAndReturn(run func(string) modules.Collection) *MockNoSqlDb_Collection_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RunTransaction provides a mock function with given fields: ctx, f
+func (_m *MockNoSqlDb) RunTransaction(ctx context.Context, f func(context.Context, modules.Transaction) error) error {
+	ret := _m.Called(ctx, f)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RunTransaction")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, func(context.Context, modules.Transaction) error) error); ok {
+		r0 = rf(ctx, f)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockNoSqlDb_RunTransaction_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RunTransaction'
+type MockNoSqlDb_RunTransaction_Call struct {
+	*mock.Call
+}
+
+// RunTransaction is a helper method to define mock.On call
+//   - ctx context.Context
+//   - f func(context.Context , modules.Transaction) error
+func (_e *MockNoSqlDb_Expecter) RunTransaction(ctx interface{}, f interface{}) *MockNoSqlDb_RunTransaction_Call {
+	return &MockNoSqlDb_RunTransaction_Call{Call: _e.mock.On("RunTransaction", ctx, f)}
+}
+
+func (_c *MockNoSqlDb_RunTransaction_Call) Run(run func(ctx context.Context, f func(context.Context, modules.Transaction) error)) *MockNoSqlDb_RunTransaction_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(func(context.Context, modules.Transaction) error))
+	})
+	return _c
+}
+
+func (_c *MockNoSqlDb_RunTransaction_Call) Return(_a0 error) *MockNoSqlDb_RunTransaction_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockNoSqlDb_RunTransaction_Call) RunAndReturn(run func(context.Context, func(context.Context, modules.Transaction) error) error) *MockNoSqlDb_RunTransaction_Call {
 	_c.Call.Return(run)
 	return _c
 }

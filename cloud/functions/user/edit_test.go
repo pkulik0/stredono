@@ -26,24 +26,26 @@ func TestUserEdit(t *testing.T) {
 	}
 
 	tests := []struct {
-		name           string
-		user           *pb.User
-		code           int
-		token          string
-		isTokenValid   bool
-		isTokenForCurr bool
+		name              string
+		user              *pb.User
+		code              int
+		token             string
+		isTokenValid      bool
+		isTokenForCurr    bool
+		duplicateUsername bool
 	}{
 		{
 			name: "valid-user-minimal",
 			user: &pb.User{
-				Uid:           uid,
-				Username:      "test",
-				DisplayName:   "Test",
-				PictureUrl:    "",
-				Url:           "",
-				Description:   "abc",
-				MinimumAmount: 2.50,
-				Currency:      pb.Currency_PLN,
+				Uid:          uid,
+				Username:     "test",
+				DisplayName:  "Test",
+				PictureUrl:   "",
+				Url:          "",
+				Description:  "abc",
+				MinAmount:    2.50,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_PLN,
 			},
 			code:           http.StatusOK,
 			token:          "xyz",
@@ -53,14 +55,15 @@ func TestUserEdit(t *testing.T) {
 		{
 			name: "short-username",
 			user: &pb.User{
-				Uid:           uid,
-				Username:      "12",
-				DisplayName:   "Test",
-				PictureUrl:    "",
-				Url:           "",
-				Description:   "abc",
-				MinimumAmount: 2.50,
-				Currency:      pb.Currency_PLN,
+				Uid:          uid,
+				Username:     "12",
+				DisplayName:  "Test",
+				PictureUrl:   "",
+				Url:          "",
+				Description:  "abc",
+				MinAmount:    2.50,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_PLN,
 			},
 			code:           http.StatusBadRequest,
 			token:          "def",
@@ -70,14 +73,15 @@ func TestUserEdit(t *testing.T) {
 		{
 			name: "long-username",
 			user: &pb.User{
-				Uid:           uid,
-				Username:      "12345678901234567123456789012345671234567890123456712345678901234567",
-				DisplayName:   "Test",
-				PictureUrl:    "",
-				Url:           "",
-				Description:   "abc",
-				MinimumAmount: 2.50,
-				Currency:      pb.Currency_PLN,
+				Uid:          uid,
+				Username:     "12345678901234567123456789012345671234567890123456712345678901234567",
+				DisplayName:  "Test",
+				PictureUrl:   "",
+				Url:          "",
+				Description:  "abc",
+				MinAmount:    2.50,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_PLN,
 			},
 			code:           http.StatusBadRequest,
 			token:          "abc",
@@ -87,14 +91,15 @@ func TestUserEdit(t *testing.T) {
 		{
 			name: "invalid-token",
 			user: &pb.User{
-				Uid:           uid,
-				Username:      "test",
-				DisplayName:   "Test",
-				PictureUrl:    "",
-				Url:           "",
-				Description:   "abc",
-				MinimumAmount: 2.50,
-				Currency:      pb.Currency_PLN,
+				Uid:          uid,
+				Username:     "test",
+				DisplayName:  "Test",
+				PictureUrl:   "",
+				Url:          "",
+				Description:  "abc",
+				MinAmount:    2.50,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_PLN,
 			},
 			code:           http.StatusUnauthorized,
 			token:          "123",
@@ -104,14 +109,15 @@ func TestUserEdit(t *testing.T) {
 		{
 			name: "wrong-user",
 			user: &pb.User{
-				Uid:           uid,
-				Username:      "test",
-				DisplayName:   "Test",
-				PictureUrl:    "",
-				Url:           "",
-				Description:   "abc",
-				MinimumAmount: 2.50,
-				Currency:      pb.Currency_PLN,
+				Uid:          uid,
+				Username:     "test",
+				DisplayName:  "Test",
+				PictureUrl:   "",
+				Url:          "",
+				Description:  "abc",
+				MinAmount:    2.50,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_PLN,
 			},
 			code:           http.StatusBadRequest,
 			token:          "123",
@@ -121,14 +127,15 @@ func TestUserEdit(t *testing.T) {
 		{
 			name: "short-display-name",
 			user: &pb.User{
-				Uid:           uid,
-				Username:      "test",
-				DisplayName:   "1",
-				PictureUrl:    "",
-				Url:           "",
-				Description:   "abc",
-				MinimumAmount: 2.50,
-				Currency:      pb.Currency_PLN,
+				Uid:          uid,
+				Username:     "test",
+				DisplayName:  "1",
+				PictureUrl:   "",
+				Url:          "",
+				Description:  "abc",
+				MinAmount:    2.50,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_PLN,
 			},
 			code:           http.StatusBadRequest,
 			token:          "123",
@@ -138,14 +145,15 @@ func TestUserEdit(t *testing.T) {
 		{
 			name: "long-display-name",
 			user: &pb.User{
-				Uid:           uid,
-				Username:      "test",
-				DisplayName:   "test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test",
-				PictureUrl:    "",
-				Url:           "",
-				Description:   "abc",
-				MinimumAmount: 2.50,
-				Currency:      pb.Currency_PLN,
+				Uid:          uid,
+				Username:     "test",
+				DisplayName:  "test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test-test",
+				PictureUrl:   "",
+				Url:          "",
+				Description:  "abc",
+				MinAmount:    2.50,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_PLN,
 			},
 			code:           http.StatusBadRequest,
 			token:          "123",
@@ -155,14 +163,15 @@ func TestUserEdit(t *testing.T) {
 		{
 			name: "invalid-picture-url",
 			user: &pb.User{
-				Uid:           uid,
-				Username:      "test",
-				DisplayName:   "testUser",
-				PictureUrl:    "http",
-				Url:           "",
-				Description:   "abc",
-				MinimumAmount: 2.50,
-				Currency:      pb.Currency_PLN,
+				Uid:          uid,
+				Username:     "test",
+				DisplayName:  "testUser",
+				PictureUrl:   "http",
+				Url:          "",
+				Description:  "abc",
+				MinAmount:    2.50,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_PLN,
 			},
 			code:           http.StatusBadRequest,
 			token:          "123",
@@ -172,14 +181,15 @@ func TestUserEdit(t *testing.T) {
 		{
 			name: "long-display-name",
 			user: &pb.User{
-				Uid:           uid,
-				Username:      "test",
-				DisplayName:   "User",
-				PictureUrl:    "",
-				Url:           "abc",
-				Description:   "abc",
-				MinimumAmount: 2.50,
-				Currency:      pb.Currency_PLN,
+				Uid:          uid,
+				Username:     "test",
+				DisplayName:  "User",
+				PictureUrl:   "",
+				Url:          "abc",
+				Description:  "abc",
+				MinAmount:    2.50,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_PLN,
 			},
 			code:           http.StatusBadRequest,
 			token:          "123",
@@ -189,14 +199,33 @@ func TestUserEdit(t *testing.T) {
 		{
 			name: "valid-urls",
 			user: &pb.User{
-				Uid:           uid,
-				Username:      "test",
-				DisplayName:   "User",
-				PictureUrl:    "https://stredono.com/images/test.png",
-				Url:           "https://stredono.com/images/test.png",
-				Description:   "abc",
-				MinimumAmount: 2.50,
-				Currency:      pb.Currency_PLN,
+				Uid:          uid,
+				Username:     "test",
+				DisplayName:  "User",
+				PictureUrl:   "https://storage.googleapis.com/v0/b/stredono-6394ee11.appspot.com/o/31hd1e",
+				Url:          "https://stredono.com/images/test.png",
+				Description:  "abc",
+				MinAmount:    2.50,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_PLN,
+			},
+			code:           http.StatusOK,
+			token:          "123",
+			isTokenValid:   true,
+			isTokenForCurr: true,
+		},
+		{
+			name: "firebase-url",
+			user: &pb.User{
+				Uid:          uid,
+				Username:     "test",
+				DisplayName:  "User",
+				PictureUrl:   "https://firebasestorage.googleapis.com/v0/b/stredono-6394ee11.appspot.com/o/31hd1e",
+				Url:          "https://stredono.com/images/test.png",
+				Description:  "abc",
+				MinAmount:    2.50,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_PLN,
 			},
 			code:           http.StatusOK,
 			token:          "123",
@@ -206,31 +235,15 @@ func TestUserEdit(t *testing.T) {
 		{
 			name: "unknown-currency",
 			user: &pb.User{
-				Uid:           uid,
-				Username:      "test",
-				DisplayName:   "User",
-				PictureUrl:    "",
-				Url:           "",
-				Description:   "abc",
-				MinimumAmount: 2.50,
-				Currency:      pb.Currency_UNKNOWN,
-			},
-			code:           http.StatusBadRequest,
-			token:          "123",
-			isTokenValid:   true,
-			isTokenForCurr: true,
-		},
-		{
-			name: "currency-reserved-bits",
-			user: &pb.User{
-				Uid:           uid,
-				Username:      "test",
-				DisplayName:   "User",
-				PictureUrl:    "",
-				Url:           "",
-				Description:   "abc",
-				MinimumAmount: 2.50,
-				Currency:      pb.Currency_BITS,
+				Uid:          uid,
+				Username:     "test",
+				DisplayName:  "User",
+				PictureUrl:   "",
+				Url:          "",
+				Description:  "abc",
+				MinAmount:    2.50,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_UNKNOWN,
 			},
 			code:           http.StatusBadRequest,
 			token:          "123",
@@ -240,14 +253,15 @@ func TestUserEdit(t *testing.T) {
 		{
 			name: "description-too-long",
 			user: &pb.User{
-				Uid:           uid,
-				Username:      "test",
-				DisplayName:   "User",
-				PictureUrl:    "",
-				Url:           "",
-				Description:   longStr,
-				MinimumAmount: 2.50,
-				Currency:      pb.Currency_BITS,
+				Uid:          uid,
+				Username:     "test",
+				DisplayName:  "User",
+				PictureUrl:   "",
+				Url:          "",
+				Description:  longStr,
+				MinAmount:    2.50,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_PLN,
 			},
 			code:           http.StatusBadRequest,
 			token:          "123",
@@ -257,19 +271,58 @@ func TestUserEdit(t *testing.T) {
 		{
 			name: "min-amount-negative",
 			user: &pb.User{
-				Uid:           uid,
-				Username:      "test",
-				DisplayName:   "User",
-				PictureUrl:    "",
-				Url:           "",
-				Description:   "abc",
-				MinimumAmount: -2.50,
-				Currency:      pb.Currency_BITS,
+				Uid:          uid,
+				Username:     "test",
+				DisplayName:  "User",
+				PictureUrl:   "",
+				Url:          "",
+				Description:  "abc",
+				MinAmount:    -2.50,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_PLN,
 			},
 			code:           http.StatusBadRequest,
 			token:          "123",
 			isTokenValid:   true,
 			isTokenForCurr: true,
+		},
+		{
+			name: "duplicate",
+			user: &pb.User{
+				Uid:          uid,
+				Username:     "test",
+				DisplayName:  "User",
+				PictureUrl:   "",
+				Url:          "",
+				Description:  "abc",
+				MinAmount:    2.50,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_PLN,
+			},
+			code:              http.StatusBadRequest,
+			token:             "123",
+			isTokenValid:      true,
+			isTokenForCurr:    true,
+			duplicateUsername: true,
+		},
+		{
+			name: "invalid-min-auth-level",
+			user: &pb.User{
+				Uid:          uid,
+				Username:     "test",
+				DisplayName:  "User",
+				PictureUrl:   "",
+				Url:          "",
+				Description:  "abc",
+				MinAmount:    2.50,
+				MinAuthLevel: -1,
+				Currency:     pb.Currency_PLN,
+			},
+			code:              http.StatusBadRequest,
+			token:             "123",
+			isTokenValid:      true,
+			isTokenForCurr:    true,
+			duplicateUsername: false,
 		},
 	}
 
@@ -302,21 +355,36 @@ func TestUserEdit(t *testing.T) {
 				authMock.EXPECT().VerifyToken(mock.Anything, mock.Anything).Return(nil, platform.ErrorUnauthorized)
 			}
 
-			if tt.code == http.StatusOK {
-				db, ok := providers.GetDocDb(ctx)
-				if !ok {
-					t.Fatal("missing db")
-				}
-				dbMock := db.(*mocks.MockNoSqlDb)
+			db, ok := providers.GetDocDb(ctx)
+			if !ok {
+				t.Fatal("missing db")
+			}
+			dbMock := db.(*mocks.MockNoSqlDb)
+			coll := mocks.NewMockCollection(t)
+			doc := mocks.NewMockDocument(t)
+			q := mocks.NewMockQuery(t)
+			qSnap := mocks.NewMockQuerySnapshot(t)
+			userDoc := mocks.NewMockDocumentSnapshot(t)
 
-				coll := mocks.NewMockCollection(t)
-				doc := mocks.NewMockDocument(t)
-
+			if tt.code == http.StatusOK || tt.duplicateUsername {
 				dbMock.EXPECT().Collection("users").Return(coll)
-				coll.EXPECT().Doc(uid).Return(doc)
-				doc.EXPECT().Set(mock.Anything, mock.Anything, mock.Anything).Return(&modules.WriteResult{
-					Time: time.Now(),
-				}, nil)
+
+				coll.EXPECT().Where("Username", "==", tt.user.Username).Return(q)
+				q.EXPECT().Where("Uid", "!=", uid).Return(q)
+				q.EXPECT().Documents(mock.Anything).Return(qSnap)
+
+				if tt.duplicateUsername {
+					var docSnapshots []modules.DocumentSnapshot
+					docSnapshots = append(docSnapshots, userDoc)
+					qSnap.EXPECT().GetAll().Return(docSnapshots, nil)
+				} else {
+					coll.EXPECT().Doc(uid).Return(doc)
+
+					qSnap.EXPECT().GetAll().Return(nil, nil)
+					doc.EXPECT().Set(mock.Anything, mock.Anything, mock.Anything).Return(&modules.WriteResult{
+						Time: time.Now(),
+					}, nil)
+				}
 			}
 
 			body, err := proto.Marshal(tt.user)

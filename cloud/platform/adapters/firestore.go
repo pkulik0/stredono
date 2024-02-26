@@ -6,12 +6,40 @@ import (
 	"github.com/pkulik0/stredono/cloud/platform/modules"
 )
 
+func dbOptsToFirebase(opts modules.DbOpts) []firestore.SetOption {
+	var fsOpts []firestore.SetOption
+	if opts.MergeAll {
+		fsOpts = append(fsOpts, firestore.MergeAll)
+	}
+
+	return fsOpts
+}
+
 type FirestoreDatabase struct {
 	Client *firestore.Client
 }
 
 func (fdb *FirestoreDatabase) Collection(path string) modules.Collection {
 	return &FirestoreCollection{ref: fdb.Client.Collection(path)}
+}
+
+func (fdb *FirestoreDatabase) RunTransaction(ctx context.Context, f func(ctx context.Context, tx modules.Transaction) error) error {
+	return fdb.Client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		return f(ctx, &FirestoreTransaction{tx: tx})
+	})
+}
+
+type FirestoreTransaction struct {
+	tx *firestore.Transaction
+}
+
+func (ft *FirestoreTransaction) Get(doc modules.Document) (modules.DocumentSnapshot, error) {
+	snapshot, err := ft.tx.Get(doc.(*FirestoreDocument).ref)
+	return FirestoreDocumentSnapshot{snapshot: snapshot}, err
+}
+
+func (ft *FirestoreTransaction) Set(doc modules.Document, data interface{}, opts modules.DbOpts) error {
+	return ft.tx.Set(doc.(*FirestoreDocument).ref, data, dbOptsToFirebase(opts)...)
 }
 
 type FirestoreCollection struct {
@@ -73,15 +101,8 @@ func (fd *FirestoreDocument) Id() string {
 	return fd.ref.ID
 }
 
-func (fd *FirestoreDocument) Set(ctx context.Context, data interface{}, opts *modules.DbOpts) (*modules.WriteResult, error) {
-	var fsOpts []firestore.SetOption
-	if opts != nil {
-		if opts.MergeAll {
-			fsOpts = append(fsOpts, firestore.MergeAll)
-		}
-	}
-
-	writeResult, err := fd.ref.Set(ctx, data, fsOpts...)
+func (fd *FirestoreDocument) Set(ctx context.Context, data interface{}, opts modules.DbOpts) (*modules.WriteResult, error) {
+	writeResult, err := fd.ref.Set(ctx, data, dbOptsToFirebase(opts)...)
 	return &modules.WriteResult{Time: writeResult.UpdateTime}, err
 }
 

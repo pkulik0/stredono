@@ -28,22 +28,25 @@ func SendEntrypoint(w http.ResponseWriter, r *http.Request) {
 
 func validateTip(tip *pb.Tip) error {
 	if tip.SenderId == "" {
-		return fmt.Errorf("invalid sender id: %s", tip.SenderId)
+		return fmt.Errorf("invalid sender id (%s)", tip.SenderId)
+	}
+	if tip.DisplayName == "" {
+		return fmt.Errorf("invalid display name (%s)", tip.DisplayName)
 	}
 	if tip.RecipientId == "" {
-		return fmt.Errorf("invalid recipient id: %s", tip.RecipientId)
+		return fmt.Errorf("invalid recipient id (%s)", tip.RecipientId)
 	}
 	if tip.Status != pb.TipStatus_INITIATED {
-		return fmt.Errorf("invalid status: %s", tip.Status)
+		return fmt.Errorf("invalid status (%s)", tip.Status)
 	}
 	if tip.Amount < 0 {
-		return fmt.Errorf("invalid amount: %f", tip.Amount)
+		return fmt.Errorf("invalid amount (%f)", tip.Amount)
 	}
-	if tip.Currency == pb.Currency_UNKNOWN || tip.Currency == pb.Currency_BITS { // Bits can only be sent by internal services
-		return fmt.Errorf("invalid currency: %s", tip.Currency)
+	if tip.Currency <= pb.Currency_UNKNOWN || tip.Currency > pb.Currency_PLN { // Bits can only be sent by internal services
+		return fmt.Errorf("invalid currency (%s)", tip.Currency)
 	}
 	if tip.Email == "" {
-		return fmt.Errorf("invalid email: %s", tip.Email)
+		return fmt.Errorf("invalid email (%s)", tip.Email)
 	}
 	if tip.Timestamp != 0 {
 		return fmt.Errorf("timestamp should not be set")

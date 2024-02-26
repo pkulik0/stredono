@@ -169,7 +169,7 @@ resource "google_identity_platform_config" "default" {
     allow_duplicate_emails = false
 
     anonymous {
-      enabled = false
+      enabled = true
     }
 
     email {

@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config}*/
 const config = {
+	mode: 'jit',
 	content: ['./src/**/*.{html,js,svelte,ts}', './node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}'],
 
 	plugins: [require('flowbite/plugin')],
@@ -9,6 +10,7 @@ const config = {
 	theme: {
 		extend: {
 			zIndex: {
+				'75': '75',
 				'100': '100',
 				'150': '150',
 				'200': '200',

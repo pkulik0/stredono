@@ -1,19 +1,22 @@
 <script lang="ts">
+    import { uploadToStorage } from '$lib/ext/firebase/storage';
     import {getTopGifs, type Gif, searchGifs} from "$lib/ext/tenor";
     import {onMount} from "svelte";
-    import {Dropzone, Input, Label, Modal} from "flowbite-svelte";
+    import { Dropzone, Input, Label, Modal, Spinner } from 'flowbite-svelte';
     import GifGallery from "$lib/comp/GifGallery.svelte";
     import {writable, type Writable} from "svelte/store";
     import {UploadOutline} from "flowbite-svelte-icons";
     import axios from "axios";
     import FileDropzone from "$lib/comp/FileDropzone.svelte";
+    import { v4 as uuidv4 } from 'uuid';
 
     const limit = 30;
 
+    export let url: string = "";
     export let open: boolean = false;
     export let upload: boolean = true;
 
-    export let file: File|undefined = undefined
+    let file: File|undefined = undefined
     $: if (file) open = false;
 
     export let searchTerm = "";
@@ -70,10 +73,21 @@
         })
         lastTerm = term;
     }
+
+    let isUploading = false;
     const onGifPress = async (gif: Gif) => {
+        if (isUploading) return;
+        isUploading = true;
+
         const res = await axios.get(gif.url, { responseType: "blob" });
         const blob = new Blob([res.data], { type: "image/gif" });
-        file = new File([blob], gif.title, {type: "image/gif"});
+        const gifFile = new File([blob], gif.title, {type: "image/gif"});
+        url = await uploadToStorage("gifs", uuidv4().replace(/-/g, ""), gifFile, false);
+
+        setTimeout(() => {
+            isUploading = false;
+            open = false;
+        }, 300);
     }
 
     onMount(async () => {
@@ -95,7 +109,6 @@
 
     let backdropClass = "fixed inset-0 z-50 bg-gray-900 bg-opacity-50 dark:bg-opacity-80";
 </script>
-
 
 <Modal bind:open title="Gifs" autoclose outsideclose class="z-100" {backdropClass}>
 

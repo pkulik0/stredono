@@ -21,7 +21,7 @@ type DbOpts struct {
 type Document interface {
 	Id() string
 	Create(ctx context.Context, data interface{}) (*WriteResult, error)
-	Set(ctx context.Context, data interface{}, opts *DbOpts) (*WriteResult, error)
+	Set(ctx context.Context, data interface{}, opts DbOpts) (*WriteResult, error)
 	Get(ctx context.Context) (DocumentSnapshot, error)
 }
 
@@ -46,4 +46,10 @@ type QuerySnapshot interface {
 
 type NoSqlDb interface {
 	Collection(path string) Collection
+	RunTransaction(ctx context.Context, f func(ctx context.Context, tx Transaction) error) error
+}
+
+type Transaction interface {
+	Get(doc Document) (DocumentSnapshot, error)
+	Set(doc Document, data interface{}, opts DbOpts) error
 }

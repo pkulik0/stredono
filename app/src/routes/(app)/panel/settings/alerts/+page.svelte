@@ -1,86 +1,78 @@
 <script lang="ts">
-    import type { Alert } from '$lib/pb/stredono_pb';
+    import { alertsStore, getAlertsListener } from '$lib/alerts';
+    import { EventType, UsersAlerts } from '$lib/pb/stredono_pb';
     import {PlusSolid} from "flowbite-svelte-icons";
+    import AlertCard from './AlertCard.svelte';
     import AlertsDrawer from "./AlertsDrawer.svelte";
     import {
         Button,
-        ImagePlaceholder,
-        Table,
-        TableBody,
-        TableBodyCell,
-        TableBodyRow,
-        TableHead,
-        TableHeadCell, TextPlaceholder
-    } from "flowbite-svelte";
+        ImagePlaceholder, Input, Label, P, Select
+    } from 'flowbite-svelte';
     import {onMount} from "svelte";
     import {userStore} from "$lib/user";
-    import AlertRow from "./AlertRow.svelte";
+    import AlertViewer from './AlertViewer.svelte';
 
-    let alerts: Alert[]|undefined = undefined;
+    let userAlerts: UsersAlerts|undefined|null;
 
     onMount(() => {
-        return userStore.subscribe(async (user) => {
+        let listenerUnsub: (() => void)|undefined;
+        const userUnsub = userStore.subscribe(async (user) => {
             if(!user) {
-                alerts = undefined;
+                userAlerts = undefined;
                 return;
             }
-            alerts = user.Alerts
+            listenerUnsub = await getAlertsListener(user.Uid)
         });
+        const alertsUnsub = alertsStore.subscribe((alertsData) => {
+            userAlerts = alertsData;
+        })
+        return () => {
+            if(listenerUnsub) listenerUnsub();
+            userUnsub();
+            alertsUnsub();
+        }
     });
 
     let drawerHidden = true;
 
+    let selectOptions = [
+        {value: EventType.TIP, name: 'Tip'},
+        {value: EventType.CHEER, name: 'Cheer'},
+        {value: EventType.SUBSCRIBE, name: 'Sub'},
+        {value: EventType.SUBGIFT, name: 'Sub Gift'},
+        {value: EventType.FOLLOW, name: 'Follow'},
+        {value: EventType.RAID, name: 'Raid'},
+    ];
+    let selectedType: EventType = EventType.TIP;
+
 </script>
 
-<Table noborder>
-    <caption class="p-5 rounded-lg text-lg font-semibold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-800 mb-4">
-        Your alerts
-        <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">
-            Alerts are displayed on stream when you receive a donation.
-            Each alerts can have a different sound, GIF and message template.
-            Below are the alerts you have created. You can edit, delete, disable and test them.
-        </p>
-    </caption>
+<div class="space-y-4">
+    <Label>
+        Type
+        <Select items={selectOptions} bind:value={selectedType} placeholder="Filter by type"/>
+    </Label>
 
-    <TableHead>
-        <TableHeadCell class="rounded-tl-lg bg-transparent">GIF</TableHeadCell>
-        <TableHeadCell>Sound</TableHeadCell>
-        <TableHeadCell>Template</TableHeadCell>
-        <TableHeadCell>From</TableHeadCell>
-        <TableHeadCell>To</TableHeadCell>
-        <TableHeadCell class="rounded-tr-lg">Actions</TableHeadCell>
-    </TableHead>
-    <TableBody>
-        {#if alerts !== undefined}
-            {#each alerts as alert}
-                <AlertRow {alert}/>
-            {/each}
-            {#if alerts.length === 0}
-                <TableBodyRow>
-                    <TableBodyCell colspan="6" class="text-center">
-                        You have no alerts yet.
-                    </TableBodyCell>
-                </TableBodyRow>
-            {/if}
+    <div class="flex justify-end">
+        <Button on:click={() => drawerHidden = false}>
+            <PlusSolid class="w-4 h-4" />
+            <span class="ms-2">New</span>
+        </Button>
+    </div>
+
+    {#if userAlerts !== undefined}
+        {#if userAlerts === null}
+            <P class="text-center py-8">
+                You have no alerts of this type.
+            </P>
         {:else}
-            <TableBodyRow>
-                <TableBodyCell>
-                    <ImagePlaceholder/>
-                </TableBodyCell>
-                <TableBodyCell colspan="5">
-                    <TextPlaceholder/>
-                </TableBodyCell>
-            </TableBodyRow>
+            {#each userAlerts.Alerts as alert}
+                <AlertCard {alert}/>
+            {/each}
         {/if}
-    </TableBody>
-</Table>
-
-<div class="flex justify-end">
-    <Button on:click={() => drawerHidden = false} class="mt-8">
-        <PlusSolid class="w-4 h-4" />
-        <span class="ms-2">New Alert</span>
-    </Button>
+    {:else}
+        <ImagePlaceholder/>
+    {/if}
 </div>
 
-<AlertsDrawer bind:hidden={drawerHidden}/>
-
+<AlertsDrawer eventType={selectedType} bind:hidden={drawerHidden}/>

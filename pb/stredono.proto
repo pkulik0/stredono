@@ -6,8 +6,7 @@ option go_package="github.com/pkulik0/stredono/cloud/pb";
 
 enum Currency {
   UNKNOWN = 0;
-  BITS = 1;
-  PLN = 2;
+  PLN = 1;
 }
 
 enum TipStatus {
@@ -28,73 +27,96 @@ message Tip {
   int64 Timestamp = 9;
 }
 
+enum AuthLevel {
+  NONE = 0;
+  EMAIL = 1;
+  OIDC = 2;
+}
+
 message User {
-  string Username = 1;
-  string DisplayName = 2;
-  string Uid = 3;
-  string Url = 4;
-  string Description = 5;
-  string PictureUrl = 6;
+  string Uid = 1;
+  string Username = 2;
+  string DisplayName = 3;
+  string Description = 4;
 
-  double MinimumAmount = 7;
-  Currency Currency = 8;
+  string PictureUrl = 5;
+  string Url = 6;
+
+  AuthLevel MinAuthLevel = 7;
+  double MinAmount = 8;
+  Currency Currency = 9;
 }
 
-enum AlertType {
-  DONATE = 0;
-  FOLLOW = 1;
-  SUBSCRIBE = 2;
-  SUBGIFT = 3;
-  RAID = 4;
+enum EventType {
+  TIP = 0;
+  CHEER = 1;
+  FOLLOW = 2;
+  SUBSCRIBE = 3;
+  SUBGIFT = 4;
+  RAID = 5;
 }
 
-enum TextToSpeechService {
-  GOOGLE = 0;
-  ELEVENLABS = 1;
+message Event {
+  string Id = 1;
+  EventType Type = 2;
+  map<string, string> Data = 3;
 }
 
-message TextToSpeechSettings {
-  TextToSpeechService Service = 1;
-  string Voice = 2;
-  string Language = 3;
-}
-
-message AmountTrigger {
-  double Min = 1;
-  double Max = 2;
+message UsersAlerts {
+  repeated Alert Alerts = 1;
 }
 
 message Alert {
   string Id = 1;
-  AlertType Type = 2;
-  AmountTrigger AmountTrigger = 3;
+  EventType EventType = 2;
+  string Message = 3;
 
-  string Template = 4;
+  double Min = 4;
+  double Max = 5;
 
-  AlertStyle Style = 5;
-  TextToSpeechSettings TtsSettings = 6;
+  string GifUrl = 6;
+  string SoundUrl = 7;
+
+  AnimationType Animation = 8;
+  Speed AnimationSpeed = 9;
+
+  string TextColor = 10;
+  string AccentColor = 11;
+
+  Alignment Alignment = 12;
+  Position TextPosition = 13;
 }
 
 enum AnimationType {
-  SHAKE = 0;
-  BOUNCE = 1;
+  PULSE = 0;
+  HEART_BEAT = 2;
+  SHAKE_VERTICALLY = 4;
+  SHAKE_HORIZONTALLY = 5;
+  TADA = 8;
+  JELLO = 9;
+  BOUNCE = 10;
 }
 
-message AlertStyle {
-  string GifUrl = 1;
-  string SoundUrl = 2;
-
-  AnimationType Animation = 3;
-
-  string TextColor = 4;
-  string AccentColor = 5;
+enum Alignment {
+  START = 0;
+  CENTER = 1;
+  END = 2;
+  JUSTIFY = 3;
 }
 
-message Event {
-  repeated string Users = 1;
-  repeated double Amounts = 2;
-  string Currency = 3;
-  string Message = 4;
+enum Position {
+  TOP = 0;
+  LEFT = 1;
+  RIGHT = 2;
+  BOTTOM = 3;
+}
+
+enum Speed {
+  OFF = 0;
+  SLOW = 1;
+  MEDIUM = 2;
+  FAST = 3;
+  FASTER = 4;
 }
 
 message Token {

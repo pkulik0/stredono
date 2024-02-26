@@ -1,130 +1,85 @@
 <script lang="ts">
+    import { saveAlert } from '$lib/alerts';
+    import GifPicker from '$lib/comp/GifPicker.svelte';
+    import SoundPicker from '$lib/comp/SoundPicker.svelte';
+    import { Alert, Alignment, AnimationType, Currency, Event, EventType, Position, Speed } from '$lib/pb/stredono_pb';
+    import { userStore } from '$lib/user';
+    import { pbEnumToItems } from '$lib/util';
     import {
-        Alert,
-        AlertStyle,
-        AlertType,
-        AmountTrigger,
-        AnimationType,
-        Currency,
-        TextToSpeechSettings
-    } from '$lib/pb/stredono_pb';
-    import {
-        Button, ButtonGroup,
+        Button,
+        ButtonGroup, Checkbox,
         CloseButton,
         Drawer,
+        Heading,
         Hr,
         Input,
         InputAddon,
-        Label, P,
+        Label, Radio, RadioButton, Range,
         Select,
         Textarea
     } from 'flowbite-svelte';
-    import {uploadToStorage} from "$lib/ext/firebase/storage";
     import {
+        AlignCenterSolid,
+        BarsFromLeftSolid,
+        BarsSolid,
         BellActiveSolid,
         ImageOutline,
         PlusSolid,
         VolumeUpSolid
-    } from "flowbite-svelte-icons";
-    import {sineIn} from "svelte/easing";
-    import {fade, slide} from "svelte/transition";
-    import {v4 as uuidv4} from "uuid";
-    import {onMount} from "svelte";
-    import GifPicker from "$lib/comp/GifPicker.svelte";
-    import {userStore} from "$lib/user";
-    import SoundPicker from "$lib/comp/SoundPicker.svelte";
+    } from 'flowbite-svelte-icons';
+    import { onMount } from 'svelte';
+    import { sineIn } from 'svelte/easing';
+    import AlertViewer from './AlertViewer.svelte';
 
-    const getUuid = () => {
-        return uuidv4().replace(/-/g, "");
+    export let hidden = true;
+    export let eventType: EventType;
+
+    let alert = new Alert();
+    let startValue = "0";
+    let endValue = "10";
+    $: {
+        alert.EventType = eventType;
+        alert.Min = Number.parseFloat(startValue)
+        alert.Max = Number.parseFloat(endValue)
+        alert.TextColor = "#FFFFFF";
+        alert.AccentColor = "#2381f8";
+        alert.Message = "[user] donated [value] [currency]";
+        alert.Animation = AnimationType.PULSE;
+        alert.AnimationSpeed = Speed.MEDIUM;
+        alert.Alignment = Alignment.JUSTIFY;
+        alert.TextPosition = Position.BOTTOM;
+    }
+
+    let exampleEvent = new Event();
+    $: {
+        exampleEvent.Type = eventType;
+        const amount = Math.round(alert.Min + (alert.Max - alert.Min) / 2);
+        exampleEvent.Data = {
+            "user": "John",
+            "value": (isNaN(amount) ? 2137 : amount).toString(),
+            "currency": currencySymbol,
+            "message": "This is an example message. See which settings you like the most and adjust them to your needs."
+        }
     }
 
     const addNew = async () => {
-        if (!gifFile) {
+        if (!alert.GifUrl) {
             console.error("GIF is missing");
-            return;
-        }
-        if (!soundFile) {
-            console.error("Sound is missing");
             return;
         }
 
         try {
-            const id = getUuid();
-            const gifUrl = await uploadToStorage("gifs", getUuid(), gifFile, false);
-            const soundUrl = await uploadToStorage("sounds", getUuid(), soundFile, false);
-
-            let alert = new Alert();
-            alert.Id = id;
-            alert.Type = type;
-            alert.Template = template;
-
-            alert.Style = new AlertStyle();
-            alert.Style.Animation = animation;
-            alert.Style.GifUrl = gifUrl;
-            alert.Style.SoundUrl = soundUrl;
-            alert.Style.TextColor = textColor;
-            alert.Style.AccentColor = accentColor;
-
-            alert.AmountTrigger = new AmountTrigger()
-            alert.AmountTrigger.Min = startValue;
-            alert.AmountTrigger.Max = endValue;
-
-            alert.TtsSettings = new TextToSpeechSettings()
+            await saveAlert(alert);
             hidden = true;
         } catch (e) {
             console.error(e); // TODO: Show error to user
         }
     }
 
-    export let hidden = true;
-    export let styles: Map<string, AlertStyle> = new Map();
-
-    let startValue = 0;
-    let endValue = 10;
-
-    let intervalValue = 10;
-
-    let template = "[USER] donated [AMOUNT] [CURRENCY]!";
-
-    let textColor = "#FFFFFF";
-    let accentColor = "#3374ff";
-
-    let animations = [
-        { "value": AnimationType.BOUNCE, "name": "Bounce" },
-        { "value": AnimationType.SHAKE, "name": "Shake" },
-    ];
-    let animation = AnimationType.BOUNCE;
-
-    let types = [
-        { "value": AlertType.DONATE, "name": "Donation / Cheer" },
-        { "value": AlertType.SUBSCRIBE, "name": "Subscription" },
-        { "value": AlertType.SUBGIFT, "name": "Gifted Subscription" },
-        { "value": AlertType.FOLLOW, "name": "Follow" },
-        { "value": AlertType.RAID, "name": "Raid" },
-    ];
-    let type = AlertType.DONATE;
-
-    interface Preset {
-        value: AlertStyle
-        name: string
-    }
-    let presets: Preset[] = [];
-    let preset: AlertStyle|undefined = undefined;
+    $: animations = pbEnumToItems(AnimationType);
 
     let gifPickerOpen = false;
-    let gifFile: File|undefined = undefined;
-    $: gifImage = gifFile ? URL.createObjectURL(gifFile) : null;
-
     let soundPickerOpen = false;
-    let soundFile: File|undefined = undefined;
-
-    // Drawer settings
-    let transitionParams = {
-        x: 300,
-        duration: 200,
-        easing: sineIn,
-    };
-    let divClass = "overflow-y-auto z-50 p-4 rounded-xl m-0 md:m-4 bg-gray-100 dark:bg-gray-800";
 
     let currency: Currency|undefined = undefined;
     let currencySymbol = "?";
@@ -140,10 +95,6 @@
     }
 
     onMount(() => {
-        styles.forEach((style, key) => {
-            presets.push({ "value": style, "name": key });
-        })
-
         return userStore.subscribe((user) => {
             if (!user) {
                 currency = undefined;
@@ -152,104 +103,112 @@
             currency = user.Currency;
         });
     })
+
+    let transitionParams = {
+        x: 300,
+        duration: 200,
+        easing: sineIn,
+    };
+    let divClass = "overflow-y-auto z-50 p-4 bg-gray-100 dark:bg-gray-800";
 </script>
 
 <Drawer activateClickOutside={false} transitionType="fly" {transitionParams} bind:hidden {divClass} placement="right" width="w-96">
     <div class="flex items-center">
         <h5 id="drawer-label" class="inline-flex items-center mb-6 text-base font-semibold text-gray-500 uppercase dark:text-gray-400">
             <BellActiveSolid class="w-4 h-4 me-2.5" />
-            New Alert
+            New {JSON.parse(JSON.stringify(EventType))[eventType]} Alert
         </h5>
         <CloseButton on:click={() => (hidden = true)} class="mb-4 dark:text-white" />
     </div>
 
     <div class="w-full space-y-4">
+        <Heading tag="h6">Trigger</Heading>
+
+        <div class="space-x-4 flex flex-row">
+            <Label>
+                From
+                <ButtonGroup>
+                    <Input type="number" bind:value={startValue} />
+                    <InputAddon>{currencySymbol}</InputAddon>
+                </ButtonGroup>
+            </Label>
+
+            <Label>
+                To
+                <ButtonGroup>
+                    <Input type="number" bind:value={endValue} />
+                    <InputAddon>{currencySymbol}</InputAddon>
+                </ButtonGroup>
+            </Label>
+        </div>
+
+        <Heading tag="h6">Message</Heading>
+
+        <Label>
+            Template
+            <Textarea bind:value={alert.Message} />
+        </Label>
+
+        <div class="flex flex-row space-x-2 m-auto justify-center">
+            <RadioButton value={Alignment.START} bind:group={alert.Alignment}><BarsFromLeftSolid/></RadioButton>
+            <RadioButton value={Alignment.CENTER} bind:group={alert.Alignment}><AlignCenterSolid/></RadioButton>
+            <RadioButton value={Alignment.END} bind:group={alert.Alignment}><div class="transform rotate-180 scale-y-[-1]"><BarsFromLeftSolid/></div></RadioButton>
+            <RadioButton value={Alignment.JUSTIFY} bind:group={alert.Alignment}><BarsSolid/></RadioButton>
+        </div>
+
+        <Heading tag="h6">Text Position</Heading>
+
+        <div class="flex flex-col items-center space-y-2">
+            <Radio value={Position.TOP} bind:group={alert.TextPosition}/>
+            <div class="flex flex-row space-x-2">
+                <Radio value={Position.LEFT} bind:group={alert.TextPosition}/>
+                <div class="bg-gray-600 w-16 h-16 rounded-md text-center text-white flex items-center justify-center font-medium">
+                    GIF
+                </div>
+                <Radio class="ms-1.5" value={Position.RIGHT} bind:group={alert.TextPosition}/>
+            </div>
+            <Radio value="{Position.BOTTOM}" bind:group={alert.TextPosition}/>
+        </div>
+
+        <Heading tag="h6">Animation</Heading>
+
         <Label>
             Type
-            <Select bind:value={type} items={types}/>
+            <Select bind:value={alert.Animation} items={animations}/>
         </Label>
-
-
-
-        <div class="px-4 space-y-2">
-            <Label>
-                Template
-                <Textarea bind:value={template} />
-            </Label>
-
-            <div class="space-x-4 flex flex-row">
-                <Label>
-                    From
-                    <ButtonGroup>
-                        <Input type="number" bind:value={startValue} />
-                        <InputAddon>{currencySymbol}</InputAddon>
-                    </ButtonGroup>
-                </Label>
-
-                <Label>
-                    To
-                    <ButtonGroup>
-                        <Input type="number" bind:value={endValue} />
-                        <InputAddon>{currencySymbol}</InputAddon>
-                    </ButtonGroup>
-                </Label>
-            </div>
-
-            {#if type === AlertType.DONATE}
-                <div transition:slide>
-                    <P weight="light" class="text-sm text-justify text-gray-500 dark:text-gray-400">
-                        Cheers use the same alerts as tips. 100 Bits are equal to 1 USD or its equivalent in other currencies.
-                    </P>
-                </div>
-            {/if}
-        </div>
-
-
-
-        <Hr/>
 
         <Label>
-            Preset
-            <Select placeholder="None" bind:value={preset} items={presets}/>
+            Speed
+            <Range min={Speed.OFF} max={Speed.FASTER} step="1" bind:value={alert.AnimationSpeed}/>
         </Label>
 
-        <div class="space-y-3 px-4">
+        <Heading tag="h6">Media</Heading>
 
-            <Label>
-                Animation
-                <Select bind:value={animation} items={animations}/>
+        <Button color={alert.GifUrl ? "alternative" : "primary"} class="w-full" size="xl" outline on:click={() => { gifPickerOpen = true; }}>
+            <ImageOutline class="w-5 h-5 me-1" />
+            {#if alert.GifUrl} Change {:else} Pick or Upload {/if}
+            GIF
+        </Button>
+
+        <Button color={alert.SoundUrl ? "alternative" : "primary"} class="w-full" size="xl" outline on:click={() => { soundPickerOpen = true; }}>
+            <VolumeUpSolid class="w-5 h-5 me-1" />
+            {#if alert.SoundUrl} Change {:else} Pick or Upload {/if}
+            Sound
+        </Button>
+
+        <div class="flex space-x-10 pb-2">
+            <Label class="flex flex-col">
+                Text
+                <input type="color" bind:value={alert.TextColor} />
             </Label>
 
-            <Button class="w-full" size="xl" outline on:click={() => { gifPickerOpen = true; }}>
-                <ImageOutline class="w-5 h-5 me-1" />
-                Pick or Upload GIF
-            </Button>
-
-            {#if gifImage}
-                <img src={gifImage} alt="GIF" class="px-8 py-2 rounded-lg w-full" transition:fade />
-            {/if}
-
-            <Button class="w-full" size="xl" outline on:click={() => { soundPickerOpen = true; }}>
-                <VolumeUpSolid class="w-5 h-5 me-1" />
-                Pick or Upload Sound
-            </Button>
-
-            <div class="pt-2 flex space-x-6 m-auto inlin">
-                <Label>
-                    Text Color <br/>
-                    <input type="color" bind:value={textColor} />
-<!--                    <ColorPicker textInputModes={["hex"]} label="" isAlpha={false} isDialog sliderDirection="horizontal" components={ChromeVariant} bind:hex={textColor} />-->
-                </Label>
-
-                <Label>
-                    Accent Color <br/>
-                    <input type="color" bind:value={accentColor} />
-<!--                    <ColorPicker textInputModes={["hex"]} label="" isAlpha={false} isDialog sliderDirection="horizontal" components={ChromeVariant} bind:hex={accentColor} />-->
-                </Label>
-            </div>
+            <Label class="flex flex-col">
+                Accent
+                <input type="color" bind:value={alert.AccentColor} />
+            </Label>
         </div>
 
-        <Button on:click={addNew} class="mt-7 w-full">
+        <Button on:click={addNew} class="w-full">
             <PlusSolid class="w-5 h-5 me-1" />
             Add
         </Button>
@@ -257,5 +216,9 @@
 
 </Drawer>
 
-<GifPicker bind:file={gifFile} searchTerm="money" bind:open={gifPickerOpen} />
-<SoundPicker bind:file={soundFile} bind:open={soundPickerOpen} />
+<GifPicker bind:url={alert.GifUrl} searchTerm="money" bind:open={gifPickerOpen} />
+<SoundPicker bind:url={alert.SoundUrl} bind:open={soundPickerOpen} />
+
+{#if !hidden}
+    <AlertViewer alerts={[alert]} event={exampleEvent} visible={!soundPickerOpen && !gifPickerOpen}/>
+{/if}

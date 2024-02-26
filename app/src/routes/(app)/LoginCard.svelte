@@ -1,4 +1,5 @@
 <script>
+    import LoginWithTwitch from '$lib/comp/LoginWithTwitch.svelte';
     import { Button, Checkbox, Helper, Input, Label, P } from 'flowbite-svelte';
     import {isSignInWithEmailLink, sendSignInLinkToEmail, signInWithEmailLink, signInWithPopup} from "firebase/auth";
     import {auth} from "$lib/ext/firebase/firebase";
@@ -32,25 +33,6 @@
         } catch (e) {
             console.error(e);
         }
-    }
-
-    const loginTwitch = async () => {
-        const provider = new OAuthProvider("oidc.twitch")
-        provider.addScope("user:read:email");
-        provider.addScope("moderator:read:followers");
-        provider.addScope("channel:read:subscriptions");
-        provider.addScope("channel:read:redemptions");
-        provider.addScope("bits:read");
-        provider.addScope("channel:manage:ads");
-        provider.addScope("channel:read:ads");
-        provider.addScope("channel:manage:broadcast");
-        provider.addScope("channel:edit:commercial");
-        provider.addScope("channel:read:hype_train");
-        provider.addScope("channel:read:goals");
-        provider.addScope("channel:read:vips");
-        provider.addScope("user:read:broadcast");
-        provider.addScope("user:read:chat");
-        await signInWithPopup(auth, provider);
     }
 
     const checkEmail = () => {
@@ -95,8 +77,8 @@
             </div>
 
             <Button class="mb-4 w-full" type="submit" on:click={login}>Enter</Button>
-            <Button color="purple" outline class="mb-2 w-full" on:click={loginTwitch}>Login with Twitch</Button>
-            <Helper>
+            <LoginWithTwitch/>
+            <Helper class="mt-4">
                 <span class="text-gray-500">By continuing you agree to our <button class="hover:underline" on:click={onTosDetailsClicked}>terms and conditions.</button></span>
             </Helper>
         </div>

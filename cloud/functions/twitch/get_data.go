@@ -52,7 +52,7 @@ func getData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = db.Collection("twitch_users").Doc(twitchUser.Id).Set(ctx, twitchUser, &modules.DbOpts{})
+	_, err = db.Collection("twitch_users").Doc(twitchUser.Id).Set(ctx, twitchUser, modules.DbOpts{})
 	if err != nil {
 		log.Errorf("Failed to save twitch user | %s", err)
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)

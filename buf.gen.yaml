@@ -6,6 +6,3 @@ plugins:
   - plugin: es
     opt: target=ts
     out: app/src/lib
-  - plugin: firebase_rules
-    path: ./pb/protoc-gen-firebase_rules
-    out: rules/pb

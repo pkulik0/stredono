@@ -1,7 +1,9 @@
 <script lang="ts">
+    import { auth } from '$lib/ext/firebase/firebase';
     import { Currency, Tip, TipStatus, User } from '$lib/pb/stredono_pb';
     import { terraformOutput } from '$lib/terraform_output';
     import axios from 'axios';
+    import { onAuthStateChanged } from 'firebase/auth';
     import {
         Card,
     } from "flowbite-svelte";
@@ -10,7 +12,7 @@
     import {FetchError, getUserByUsername} from "$lib/user";
     import {goto} from "$app/navigation";
     import {emailStore, senderStore} from "$lib/stores";
-    import Form from "./Form.svelte";
+    import TipForm from "./TipForm.svelte";
     import UserHeader from "$lib/comp/UserHeader.svelte";
 
     const sendDonate = async () => {
@@ -18,13 +20,13 @@
         if ($senderStore === "" || $emailStore === "") return;
 
         const amountFloat = parseFloat(amount);
-        if (amountFloat < user.MinimumAmount) return; // TODO: show error
+        if (amountFloat < user.MinAmount) return; // TODO: show error
 
         const sdReq = new Tip({
             Amount: amountFloat,
             Currency: currency,
             Email: $emailStore,
-            Sender: $senderStore,
+            DisplayName: $senderStore,
             RecipientId: user.Uid,
             Message: message,
             Status: TipStatus.INITIATED
@@ -38,8 +40,6 @@
         window.location.href = res.data;
     }
 
-    console.log(terraformOutput.FunctionUrls.TipSend)
-
     let recipient = $page.params.recipient;
     let user: User|undefined = undefined;
 
@@ -47,26 +47,14 @@
     let message:string = "";
     let currency:Currency = Currency.UNKNOWN;
 
-    $: isBlocked = $emailStore === ""
     let hasListeners: boolean = true;
 
-    // const getListeners = async () => {
-    //     if(!user) return;
-    //
-    //     const res = await axios.get(terraformOutput.FunctionUrls.GetListeners + "?uid=" + user.Uid)
-    //     if(res.status !== 200) {
-    //         console.error(res.data); // TODO: handle error
-    //         return;
-    //     }
-    //     hasListeners = res.data !== 0;
-    // }
-
-    onMount(async () => {
+    const fetchData = async () => {
         try {
             user = await getUserByUsername(recipient);
             if(!user) return;
 
-            amount = user.MinimumAmount.toString();
+            amount = user.MinAmount.toString();
             currency = user.Currency;
         } catch (e) {
             console.error(e);
@@ -76,6 +64,16 @@
             }
             throw e;
         }
+    }
+
+    onMount(() => {
+        fetchData()
+
+        return onAuthStateChanged(auth, (user) => {
+            if(!user) return;
+
+            user.isAnonymous
+        })
     });
 </script>
 
@@ -86,7 +84,7 @@
             <div class="px-[5%]">
                 <UserHeader {user}/>
 
-                <Form {recipient} {sendDonate} {isBlocked} {hasListeners} bind:amount bind:message {currency}/>
+                <TipForm {recipient} {sendDonate} {hasListeners} bind:amount bind:message {currency}/>
             </div>
         </Card>
     </div>

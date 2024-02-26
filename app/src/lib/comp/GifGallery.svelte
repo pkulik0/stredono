@@ -49,5 +49,4 @@
         </div>
     {/each}
 </div>
-
 <div id="sentinel" class="h-0.5"/>

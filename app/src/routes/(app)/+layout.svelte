@@ -24,7 +24,7 @@
                 userListUnsub();
                 userListUnsub = undefined;
             }
-            userStore.set(undefined)
+            userStore.set(null)
 
             if (window.location.pathname !== "/") {
                 await goto("/")

@@ -10,6 +10,7 @@
     "storageBucket": "stredono-6394ee11.appspot.com"
   },
   "FunctionUrls": {
+    "AlertAdd": "https://alertadd-bogpf7lo6q-ew.a.run.app",
     "TipConfirm": "https://tipconfirm-bogpf7lo6q-ew.a.run.app",
     "TipSend": "https://tipsend-bogpf7lo6q-ew.a.run.app",
     "TwitchCreateSub": "https://twitchcreatesub-bogpf7lo6q-ew.a.run.app",
@@ -20,7 +21,14 @@
   },
   "PublicFiles": {
     "audio": [
-      "public/audio/elevator-signal.wav"
+      "public/audio/trash-can-hit.wav",
+      "public/audio/punch.mp3",
+      "public/audio/whoosh.mp3",
+      "public/audio/surprise.mp3",
+      "public/audio/game-bonus.mp3",
+      "public/audio/game-jump.mp3",
+      "public/audio/elevator-signal.wav",
+      "public/audio/long-swish.mp3"
     ]
   },
   "RecaptchaSiteKey": "6Le8EHQpAAAAANuH1lMyNMbNOgNYkpTyUQlHs6pt",

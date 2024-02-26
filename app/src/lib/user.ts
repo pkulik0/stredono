@@ -5,7 +5,7 @@ import axios from 'axios';
 import {collection, doc, getDocs, query, where, onSnapshot, setDoc} from "firebase/firestore";
 import {writable, type Writable} from "svelte/store";
 
-export const userStore: Writable<User | undefined> = writable(undefined);
+export const userStore: Writable<User | null | undefined> = writable(undefined);
 
 export class FetchError extends Error {
     constructor(message: string, public status: number) {
