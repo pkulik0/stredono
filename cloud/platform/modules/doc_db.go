@@ -27,6 +27,7 @@ type Document interface {
 
 type DocumentSnapshot interface {
 	DataTo(v interface{}) error
+	Ref() Document
 }
 
 type Collection interface {
@@ -36,12 +37,14 @@ type Collection interface {
 }
 
 type Query interface {
-	Documents(ctx context.Context) QuerySnapshot
+	Get(ctx context.Context) QueryIterator
 	Where(field, op string, value interface{}) Query
 }
 
-type QuerySnapshot interface {
-	GetAll() ([]DocumentSnapshot, error)
+type QueryIterator interface {
+	All() ([]DocumentSnapshot, error)
+	Next() (DocumentSnapshot, error)
+	Stop()
 }
 
 type DocDb interface {
@@ -52,4 +55,5 @@ type DocDb interface {
 type Transaction interface {
 	Get(doc Document) (DocumentSnapshot, error)
 	Set(doc Document, data interface{}, opts DbOpts) error
+	Documents(q Query) QueryIterator
 }

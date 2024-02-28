@@ -42,6 +42,10 @@ func (ft *FirestoreTransaction) Set(doc modules.Document, data interface{}, opts
 	return ft.tx.Set(doc.(*FirestoreDocument).ref, data, dbOptsToFirebase(opts)...)
 }
 
+func (ft *FirestoreTransaction) Documents(q modules.Query) modules.QueryIterator {
+	return &FirestoreQueryIterator{iterator: ft.tx.Documents(q.(*FirestoreQuery).query)}
+}
+
 type FirestoreCollection struct {
 	ref *firestore.CollectionRef
 }
@@ -55,9 +59,8 @@ type FirestoreQuery struct {
 	query *firestore.Query
 }
 
-func (fq *FirestoreQuery) Documents(ctx context.Context) modules.QuerySnapshot {
-	qs, _ := fq.query.Documents(ctx).GetAll()
-	return FirestoreQuerySnapshot{snapshots: qs}
+func (fq *FirestoreQuery) Get(ctx context.Context) modules.QueryIterator {
+	return &FirestoreQueryIterator{iterator: fq.query.Documents(ctx)}
 }
 
 func (fq *FirestoreQuery) Where(field string, op string, value interface{}) modules.Query {
@@ -65,16 +68,33 @@ func (fq *FirestoreQuery) Where(field string, op string, value interface{}) modu
 	return &FirestoreQuery{query: &q}
 }
 
-type FirestoreQuerySnapshot struct {
-	snapshots []*firestore.DocumentSnapshot
+type FirestoreQueryIterator struct {
+	iterator *firestore.DocumentIterator
 }
 
-func (fqs FirestoreQuerySnapshot) GetAll() ([]modules.DocumentSnapshot, error) {
+func (fqi *FirestoreQueryIterator) All() ([]modules.DocumentSnapshot, error) {
+	all, err := fqi.iterator.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
 	var result []modules.DocumentSnapshot
-	for _, s := range fqs.snapshots {
+	for _, s := range all {
 		result = append(result, FirestoreDocumentSnapshot{snapshot: s})
 	}
 	return result, nil
+}
+
+func (fqi *FirestoreQueryIterator) Next() (modules.DocumentSnapshot, error) {
+	snapshot, err := fqi.iterator.Next()
+	if err != nil {
+		return nil, err
+	}
+	return FirestoreDocumentSnapshot{snapshot: snapshot}, nil
+}
+
+func (fqi *FirestoreQueryIterator) Stop() {
+	fqi.iterator.Stop()
 }
 
 func (fc *FirestoreCollection) Doc(path string) modules.Document {
@@ -119,6 +139,10 @@ func (fd *FirestoreDocument) Create(ctx context.Context, data interface{}) (*mod
 
 type FirestoreDocumentSnapshot struct {
 	snapshot *firestore.DocumentSnapshot
+}
+
+func (fds FirestoreDocumentSnapshot) Ref() modules.Document {
+	return &FirestoreDocument{ref: fds.snapshot.Ref}
 }
 
 func (fds FirestoreDocumentSnapshot) DataTo(v interface{}) error {

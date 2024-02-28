@@ -957,3 +957,125 @@ export class TTSProvider extends Message<TTSProvider> {
   }
 }
 
+/**
+ * @generated from message stredono.TTSKey
+ */
+export class TTSKey extends Message<TTSKey> {
+  /**
+   * @generated from field: string Key = 1;
+   */
+  Key = "";
+
+  /**
+   * @generated from field: int32 CharactersLeft = 2;
+   */
+  CharactersLeft = 0;
+
+  /**
+   * @generated from field: int32 CharactersLimit = 3;
+   */
+  CharactersLimit = 0;
+
+  /**
+   * @generated from field: int64 ResetTimestamp = 4;
+   */
+  ResetTimestamp = protoInt64.zero;
+
+  /**
+   * @generated from field: int64 LastUsed = 5;
+   */
+  LastUsed = protoInt64.zero;
+
+  constructor(data?: PartialMessage<TTSKey>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.TTSKey";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "Key", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "CharactersLeft", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 3, name: "CharactersLimit", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 4, name: "ResetTimestamp", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 5, name: "LastUsed", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TTSKey {
+    return new TTSKey().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TTSKey {
+    return new TTSKey().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TTSKey {
+    return new TTSKey().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: TTSKey | PlainMessage<TTSKey> | undefined, b: TTSKey | PlainMessage<TTSKey> | undefined): boolean {
+    return proto3.util.equals(TTSKey, a, b);
+  }
+}
+
+/**
+ * @generated from message stredono.TTSKey
+ */
+export class TTSKey extends Message<TTSKey> {
+  /**
+   * @generated from field: string Key = 1;
+   */
+  Key = "";
+
+  /**
+   * @generated from field: int32 CharactersLeft = 2;
+   */
+  CharactersLeft = 0;
+
+  /**
+   * @generated from field: int32 CharactersLimit = 3;
+   */
+  CharactersLimit = 0;
+
+  /**
+   * @generated from field: int64 ResetTimestamp = 4;
+   */
+  ResetTimestamp = protoInt64.zero;
+
+  /**
+   * @generated from field: int64 LastUsed = 5;
+   */
+  LastUsed = protoInt64.zero;
+
+  constructor(data?: PartialMessage<TTSKey>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.TTSKey";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "Key", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "CharactersLeft", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 3, name: "CharactersLimit", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 4, name: "ResetTimestamp", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 5, name: "LastUsed", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TTSKey {
+    return new TTSKey().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TTSKey {
+    return new TTSKey().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TTSKey {
+    return new TTSKey().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: TTSKey | PlainMessage<TTSKey> | undefined, b: TTSKey | PlainMessage<TTSKey> | undefined): boolean {
+    return proto3.util.equals(TTSKey, a, b);
+  }
+}
+

@@ -158,3 +158,19 @@ message TTSProvider {
   int64 LastUpdated = 1;
   repeated Voice Voices = 2;
 }
+
+message TTSKey {
+  string Key = 1;
+  int32 CharactersLeft = 2;
+  int32 CharactersLimit = 3;
+  int64 ResetTimestamp = 4;
+  int64 LastUsed = 5;
+}
+
+message TTSKey {
+  string Key = 1;
+  int32 CharactersLeft = 2;
+  int32 CharactersLimit = 3;
+  int64 ResetTimestamp = 4;
+  int64 LastUsed = 5;
+}
