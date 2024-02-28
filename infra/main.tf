@@ -14,7 +14,7 @@ terraform {
 
 locals {
   base_path  = "${path.module}/.."
-  rules_path = "${local.base_path}/rules"
+  rules_path = "${local.base_path}/firebase"
 }
 
 provider "google-beta" {
@@ -65,6 +65,7 @@ resource "google_project_service" "default" {
     "recaptchaenterprise.googleapis.com",
     "cloudkms.googleapis.com",
     "iam.googleapis.com",
+    "texttospeech.googleapis.com",
   ])
 
   service            = each.key

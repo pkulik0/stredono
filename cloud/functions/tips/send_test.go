@@ -2,7 +2,6 @@ package tips
 
 import (
 	"bytes"
-	"context"
 	"github.com/pkulik0/stredono/cloud/pb"
 	"github.com/pkulik0/stredono/cloud/platform/mocks"
 	"github.com/pkulik0/stredono/cloud/platform/modules"
@@ -105,19 +104,16 @@ func TestTipSend(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctx, err := providers.CreateContextMock(context.Background(), &providers.Config{
+			ctx := providers.CreateContextMock(&providers.Config{
 				DocDb: true,
 			}, t)
-			if err != nil {
-				t.Errorf("Failed to create context: %s", err)
-			}
 
 			if tt.status == http.StatusOK {
-				db, ok := providers.GetDocDb(ctx)
+				db, ok := ctx.GetDocDb()
 				if !ok {
 					t.Errorf("Failed to get doc db")
 				}
-				dbMock := db.(*mocks.MockNoSqlDb)
+				dbMock := db.(*mocks.MockDocDb)
 
 				col := mocks.NewMockCollection(t)
 				doc := mocks.NewMockDocument(t)
@@ -139,10 +135,9 @@ func TestTipSend(t *testing.T) {
 
 			req := httptest.NewRequest(http.MethodPost, "/", bytes.NewBuffer(reqBody))
 			req.Header.Set("Content-Type", "application/octet-stream")
-			req = req.WithContext(ctx)
 
 			w := httptest.NewRecorder()
-			send(w, req)
+			send(ctx, w, req)
 
 			res := w.Result()
 			defer res.Body.Close()
@@ -211,7 +206,8 @@ func TestTipSendMalformed(t *testing.T) {
 			req.Header.Set("Content-Type", "application/octet-stream")
 
 			w := httptest.NewRecorder()
-			send(w, req)
+			ctx := providers.CreateContextMock(&providers.Config{}, t)
+			send(ctx, w, req)
 
 			res := w.Result()
 			defer res.Body.Close()

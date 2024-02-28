@@ -8,6 +8,10 @@ output "backend_project_number" {
   depends_on = [google_project.default]
 }
 
+output "backend_firebase_storage_bucket" {
+  value = data.google_firebase_web_app_config.default.storage_bucket
+}
+
 output "frontend_function_urls" {
   value = { for function in google_cloudfunctions2_function.cloud_functions : function.name => function.service_config[0].uri if var.cloud_functions[function.name].public }
 }

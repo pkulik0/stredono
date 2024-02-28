@@ -1,8 +1,13 @@
-import {getDownloadURL, getMetadata, getStorage, ref, uploadBytes} from "firebase/storage";
+import { isLocal } from '$lib/constants';
+import {getDownloadURL, getMetadata, getStorage, ref, uploadBytes, connectStorageEmulator} from "firebase/storage";
 import {auth, app} from "$lib/ext/firebase/firebase";
 import { v4 as uuidv4 } from 'uuid';
 
 export const storage = getStorage(app);
+if(isLocal) {
+    connectStorageEmulator(storage, 'localhost', 30506);
+    console.log("Storage emulator connected");
+}
 
 export const uploadToStorage = async (folder: string, name: string, file: File, overwrite: boolean): Promise<string> => {
     const user = auth.currentUser;

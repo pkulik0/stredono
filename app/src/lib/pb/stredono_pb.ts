@@ -804,3 +804,156 @@ export class TwitchUser extends Message<TwitchUser> {
   }
 }
 
+/**
+ * @generated from message stredono.SpeechRequest
+ */
+export class SpeechRequest extends Message<SpeechRequest> {
+  /**
+   * @generated from field: string Id = 1;
+   */
+  Id = "";
+
+  /**
+   * @generated from field: string Uid = 2;
+   */
+  Uid = "";
+
+  /**
+   * @generated from field: string Text = 3;
+   */
+  Text = "";
+
+  /**
+   * @generated from field: string VoiceId = 4;
+   */
+  VoiceId = "";
+
+  constructor(data?: PartialMessage<SpeechRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.SpeechRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "Id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "Uid", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "Text", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "VoiceId", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SpeechRequest {
+    return new SpeechRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SpeechRequest {
+    return new SpeechRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SpeechRequest {
+    return new SpeechRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SpeechRequest | PlainMessage<SpeechRequest> | undefined, b: SpeechRequest | PlainMessage<SpeechRequest> | undefined): boolean {
+    return proto3.util.equals(SpeechRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message stredono.Voice
+ */
+export class Voice extends Message<Voice> {
+  /**
+   * @generated from field: string Id = 1;
+   */
+  Id = "";
+
+  /**
+   * @generated from field: string Name = 2;
+   */
+  Name = "";
+
+  /**
+   * @generated from field: string SampleUrl = 3;
+   */
+  SampleUrl = "";
+
+  /**
+   * @generated from field: optional string Language = 4;
+   */
+  Language?: string;
+
+  constructor(data?: PartialMessage<Voice>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.Voice";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "Id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "Name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "SampleUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "Language", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Voice {
+    return new Voice().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Voice {
+    return new Voice().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Voice {
+    return new Voice().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: Voice | PlainMessage<Voice> | undefined, b: Voice | PlainMessage<Voice> | undefined): boolean {
+    return proto3.util.equals(Voice, a, b);
+  }
+}
+
+/**
+ * @generated from message stredono.TTSProvider
+ */
+export class TTSProvider extends Message<TTSProvider> {
+  /**
+   * @generated from field: int64 LastUpdated = 1;
+   */
+  LastUpdated = protoInt64.zero;
+
+  /**
+   * @generated from field: repeated stredono.Voice Voices = 2;
+   */
+  Voices: Voice[] = [];
+
+  constructor(data?: PartialMessage<TTSProvider>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.TTSProvider";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "LastUpdated", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 2, name: "Voices", kind: "message", T: Voice, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TTSProvider {
+    return new TTSProvider().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TTSProvider {
+    return new TTSProvider().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TTSProvider {
+    return new TTSProvider().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: TTSProvider | PlainMessage<TTSProvider> | undefined, b: TTSProvider | PlainMessage<TTSProvider> | undefined): boolean {
+    return proto3.util.equals(TTSProvider, a, b);
+  }
+}
+

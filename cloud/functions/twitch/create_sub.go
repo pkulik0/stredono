@@ -1,43 +1,36 @@
 package twitch
 
 import (
-	"context"
-	"errors"
 	"github.com/nicklaw5/helix"
 	"github.com/pkulik0/stredono/cloud/platform"
 	"github.com/pkulik0/stredono/cloud/platform/providers"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
 const webhookUrl = "http://localhost:8080/twitchWebhook"
 
 func CreateSubEntrypoint(w http.ResponseWriter, r *http.Request) {
-	ctx, err := providers.CreateContext(r.Context(), &providers.Config{
+	ctx, err := providers.NewContext(r, &providers.Config{
 		DocDb: true,
 		Auth:  true,
+		Helix: true,
 	})
 	if err != nil {
+		log.Errorf("Failed to create context | %s", err)
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
-	ctx, err = providers.CreateHelixContext(ctx, r)
-	if err != nil {
-		if errors.Is(err, platform.ErrorMissingContextValue) {
-			http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
-			return
-		}
-		http.Error(w, platform.UnauthorizedMessage, http.StatusUnauthorized)
-		return
-	}
-
-	createSub(w, r)
+	createSub(ctx, w, r)
 }
 
-func handleCreateSub(ctx context.Context) error {
-	client, ok := providers.GetHelix(ctx)
+func createSub(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
+	client, ok := ctx.GetHelix()
 	if !ok {
-		return platform.ErrorMissingContextValue
+		log.Errorf("Failed to get helix client")
+		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
+		return
 	}
 
 	_, err := client.CreateEventSubSubscription(&helix.EventSubSubscription{
@@ -52,11 +45,15 @@ func handleCreateSub(ctx context.Context) error {
 			Secret:   "secret",
 		},
 	})
-	return err
-}
+	if err != nil {
+		log.Errorf("Failed to create subscription | %s", err)
+		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
+		return
+	}
 
-func createSub(w http.ResponseWriter, r *http.Request) {
-	if err := handleCreateSub(r.Context()); err != nil {
+	_, err = w.Write([]byte("OK"))
+	if err != nil {
+		log.Errorf("Failed to write response | %s", err)
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}

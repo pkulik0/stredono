@@ -5,6 +5,8 @@
 .idea
 .firebase
 
+*.log
+
 node_modules
 
 go.work*

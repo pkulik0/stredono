@@ -1,51 +1,48 @@
 package providers
 
 import (
-	"context"
 	"github.com/pkulik0/stredono/cloud/platform/mocks"
 	"testing"
 )
 
-func CreateContextMock(ctx context.Context, config *Config, t *testing.T) (context.Context, error) {
+func CreateContextMock(config *Config, t *testing.T) *Context {
+	c := &Context{}
+
 	if config.Auth {
-		client := mocks.NewMockAuth(t)
-		ctx = context.WithValue(ctx, authCtxKey, client)
+		c.Auth = mocks.NewMockAuth(t)
 	}
 
 	if config.DocDb {
-		client := mocks.NewMockNoSqlDb(t)
-		ctx = context.WithValue(ctx, docDbCtxKey, client)
+		c.DocDb = mocks.NewMockDocDb(t)
 	}
 
-	//if config.Storage {
-	//	client := mocks.NewMockStorage(t)
-	//	ctx = context.WithValue(ctx, StorageCtxKey, client)
-	//}
-	//
-	//if config.Messaging {
-	//	client := mocks.NewMockMessaging(t)
-	//	ctx = context.WithValue(ctx, MessagingCtxKey, client)
-	//}
-	//
-	//if config.RealtimeDb {
-	//	client := mocks.NewMockRealtimeDb(t)
-	//	ctx = context.WithValue(ctx, RealtimeDbCtxKey, client)
-	//}
-
 	if config.PubSub {
-		client := mocks.NewMockPubSubClient(t)
-		ctx = context.WithValue(ctx, pubsubCtxKey, client)
+		c.PubSub = mocks.NewMockPubSubClient(t)
 	}
 
 	if config.SecretManager {
-		client := mocks.NewMockSecretManager(t)
-		ctx = context.WithValue(ctx, secretsCtxKey, client)
+		c.SecretManager = mocks.NewMockSecretManager(t)
 	}
 
-	return ctx, nil
-}
+	if config.TextToSpeech {
+		c.TTS = mocks.NewMockTTS(t)
+	}
 
-func CreateHelixContextMock(ctx context.Context, t *testing.T) (context.Context, error) {
-	client := mocks.NewMockHelixClient(t)
-	return context.WithValue(ctx, helixCtxKey, client), nil
+	if config.Storage {
+		c.Storage = mocks.NewMockStorage(t)
+	}
+
+	if config.Helix {
+		c.Helix = mocks.NewMockHelixClient(t)
+	}
+
+	//if config.Messaging {
+	//	c.Messaging = mocks.NewMockMessaging(t)
+	//}
+	//
+	//if config.RealtimeDb {
+	//	c.RealtimeDb = mocks.NewMockRealtimeDb(t)
+	//}
+
+	return c
 }

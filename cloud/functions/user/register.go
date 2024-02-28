@@ -1,7 +1,6 @@
 package user
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"github.com/golang-jwt/jwt"
@@ -18,7 +17,7 @@ import (
 )
 
 func RegisterEntrypoint(w http.ResponseWriter, r *http.Request) {
-	ctx, err := providers.CreateContext(r.Context(), &providers.Config{
+	ctx, err := providers.NewContext(r, &providers.Config{
 		DocDb: true,
 		Auth:  true,
 	})
@@ -26,16 +25,15 @@ func RegisterEntrypoint(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
-	r = r.WithContext(ctx)
 
-	register(w, r)
+	register(ctx, w, r)
 }
 
 const (
-	defaultUsernameLength    = 16
-	identityProviderPassword = "password"
-	identityProviderTwitch   = "oidc.twitch"
-	googleKeysUrl            = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
+	defaultUsernameLength = 16
+	methodEmailLink       = "emailLink"
+	methodTwitch          = "oidc.twitch"
+	googleKeysUrl         = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
 )
 
 var (
@@ -43,7 +41,7 @@ var (
 	errorContextValue    = errors.New("missing context value")
 	errorMissingClaims   = errors.New("missing claims")
 	errorInvalidAudience = errors.New("invalid audience")
-	errorInvalidProvider = errors.New("invalid provider")
+	errorInvalidMethod   = errors.New("invalid sign in method")
 )
 
 type userClaims struct {
@@ -71,7 +69,7 @@ func (c *userClaims) Valid() error {
 	return nil
 }
 
-func handleRegistration(ctx context.Context, claims *userClaims) error {
+func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 	log.Println("handleRegistration", claims)
 
 	randomUsernameUuid, err := uuid.NewRandom()
@@ -92,32 +90,33 @@ func handleRegistration(ctx context.Context, claims *userClaims) error {
 	}
 
 	switch claims.SignInMethod {
-	case identityProviderPassword:
+	case methodEmailLink:
 		break
-	case identityProviderTwitch: // add new providers here
+	case methodTwitch: // add new providers here
 		err := handleOauthRegistration(ctx, user, claims)
 		if err != nil {
 			return err
 		}
 	default:
-		return errorInvalidProvider
+		log.Errorf("Invalid sign in method | %s", claims.SignInMethod)
+		return errorInvalidMethod
 	}
 
-	db, ok := providers.GetDocDb(ctx)
+	db, ok := ctx.GetDocDb()
 	if !ok {
 		return errorContextValue
 	}
-	_, err = db.Collection("users").Doc(user.Uid).Create(ctx, user)
+	_, err = db.Collection("users").Doc(user.Uid).Create(ctx.Ctx, user)
 	return err
 }
 
-func handleOauthRegistration(ctx context.Context, user *pb.User, claims *userClaims) error {
-	db, ok := providers.GetDocDb(ctx)
+func handleOauthRegistration(ctx *providers.Context, user *pb.User, claims *userClaims) error {
+	db, ok := ctx.GetDocDb()
 	if !ok {
 		return errorContextValue
 	}
 
-	_, err := db.Collection("tokens").Doc(claims.Uid).Set(ctx, map[string]interface{}{
+	_, err := db.Collection("tokens").Doc(claims.Uid).Set(ctx.Ctx, map[string]interface{}{
 		claims.SignInMethod: &pb.Token{
 			Access:  claims.OauthAccessToken,
 			Refresh: claims.OauthRefreshToken,
@@ -176,10 +175,12 @@ func requestToClaims(r *http.Request, signingKeys map[string]string) (*userClaim
 		return nil, errorInvalidToken
 	}
 
+	log.Println("requestToClaims", token.Claims)
+
 	return token.Claims.(*userClaims), nil
 }
 
-func register(w http.ResponseWriter, r *http.Request) {
+func register(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
 	signingKeys, err := getGoogleSigningKeys()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -192,8 +193,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = handleRegistration(r.Context(), claims)
-	if err != nil {
+	if err := handleRegistration(ctx, claims); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

@@ -3,7 +3,6 @@ package twitch
 // https://dev.twitch.tv/docs/eventsub/
 
 import (
-	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
@@ -166,7 +165,7 @@ func newEventsubHeaders(r *http.Request) *eventsubHeaders {
 }
 
 func WebhookEntrypoint(w http.ResponseWriter, r *http.Request) {
-	ctx, err := providers.CreateContext(r.Context(), &providers.Config{
+	ctx, err := providers.NewContext(r, &providers.Config{
 		RealtimeDb:    true,
 		SecretManager: true,
 		PubSub:        true,
@@ -175,9 +174,8 @@ func WebhookEntrypoint(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
-	r = r.WithContext(ctx)
 
-	webhook(w, r)
+	webhook(ctx, w, r)
 }
 
 func calculateHmacSignature(secret string, headers *eventsubHeaders, body string) string {
@@ -187,12 +185,12 @@ func calculateHmacSignature(secret string, headers *eventsubHeaders, body string
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func getNotification(ctx context.Context, headers *eventsubHeaders, body []byte) (*eventsubNotification, error) {
-	secretManager, ok := providers.GetSecretManager(ctx)
+func getNotification(ctx *providers.Context, headers *eventsubHeaders, body []byte) (*eventsubNotification, error) {
+	secretManager, ok := ctx.GetSecretManager()
 	if !ok {
 		return nil, platform.ErrorMissingContextValue
 	}
-	eventsubSecret, err := secretManager.GetSecret(ctx, eventsubSecretName, "latest")
+	eventsubSecret, err := secretManager.GetSecret(ctx.Ctx, eventsubSecretName, "latest")
 	if err != nil {
 		return nil, err
 	}
@@ -209,7 +207,7 @@ func getNotification(ctx context.Context, headers *eventsubHeaders, body []byte)
 	return notification, err
 }
 
-func webhook(w http.ResponseWriter, r *http.Request) {
+func webhook(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Errorf("Failed to read request | %s", err)
@@ -220,7 +218,7 @@ func webhook(w http.ResponseWriter, r *http.Request) {
 
 	headers := newEventsubHeaders(r)
 
-	notification, err := getNotification(r.Context(), headers, body)
+	notification, err := getNotification(ctx, headers, body)
 	if err != nil {
 		log.Errorf("Failed to get notification | %s", err)
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
@@ -235,7 +233,7 @@ func webhook(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	case eventsubMessageTypeNotification:
-		err = handleEvent(r.Context(), notification)
+		err = handleEvent(ctx, notification)
 		if err != nil {
 			log.Errorf("Failed to handle event | %s", err)
 			http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
@@ -263,13 +261,13 @@ func unmarshalEvent[T any](notif *eventsubNotification, out *T) error {
 	return err
 }
 
-func handleEvent(ctx context.Context, notification *eventsubNotification) error {
-	pubsubClient, ok := providers.GetPubsub(ctx)
+func handleEvent(ctx *providers.Context, notification *eventsubNotification) error {
+	pubsubClient, ok := ctx.GetPubSub()
 	if !ok {
 		return platform.ErrorMissingContextValue
 	}
 	topic := pubsubClient.Topic(eventsubPubsubTopic)
-	defer topic.Stop()
+	defer topic.Close()
 
 	eventTypeName := notification.Subscription.Type
 	uid := notification.Subscription.Condition.BroadcasterUserId
@@ -294,7 +292,7 @@ func handleEvent(ctx context.Context, notification *eventsubNotification) error 
 		return err
 	}
 
-	topic.Publish(ctx, &modules.PubSubMessage{
+	topic.Publish(ctx.Ctx, &modules.PubSubMessage{
 		Data: data,
 		Attributes: map[string]string{
 			"uid":   uid,

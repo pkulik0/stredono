@@ -1,6 +1,6 @@
 import { auth, db } from '$lib/ext/firebase/firebase';
 import { type Alert, UsersAlerts, Event } from '$lib/pb/stredono_pb';
-import { terraformOutput } from '$lib/terraform_output';
+import { terraformOutput } from '$lib/constants';
 import axios from 'axios';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { writable, type Writable } from 'svelte/store';

@@ -20,12 +20,12 @@ func (_m *MockPubSubClient) EXPECT() *MockPubSubClient_Expecter {
 	return &MockPubSubClient_Expecter{mock: &_m.Mock}
 }
 
-// Stop provides a mock function with given fields:
-func (_m *MockPubSubClient) Stop() error {
+// Close provides a mock function with given fields:
+func (_m *MockPubSubClient) Close() error {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for Stop")
+		panic("no return value specified for Close")
 	}
 
 	var r0 error
@@ -38,29 +38,29 @@ func (_m *MockPubSubClient) Stop() error {
 	return r0
 }
 
-// MockPubSubClient_Stop_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Stop'
-type MockPubSubClient_Stop_Call struct {
+// MockPubSubClient_Close_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Close'
+type MockPubSubClient_Close_Call struct {
 	*mock.Call
 }
 
-// Stop is a helper method to define mock.On call
-func (_e *MockPubSubClient_Expecter) Stop() *MockPubSubClient_Stop_Call {
-	return &MockPubSubClient_Stop_Call{Call: _e.mock.On("Stop")}
+// Close is a helper method to define mock.On call
+func (_e *MockPubSubClient_Expecter) Close() *MockPubSubClient_Close_Call {
+	return &MockPubSubClient_Close_Call{Call: _e.mock.On("Close")}
 }
 
-func (_c *MockPubSubClient_Stop_Call) Run(run func()) *MockPubSubClient_Stop_Call {
+func (_c *MockPubSubClient_Close_Call) Run(run func()) *MockPubSubClient_Close_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run()
 	})
 	return _c
 }
 
-func (_c *MockPubSubClient_Stop_Call) Return(_a0 error) *MockPubSubClient_Stop_Call {
+func (_c *MockPubSubClient_Close_Call) Return(_a0 error) *MockPubSubClient_Close_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockPubSubClient_Stop_Call) RunAndReturn(run func() error) *MockPubSubClient_Stop_Call {
+func (_c *MockPubSubClient_Close_Call) RunAndReturn(run func() error) *MockPubSubClient_Close_Call {
 	_c.Call.Return(run)
 	return _c
 }

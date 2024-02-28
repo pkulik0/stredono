@@ -1,7 +1,6 @@
 package tips
 
 import (
-	"context"
 	"fmt"
 	"github.com/pkulik0/stredono/cloud/pb"
 	"github.com/pkulik0/stredono/cloud/platform"
@@ -14,16 +13,15 @@ import (
 )
 
 func SendEntrypoint(w http.ResponseWriter, r *http.Request) {
-	ctx, err := providers.CreateContext(r.Context(), &providers.Config{
+	ctx, err := providers.NewContext(r, &providers.Config{
 		DocDb: true,
 	})
 	if err != nil {
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
-	r = r.WithContext(ctx)
 
-	send(w, r)
+	send(ctx, w, r)
 }
 
 func validateTip(tip *pb.Tip) error {
@@ -54,8 +52,8 @@ func validateTip(tip *pb.Tip) error {
 	return nil
 }
 
-func handleSend(ctx context.Context, tip *pb.Tip) (string, error) {
-	db, ok := providers.GetDocDb(ctx)
+func handleSend(ctx *providers.Context, tip *pb.Tip) (string, error) {
+	db, ok := ctx.GetDocDb()
 	if !ok {
 		return "", platform.ErrorMissingContextValue
 	}
@@ -63,7 +61,7 @@ func handleSend(ctx context.Context, tip *pb.Tip) (string, error) {
 	tip.Status = pb.TipStatus_PAYMENT_PENDING
 	tip.Timestamp = time.Now().Unix()
 
-	result, err := db.Collection("tips").Add(ctx, tip)
+	result, err := db.Collection("tips").Add(ctx.Ctx, tip)
 	if err != nil {
 		return "", err
 	}
@@ -71,7 +69,7 @@ func handleSend(ctx context.Context, tip *pb.Tip) (string, error) {
 	return result.Doc.Id(), nil
 }
 
-func send(w http.ResponseWriter, r *http.Request) {
+func send(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Errorf("Failed to read request: %s", err)
@@ -92,7 +90,7 @@ func send(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := handleSend(r.Context(), tip)
+	id, err := handleSend(ctx, tip)
 	if err != nil {
 		log.Errorf("Failed to handle new tip: %s", err)
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)

@@ -139,3 +139,22 @@ message TwitchUser {
   string Description = 5;
   int64 CreationTimestamp = 6;
 }
+
+message SpeechRequest {
+  string Id = 1;
+  string Uid = 2;
+  string Text = 3;
+  string VoiceId = 4;
+}
+
+message Voice {
+  string Id = 1;
+  string Name = 2;
+  string SampleUrl = 3;
+  optional string Language = 4;
+}
+
+message TTSProvider {
+  int64 LastUpdated = 1;
+  repeated Voice Voices = 2;
+}

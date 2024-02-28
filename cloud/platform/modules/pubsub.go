@@ -8,11 +8,11 @@ type PubSubMessage struct {
 }
 
 type PubSubTopic interface {
-	Stop()
+	Close()
 	Publish(ctx context.Context, msg *PubSubMessage)
 }
 
 type PubSubClient interface {
 	Topic(name string) PubSubTopic
-	Stop() error
+	Close() error
 }

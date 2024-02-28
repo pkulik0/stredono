@@ -1,6 +1,16 @@
 {
   "database": {
-    "rules": "rules/rtdb.rules.json"
+    "rules": "firebase/rtdb.rules.json"
+  },
+  "firestore": {
+    "rules": "firebase/firestore.rules",
+    "indexes": "firebase/firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "firebase/storage.rules"
+  },
+  "remoteconfig": {
+    "template": "firebase/remoteconfig.template.json"
   },
   "hosting": {
     "public": "app/build",
@@ -8,6 +18,33 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
     ]
+  },
+  "emulators": {
+    "auth": {
+      "port": 30501
+    },
+    "firestore": {
+      "port": 30502
+    },
+    "database": {
+      "port": 30503
+    },
+    "pubsub": {
+      "port": 30505
+    },
+    "storage": {
+      "port": 30506
+    },
+    "ui": {
+      "enabled": true
+    },
+    "singleProjectMode": true
   }
 }

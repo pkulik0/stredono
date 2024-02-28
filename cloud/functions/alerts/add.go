@@ -15,35 +15,33 @@ import (
 )
 
 func AddEntrypoint(w http.ResponseWriter, r *http.Request) {
-	ctx, err := providers.CreateContext(r.Context(), &providers.Config{
+	ctx, err := providers.NewContext(r, &providers.Config{
 		DocDb: true,
 		Auth:  true,
 	})
 	if err != nil {
-		log.Error(err)
+		log.Error("failed to create context | ", err)
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
-	r = r.WithContext(ctx)
 
-	add(w, r)
+	add(ctx, w, r)
 }
 
 func validateAlert(style *pb.Alert) error {
+	// TODO: validation
 	return nil
 }
 
-func add(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	docDb, ok := providers.GetDocDb(ctx)
+func add(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
+	docDb, ok := ctx.GetDocDb()
 	if !ok {
 		log.Error("failed to get docDb client")
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
-	token, _, ok := providers.GetAuthToken(ctx, r)
+	token, ok := ctx.GetAuthToken(r)
 	if !ok {
 		http.Error(w, platform.UnauthorizedMessage, http.StatusUnauthorized)
 		return
@@ -65,7 +63,7 @@ func add(w http.ResponseWriter, r *http.Request) {
 	}
 
 	alertsDoc := docDb.Collection("alerts").Doc(token.UserId())
-	err = docDb.RunTransaction(ctx, func(ctx context.Context, tx modules.Transaction) error {
+	err = docDb.RunTransaction(ctx.Ctx, func(ctx context.Context, tx modules.Transaction) error {
 		usersAlerts := &pb.UsersAlerts{}
 		log.Info("getting alerts doc: ", alertsDoc)
 		snap, err := tx.Get(alertsDoc)

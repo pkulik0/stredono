@@ -65,7 +65,7 @@ func validateUser(user *pb.User, uid string) error {
 }
 
 func EditEntrypoint(w http.ResponseWriter, r *http.Request) {
-	ctx, err := providers.CreateContext(r.Context(), &providers.Config{
+	ctx, err := providers.NewContext(r, &providers.Config{
 		Auth:  true,
 		DocDb: true,
 	})
@@ -74,15 +74,12 @@ func EditEntrypoint(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
-	r = r.WithContext(ctx)
 
-	edit(w, r)
+	edit(ctx, w, r)
 }
 
-func edit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	token, _, ok := providers.GetAuthToken(ctx, r)
+func edit(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
+	token, ok := ctx.GetAuthToken(r)
 	if !ok {
 		log.Errorf("received request without token")
 		http.Error(w, platform.UnauthorizedMessage, http.StatusUnauthorized)
@@ -110,14 +107,14 @@ func edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, ok := providers.GetDocDb(ctx)
+	db, ok := ctx.GetDocDb()
 	if !ok {
 		log.Errorf("failed to get doc db client")
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
 
-	docs, err := db.Collection("users").Where("Username", "==", user.Username).Where("Uid", "!=", token.UserId()).Documents(ctx).GetAll()
+	docs, err := db.Collection("users").Where("Username", "==", user.Username).Where("Uid", "!=", token.UserId()).Documents(ctx.Ctx).GetAll()
 	if err != nil {
 		log.Errorf("failed to get user | %s", err)
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
@@ -129,7 +126,7 @@ func edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = db.Collection("users").Doc(token.UserId()).Set(ctx, user, modules.DbOpts{})
+	_, err = db.Collection("users").Doc(token.UserId()).Set(ctx.Ctx, user, modules.DbOpts{})
 	if err != nil {
 		log.Errorf("failed to set user | %s", err)
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)

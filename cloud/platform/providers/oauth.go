@@ -1,20 +1,19 @@
 package providers
 
 import (
-	"context"
 	"github.com/pkulik0/stredono/cloud/platform"
 	"github.com/pkulik0/stredono/cloud/platform/modules"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/twitch"
 )
 
-func getTwitchOauth2Config(ctx context.Context) (*oauth2.Config, error) {
-	secretClient, ok := GetSecretManager(ctx)
+func (c *Context) getTwitchOauth2Config() (*oauth2.Config, error) {
+	secretClient, ok := c.GetSecretManager()
 	if !ok {
 		return nil, platform.ErrorMissingContextValue
 	}
 
-	clientSecret, err := secretClient.GetSecret(ctx, modules.TwitchClientSecretName, "latest")
+	clientSecret, err := secretClient.GetSecret(c.Ctx, modules.TwitchClientSecretName, "latest")
 	if err != nil {
 		return nil, err
 	}
