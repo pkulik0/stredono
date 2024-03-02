@@ -1,7 +1,7 @@
 import { isLocal } from '$lib/constants';
 import {initializeApp} from "firebase/app";
 import {getAuth, connectAuthEmulator} from "firebase/auth";
-import {initializeFirestore, persistentLocalCache, CACHE_SIZE_UNLIMITED, connectFirestoreEmulator} from "firebase/firestore";
+import {initializeFirestore, persistentLocalCache, CACHE_SIZE_UNLIMITED, connectFirestoreEmulator, persistentMultipleTabManager} from "firebase/firestore";
 import {getMessaging} from "firebase/messaging";
 import {initializeAppCheck, ReCaptchaEnterpriseProvider} from "firebase/app-check";
 import TerraformOutput from "../../terraform_output.json";
@@ -20,7 +20,8 @@ if(isLocal) {
 
 export const db = initializeFirestore(app, {
     localCache: persistentLocalCache({
-        cacheSizeBytes: CACHE_SIZE_UNLIMITED
+        cacheSizeBytes: CACHE_SIZE_UNLIMITED,
+        tabManager: persistentMultipleTabManager()
     }),
 })
 if(isLocal) {

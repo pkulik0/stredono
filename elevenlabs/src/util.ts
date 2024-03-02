@@ -38,7 +38,7 @@ export const typeWithDelay = async (element: ElementHandle, text: string) => {
 	}
 }
 
-export const getEmail = async (): Promise<string> => {
+export const getEmail = (): string => {
 	const domains = [
 		"txcct.com"
 	]

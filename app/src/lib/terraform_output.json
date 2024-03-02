@@ -11,6 +11,8 @@
   },
   "FunctionUrls": {
     "AlertAdd": "https://alertadd-bogpf7lo6q-ew.a.run.app",
+    "SpeechGenerate": "https://speechgenerate-bogpf7lo6q-ew.a.run.app",
+    "SpeechUpdate": "https://speechupdate-bogpf7lo6q-ew.a.run.app",
     "TipConfirm": "https://tipconfirm-bogpf7lo6q-ew.a.run.app",
     "TipSend": "https://tipsend-bogpf7lo6q-ew.a.run.app",
     "TwitchCreateSub": "https://twitchcreatesub-bogpf7lo6q-ew.a.run.app",

@@ -13,6 +13,6 @@ type Voice struct {
 
 type TTS interface {
 	GenerateSpeech(ctx context.Context, voice string, text string) ([]byte, error)
-	ListVoices(ctx context.Context, language string) ([]*pb.Voice, error)
+	GetVoices(ctx context.Context) ([]*pb.Voice, error)
 	ProviderName() string
 }

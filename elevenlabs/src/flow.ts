@@ -12,25 +12,12 @@ export const completeElevenlabsRegistration = async (i: number, page: Page, emai
 	await page.setViewport({ width: 1920, height: 1200 });
 
 	print("Navigating to Elevenlabs")
-	await page.goto('https://elevenlabs.io/sign-up', { waitUntil: 'load' });
+	await page.goto('https://elevenlabs.io/sign-up', { waitUntil: 'networkidle2' });
 
-	print('Looking for captcha iframe');
-	const iframe = await page.waitForSelector('iframe[tabindex="0"]')
+	print('Wait for captcha to be solved');
+	const iframe = await page.waitForSelector('iframe[data-hcaptcha-response]:not([data-hcaptcha-response=""])', { timeout: 60000 })
 	if(!iframe) {
 		throw new Error('Failed to find iframe')
-	}
-
-	print('Waiting for captcha to be solved');
-	const frame = await iframe.contentFrame()
-	const res = await frame.waitForFunction(() => {
-		const checkbox = document.getElementById("checkbox")
-		if(!checkbox) {
-			return false
-		}
-		return checkbox.getAttribute('aria-checked') === 'true'
-	}, { timeout: 60000 })
-	if(!res) {
-		throw new Error('Failed to solve captcha')
 	}
 	await randomDelay(500, 1500)
 
@@ -64,19 +51,48 @@ export const completeElevenlabsRegistration = async (i: number, page: Page, emai
 	}
 	await submitBtn.click()
 
-	print('Waiting for registration to complete and email confirmation');
-	await randomDelay(10000, 15000)
+	print('Removing the captcha iframe to prevent it from being solved again');
+	await page.evaluate(() => {
+		const elem = document.querySelector('iframe[tabindex="0"]')
+		if(!elem) {
+			throw new Error('Failed to remove iframe')
+		}
+		elem.remove()
+	})
 
-	print('Getting email messages');
-	const msgs = await getMessages(email)
-	if(msgs.length === 0) {
-		throw new Error('Registration failed or email not received')
+	print('Locating toast div');
+	const toastDiv = await page.waitForSelector('div[class="Toastify"]', { timeout: 15000 })
+	if(!toastDiv) {
+		throw new Error('Failed to find toast div')
 	}
 
-	print('Getting message content');
-	const msg = await getMessage(email, msgs[0].id)
-	if(!msg) {
-		throw new Error('Failed to get message')
+	print('Waiting for email to be mentioned in toast');
+	await page.waitForFunction((toastDiv, email) => {
+			return toastDiv.innerHTML.includes(email)
+		}, {timeout: 20000}, toastDiv, email)
+
+	let maxTries = 5;
+	let msg = "";
+	for(let i = 0; i < maxTries; i++) {
+		const triesMessage = i === 0 ? '' : ` (try ${i+1}/${maxTries})`
+		print(`Waiting for email to arrive ${triesMessage}`);
+		await randomDelay(3000, 5000)
+		try {
+			const msgs = await getMessages(email)
+			if(msgs.length === 0) {
+				new Error('Registration failed or email not received')
+			}
+
+			msg = await getMessage(email, msgs[0].id)
+			if(!msg) {
+				throw new Error('Failed to get message')
+			}
+			break
+		} catch(e) {
+			if(i === maxTries-1 ) {
+				throw e
+			}
+		}
 	}
 
 	const extractPattern = "https?:\\/\\/beta[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)"
@@ -88,7 +104,7 @@ export const completeElevenlabsRegistration = async (i: number, page: Page, emai
 	// Back to the page
 
 	print('Navigating to email confirmation link')
-	await page.goto(matches[0], { waitUntil: 'load', timeout: 15000 })
+	await page.goto(matches[0], { waitUntil: 'load' })
 
 	print('Waiting for close button');
 	const closeBtn = await page.waitForSelector('button[tabindex="0"]')
@@ -122,13 +138,12 @@ export const completeElevenlabsRegistration = async (i: number, page: Page, emai
 		throw new Error('Failed to find submit button')
 	}
 	await submitBtn2.click()
-	await page.waitForNavigation({ waitUntil: 'load', timeout: 15000 })
+	await page.waitForNavigation({ waitUntil: 'load' })
 	await randomDelay(3000, 5000)
 
 	// Login successful
 
 	const firstNames = ["Alice", "Bob", "Charlie", "David", "Emily", "Adam", "Eva", "Ron", "Seth", "Ivan", "John", "Jane", "Michael", "Michelle", "Olivia", "Oscar", "Peter", "Paul", "Quentin", "Rachel", "Ralph", "Sam", "Samantha", "Tom", "Tina", "Ursula", "Ulysses", "Victor", "Victoria", "Walter", "Wendy", "Xander", "Xena", "Yvonne", "Yannick", "Zach", "Zoe"]
-
 	print('Finding name input (onboarding)');
 	const nameInput = await page.waitForSelector('input[name="name"]')
 	if(!nameInput) {
@@ -173,18 +188,27 @@ export const completeElevenlabsRegistration = async (i: number, page: Page, emai
 
 	// Main page
 
-	await page.goto('https://elevenlabs.io/api', { waitUntil: 'load', timeout: 15000 })
+	await page.goto('https://elevenlabs.io/api', { waitUntil: 'load' })
 
 	// Sometimes after the first reload the user is logged out, so we reload again
-	await page.reload({ waitUntil: 'load', timeout: 15000 })
+	await page.reload({ waitUntil: 'load' })
 
 	print('Clicking on user menu');
-	const menuBtn = await page.waitForSelector('button[data-testid="user-menu-button"]')
-	if(!menuBtn) {
-		throw new Error('Failed to find menu button')
+	const clickUserMenu = async () => {
+		const menuBtn = await page.waitForSelector('button[data-testid="user-menu-button"]')
+		if(!menuBtn) {
+			throw new Error('Failed to find menu button')
+		}
+		await menuBtn.click()
+		await randomDelay(500, 2000)
 	}
-	await menuBtn.click()
-	await randomDelay(500, 2000)
+	try {
+		await clickUserMenu()
+	} catch(e) {
+		await page.reload({ waitUntil: 'load' })
+		await randomDelay(500, 1000)
+		await clickUserMenu()
+	}
 
 	print('Clicking on profile and api keys');
 	const menuItems = await page.$$('div[role="menuitem"]')

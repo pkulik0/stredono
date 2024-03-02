@@ -3,6 +3,7 @@ package providers
 import (
 	"cloud.google.com/go/pubsub"
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
+	texttospeech "cloud.google.com/go/texttospeech/apiv1"
 	"context"
 	firebase "firebase.google.com/go/v4"
 	"github.com/nicklaw5/helix"
@@ -12,6 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -36,6 +38,7 @@ type Config struct {
 	PubSub        bool
 	Messaging     bool
 	SecretManager bool
+	Proxy         bool
 	TextToSpeech  bool
 	Helix         bool
 }
@@ -46,7 +49,8 @@ type Context struct {
 	Auth          modules.Auth
 	Storage       modules.Storage
 	PubSub        modules.PubSubClient
-	TTS           modules.TTS
+	TTSPlus       modules.TTS
+	TTSBasic      modules.TTS
 	SecretManager modules.SecretManager
 	Helix         modules.HelixClient
 }
@@ -72,8 +76,12 @@ func (c *Context) GetPubSub() (pubsub modules.PubSubClient, ok bool) {
 	return c.PubSub, c.PubSub != nil
 }
 
-func (c *Context) GetTTS() (tts modules.TTS, ok bool) {
-	return c.TTS, c.TTS != nil
+func (c *Context) GetTTSPlus() (tts modules.TTS, ok bool) {
+	return c.TTSPlus, c.TTSPlus != nil
+}
+
+func (c *Context) GetTTSBasic() (tts modules.TTS, ok bool) {
+	return c.TTSBasic, c.TTSBasic != nil
 }
 
 func (c *Context) GetSecretManager() (secretManager modules.SecretManager, ok bool) {
@@ -125,13 +133,39 @@ func NewContext(r *http.Request, config *Config) (*Context, error) {
 		outCtx.SecretManager = &adapters.GcpSecretManager{Client: client}
 	}
 
+	if config.Proxy {
+		if outCtx.SecretManager == nil {
+			return nil, platform.ErrorMissingModuleDep
+		}
+
+		proxyAddr, err := outCtx.SecretManager.GetSecret(outCtx.Ctx, "proxy", "latest")
+		if err != nil {
+			return nil, err
+		}
+
+		if err := os.Setenv("HTTPS_PROXY", string(proxyAddr)); err != nil {
+			return nil, err
+		}
+	}
+
 	if config.TextToSpeech {
-		//client, err := texttospeech.NewClient(outCtx.Ctx)
-		//if err != nil {
-		//	return nil, err
-		//}
-		//outCtx.TTS = &adapters.GoogleTTS{Client: client}
-		outCtx.TTS = adapters.NewElevenLabs("0131e9509adeedb49cfe8ae2ec818cea")
+		client, err := texttospeech.NewClient(outCtx.Ctx)
+		if err != nil {
+			return nil, err
+		}
+		outCtx.TTSBasic = &adapters.GoogleTTS{Client: client}
+
+		if outCtx.DocDb == nil {
+			return nil, platform.ErrorMissingModuleDep
+		}
+		if outCtx.SecretManager == nil {
+			return nil, platform.ErrorMissingModuleDep
+		}
+
+		outCtx.TTSPlus, err = adapters.NewElevenLabs(outCtx.DocDb, "elevenlabs-keys")
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if config.Storage {

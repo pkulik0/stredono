@@ -2,6 +2,7 @@ package modules
 
 import (
 	"context"
+	"time"
 )
 
 type Storage interface {
@@ -15,7 +16,17 @@ type Bucket interface {
 
 type Object interface {
 	NewWriter(ctx context.Context) Writer
+	Attrs(ctx context.Context) (*ObjectAttrs, error)
+	SetPublicRead(ctx context.Context) error
 	Name() string
+}
+
+type ObjectAttrs struct {
+	Name        string
+	ContentType string
+	Size        int64
+	CreatedAt   time.Time
+	MediaUrl    string
 }
 
 type Writer interface {

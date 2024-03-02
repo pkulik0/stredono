@@ -87,6 +87,8 @@ func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 		MinAmount:    1,
 		MinAuthLevel: pb.AuthLevel_NONE,
 		Currency:     pb.Currency_PLN,
+		VoiceBasic:   "pl-PL-Wavenet-C", // TODO: Fetch default by locale, fallback if not found
+		VoicePlus:    "onwK4e9ZLuTAKqWW03F9",
 	}
 
 	switch claims.SignInMethod {

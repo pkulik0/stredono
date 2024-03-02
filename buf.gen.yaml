@@ -9,6 +9,3 @@ plugins:
   - plugin: es
     opt: target=ts
     out: elevenlabs/src
-  - plugin: es
-    opt: target=ts
-    out: elevenlabs/src

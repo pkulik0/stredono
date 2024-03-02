@@ -5,6 +5,8 @@ import (
 	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
 	"context"
 	"github.com/pkulik0/stredono/cloud/pb"
+	"github.com/pkulik0/stredono/cloud/platform"
+	"strings"
 )
 
 type GoogleTTS struct {
@@ -16,6 +18,12 @@ func (tts *GoogleTTS) ProviderName() string {
 }
 
 func (tts *GoogleTTS) GenerateSpeech(ctx context.Context, voice string, text string) ([]byte, error) {
+	voiceNameParts := strings.Split(voice, "-")
+	if len(voiceNameParts) != 4 {
+		return nil, platform.ErrorInvalidPayload
+	}
+	languageCode := strings.Join(voiceNameParts[:2], "-")
+
 	req := texttospeechpb.SynthesizeSpeechRequest{
 		Input: &texttospeechpb.SynthesisInput{
 			InputSource: &texttospeechpb.SynthesisInput_Text{
@@ -23,7 +31,7 @@ func (tts *GoogleTTS) GenerateSpeech(ctx context.Context, voice string, text str
 			},
 		},
 		Voice: &texttospeechpb.VoiceSelectionParams{
-			LanguageCode: "en-US",
+			LanguageCode: languageCode,
 			Name:         voice,
 		},
 		AudioConfig: &texttospeechpb.AudioConfig{
@@ -39,20 +47,34 @@ func (tts *GoogleTTS) GenerateSpeech(ctx context.Context, voice string, text str
 	return speech.AudioContent, nil
 }
 
-func (tts *GoogleTTS) ListVoices(ctx context.Context, language string) ([]*pb.Voice, error) {
-	response, err := tts.Client.ListVoices(ctx, &texttospeechpb.ListVoicesRequest{
-		LanguageCode: language,
-	})
+func (tts *GoogleTTS) GetVoices(ctx context.Context) ([]*pb.Voice, error) {
+	response, err := tts.Client.ListVoices(ctx, &texttospeechpb.ListVoicesRequest{})
 	if err != nil {
 		return nil, err
 	}
 
-	voices := make([]*pb.Voice, len(response.Voices))
-	for i, voice := range response.Voices {
-		voices[i] = &pb.Voice{
-			Id:   voice.Name,
-			Name: voice.Name,
+	allowedTypes := []string{"Wavenet", "Neural2", "Standard"}
+	voices := make([]*pb.Voice, 0)
+	for _, voice := range response.Voices {
+		for _, allowedType := range allowedTypes {
+			if !strings.Contains(voice.Name, allowedType) {
+				continue
+			}
 		}
+
+		languageCodes := make([]string, len(voice.LanguageCodes))
+		for i, code := range voice.LanguageCodes {
+			languageCodes[i] = strings.Split(code, "-")[0]
+		}
+
+		voices = append(voices, &pb.Voice{
+			Id:        voice.Name,
+			Name:      voice.Name,
+			Languages: languageCodes,
+			Tier:      pb.Tier_BASIC,
+			Provider:  tts.ProviderName(),
+			Gender:    genderToEnum(voice.SsmlGender.String()),
+		})
 	}
 
 	return voices, nil

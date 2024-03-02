@@ -275,6 +275,52 @@ proto3.util.setEnumType(Speed, "stredono.Speed", [
 ]);
 
 /**
+ * @generated from enum stredono.Tier
+ */
+export enum Tier {
+  /**
+   * @generated from enum value: BASIC = 0;
+   */
+  BASIC = 0,
+
+  /**
+   * @generated from enum value: PLUS = 1;
+   */
+  PLUS = 1,
+}
+// Retrieve enum metadata with: proto3.getEnumType(Tier)
+proto3.util.setEnumType(Tier, "stredono.Tier", [
+  { no: 0, name: "BASIC" },
+  { no: 1, name: "PLUS" },
+]);
+
+/**
+ * @generated from enum stredono.Gender
+ */
+export enum Gender {
+  /**
+   * @generated from enum value: NOT_SPECIFIED = 0;
+   */
+  NOT_SPECIFIED = 0,
+
+  /**
+   * @generated from enum value: MALE = 1;
+   */
+  MALE = 1,
+
+  /**
+   * @generated from enum value: FEMALE = 2;
+   */
+  FEMALE = 2,
+}
+// Retrieve enum metadata with: proto3.getEnumType(Gender)
+proto3.util.setEnumType(Gender, "stredono.Gender", [
+  { no: 0, name: "NOT_SPECIFIED" },
+  { no: 1, name: "MALE" },
+  { no: 2, name: "FEMALE" },
+]);
+
+/**
  * @generated from message stredono.Tip
  */
 export class Tip extends Message<Tip> {
@@ -408,6 +454,21 @@ export class User extends Message<User> {
    */
   Currency = Currency.UNKNOWN;
 
+  /**
+   * @generated from field: string VoiceBasic = 10;
+   */
+  VoiceBasic = "";
+
+  /**
+   * @generated from field: string VoicePlus = 11;
+   */
+  VoicePlus = "";
+
+  /**
+   * @generated from field: stredono.Tier VoiceTier = 12;
+   */
+  VoiceTier = Tier.BASIC;
+
   constructor(data?: PartialMessage<User>) {
     super();
     proto3.util.initPartial(data, this);
@@ -425,6 +486,9 @@ export class User extends Message<User> {
     { no: 7, name: "MinAuthLevel", kind: "enum", T: proto3.getEnumType(AuthLevel) },
     { no: 8, name: "MinAmount", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
     { no: 9, name: "Currency", kind: "enum", T: proto3.getEnumType(Currency) },
+    { no: 10, name: "VoiceBasic", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 11, name: "VoicePlus", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 12, name: "VoiceTier", kind: "enum", T: proto3.getEnumType(Tier) },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): User {
@@ -824,9 +888,14 @@ export class SpeechRequest extends Message<SpeechRequest> {
   Text = "";
 
   /**
-   * @generated from field: string VoiceId = 4;
+   * @generated from field: string VoiceIdBasic = 4;
    */
-  VoiceId = "";
+  VoiceIdBasic = "";
+
+  /**
+   * @generated from field: string VoiceIdPlus = 5;
+   */
+  VoiceIdPlus = "";
 
   constructor(data?: PartialMessage<SpeechRequest>) {
     super();
@@ -839,7 +908,8 @@ export class SpeechRequest extends Message<SpeechRequest> {
     { no: 1, name: "Id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "Uid", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "Text", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "VoiceId", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "VoiceIdBasic", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "VoiceIdPlus", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SpeechRequest {
@@ -874,14 +944,29 @@ export class Voice extends Message<Voice> {
   Name = "";
 
   /**
-   * @generated from field: string SampleUrl = 3;
+   * @generated from field: stredono.Gender Gender = 3;
    */
-  SampleUrl = "";
+  Gender = Gender.NOT_SPECIFIED;
 
   /**
-   * @generated from field: optional string Language = 4;
+   * @generated from field: stredono.Tier Tier = 4;
    */
-  Language?: string;
+  Tier = Tier.BASIC;
+
+  /**
+   * @generated from field: string Provider = 5;
+   */
+  Provider = "";
+
+  /**
+   * @generated from field: repeated string Languages = 7;
+   */
+  Languages: string[] = [];
+
+  /**
+   * @generated from field: string SampleUrl = 8;
+   */
+  SampleUrl = "";
 
   constructor(data?: PartialMessage<Voice>) {
     super();
@@ -893,8 +978,11 @@ export class Voice extends Message<Voice> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "Id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "Name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "SampleUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "Language", kind: "scalar", T: 9 /* ScalarType.STRING */, opt: true },
+    { no: 3, name: "Gender", kind: "enum", T: proto3.getEnumType(Gender) },
+    { no: 4, name: "Tier", kind: "enum", T: proto3.getEnumType(Tier) },
+    { no: 5, name: "Provider", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "Languages", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+    { no: 8, name: "SampleUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Voice {
@@ -915,45 +1003,39 @@ export class Voice extends Message<Voice> {
 }
 
 /**
- * @generated from message stredono.TTSProvider
+ * @generated from message stredono.Voices
  */
-export class TTSProvider extends Message<TTSProvider> {
+export class Voices extends Message<Voices> {
   /**
-   * @generated from field: int64 LastUpdated = 1;
-   */
-  LastUpdated = protoInt64.zero;
-
-  /**
-   * @generated from field: repeated stredono.Voice Voices = 2;
+   * @generated from field: repeated stredono.Voice Voices = 1;
    */
   Voices: Voice[] = [];
 
-  constructor(data?: PartialMessage<TTSProvider>) {
+  constructor(data?: PartialMessage<Voices>) {
     super();
     proto3.util.initPartial(data, this);
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "stredono.TTSProvider";
+  static readonly typeName = "stredono.Voices";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "LastUpdated", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
-    { no: 2, name: "Voices", kind: "message", T: Voice, repeated: true },
+    { no: 1, name: "Voices", kind: "message", T: Voice, repeated: true },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TTSProvider {
-    return new TTSProvider().fromBinary(bytes, options);
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Voices {
+    return new Voices().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TTSProvider {
-    return new TTSProvider().fromJson(jsonValue, options);
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Voices {
+    return new Voices().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TTSProvider {
-    return new TTSProvider().fromJsonString(jsonString, options);
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Voices {
+    return new Voices().fromJsonString(jsonString, options);
   }
 
-  static equals(a: TTSProvider | PlainMessage<TTSProvider> | undefined, b: TTSProvider | PlainMessage<TTSProvider> | undefined): boolean {
-    return proto3.util.equals(TTSProvider, a, b);
+  static equals(a: Voices | PlainMessage<Voices> | undefined, b: Voices | PlainMessage<Voices> | undefined): boolean {
+    return proto3.util.equals(Voices, a, b);
   }
 }
 
@@ -1015,6 +1097,55 @@ export class TTSKey extends Message<TTSKey> {
 
   static equals(a: TTSKey | PlainMessage<TTSKey> | undefined, b: TTSKey | PlainMessage<TTSKey> | undefined): boolean {
     return proto3.util.equals(TTSKey, a, b);
+  }
+}
+
+/**
+ * @generated from message stredono.TTSProvider
+ */
+export class TTSProvider extends Message<TTSProvider> {
+  /**
+   * @generated from field: int64 LastUpdated = 1;
+   */
+  LastUpdated = protoInt64.zero;
+
+  /**
+   * @generated from field: repeated stredono.Voice Voices = 2;
+   */
+  Voices: Voice[] = [];
+
+  /**
+   * @generated from field: repeated string Languages = 3;
+   */
+  Languages: string[] = [];
+
+  constructor(data?: PartialMessage<TTSProvider>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.TTSProvider";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "LastUpdated", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 2, name: "Voices", kind: "message", T: Voice, repeated: true },
+    { no: 3, name: "Languages", kind: "scalar", T: 9 /* ScalarType.STRING */, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TTSProvider {
+    return new TTSProvider().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TTSProvider {
+    return new TTSProvider().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TTSProvider {
+    return new TTSProvider().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: TTSProvider | PlainMessage<TTSProvider> | undefined, b: TTSProvider | PlainMessage<TTSProvider> | undefined): boolean {
+    return proto3.util.equals(TTSProvider, a, b);
   }
 }
 

@@ -83,29 +83,29 @@ func (_c *MockTTS_GenerateSpeech_Call) RunAndReturn(run func(context.Context, st
 	return _c
 }
 
-// ListVoices provides a mock function with given fields: ctx, language
-func (_m *MockTTS) ListVoices(ctx context.Context, language string) ([]*pb.Voice, error) {
-	ret := _m.Called(ctx, language)
+// GetVoices provides a mock function with given fields: ctx
+func (_m *MockTTS) GetVoices(ctx context.Context) ([]*pb.Voice, error) {
+	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
-		panic("no return value specified for ListVoices")
+		panic("no return value specified for GetVoices")
 	}
 
 	var r0 []*pb.Voice
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) ([]*pb.Voice, error)); ok {
-		return rf(ctx, language)
+	if rf, ok := ret.Get(0).(func(context.Context) ([]*pb.Voice, error)); ok {
+		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) []*pb.Voice); ok {
-		r0 = rf(ctx, language)
+	if rf, ok := ret.Get(0).(func(context.Context) []*pb.Voice); ok {
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*pb.Voice)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, language)
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -113,31 +113,30 @@ func (_m *MockTTS) ListVoices(ctx context.Context, language string) ([]*pb.Voice
 	return r0, r1
 }
 
-// MockTTS_ListVoices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListVoices'
-type MockTTS_ListVoices_Call struct {
+// MockTTS_GetVoices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetVoices'
+type MockTTS_GetVoices_Call struct {
 	*mock.Call
 }
 
-// ListVoices is a helper method to define mock.On call
+// GetVoices is a helper method to define mock.On call
 //   - ctx context.Context
-//   - language string
-func (_e *MockTTS_Expecter) ListVoices(ctx interface{}, language interface{}) *MockTTS_ListVoices_Call {
-	return &MockTTS_ListVoices_Call{Call: _e.mock.On("ListVoices", ctx, language)}
+func (_e *MockTTS_Expecter) GetVoices(ctx interface{}) *MockTTS_GetVoices_Call {
+	return &MockTTS_GetVoices_Call{Call: _e.mock.On("GetVoices", ctx)}
 }
 
-func (_c *MockTTS_ListVoices_Call) Run(run func(ctx context.Context, language string)) *MockTTS_ListVoices_Call {
+func (_c *MockTTS_GetVoices_Call) Run(run func(ctx context.Context)) *MockTTS_GetVoices_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string))
+		run(args[0].(context.Context))
 	})
 	return _c
 }
 
-func (_c *MockTTS_ListVoices_Call) Return(_a0 []*pb.Voice, _a1 error) *MockTTS_ListVoices_Call {
+func (_c *MockTTS_GetVoices_Call) Return(_a0 []*pb.Voice, _a1 error) *MockTTS_GetVoices_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockTTS_ListVoices_Call) RunAndReturn(run func(context.Context, string) ([]*pb.Voice, error)) *MockTTS_ListVoices_Call {
+func (_c *MockTTS_GetVoices_Call) RunAndReturn(run func(context.Context) ([]*pb.Voice, error)) *MockTTS_GetVoices_Call {
 	_c.Call.Return(run)
 	return _c
 }

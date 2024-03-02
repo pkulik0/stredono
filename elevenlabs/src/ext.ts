@@ -10,7 +10,6 @@ const getExtension = async () => {
 	}
 
 	const data = await response.json()
-	console.log("Latest release data", data)
 	const assets = data.assets
 
 	const extension = assets.find((asset: any) => asset.name.includes(".zip") && !asset.name.includes(".crx"))

@@ -1,10 +1,11 @@
+import { Browser } from 'puppeteer';
 import { createBrowser } from './browser';
 import { handleExtension, PlanType } from './ext';
 import { completeElevenlabsRegistration } from './flow';
 import { generatePassword, getEmail } from './util';
 
-export const numInstances = 2;
-export const headless = false;
+export const numInstances = 10;
+export const headless = true;
 let success = 0;
 let fails = 0;
 
@@ -31,27 +32,31 @@ const doWork = async (i: number, extension: string) => {
 	console.log(i, 'Starting work');
 	while(continueRunning) {
 		console.log(i, 'Starting browser');
-		const browser = await createBrowser(extension)
-		const page = await browser.newPage()
+		let browser: Browser|undefined;
 
 		try {
-			const email = await getEmail()
-			const password = generatePassword()
-			await completeElevenlabsRegistration(i, page, email, password)
+			browser = await createBrowser(extension)
+			await completeElevenlabsRegistration(i, await browser.newPage(), getEmail(), generatePassword())
 			console.log(i, 'Completed flow successfully')
 		} catch(e) {
 			printStats(InvocationType.FAIL)
-		  console.error(i, "Error, retrying", e)
+			if(e instanceof Error) {
+				console.error(i, "Retrying, error message:", e.message)
+			} else {
+				console.error(i, "Retrying, error:", e)
+			}
 		} finally {
 			console.log(i, 'Closing browser')
-			await browser.close()
+			if(browser) {
+				await browser.close()
+			}
 		}
 	}
 	console.log(i, 'Finished work');
 }
 
 const main = async () => {
-	const ext = await handleExtension("pkulik0-d5225369-c4cc-45b4-000d-4fda0b44a3c7", PlanType.PRO)
+	const ext = await handleExtension("pkulik-fd0871c0-39a5-46a8-9a06-8cd28d90e5b7", PlanType.PRO)
 	console.log("Starting workers")
 	await Promise.all(Array.from({ length: numInstances }).map((_, i) => doWork(i, ext)))
 	console.log("All workers finished, exiting...")

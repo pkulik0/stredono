@@ -25,7 +25,8 @@ func CreateContextMock(config *Config, t *testing.T) *Context {
 	}
 
 	if config.TextToSpeech {
-		c.TTS = mocks.NewMockTTS(t)
+		c.TTSPlus = mocks.NewMockTTS(t)
+		c.TTSBasic = mocks.NewMockTTS(t)
 	}
 
 	if config.Storage {

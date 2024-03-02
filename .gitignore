@@ -3,7 +3,7 @@
 
 .terraform
 .idea
-.firebase
+.firebase*
 
 *.log
 

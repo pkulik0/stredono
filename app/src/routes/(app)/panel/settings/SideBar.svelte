@@ -41,12 +41,6 @@
             </SidebarItem>
         </SidebarGroup>
         <SidebarGroup border>
-            <SidebarItem label="Twitch" href="{baseUrl}/twitch">
-                <svelte:fragment slot="icon">
-                    <MessageDotsSolid class={iconClass} />
-                </svelte:fragment>
-            </SidebarItem>
-
             <SidebarItem label="Alerts" href="{baseUrl}/alerts">
                 <svelte:fragment slot="icon">
                     <BellSolid class={iconClass} />

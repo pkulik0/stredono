@@ -20,6 +20,54 @@ func (_m *MockTransaction) EXPECT() *MockTransaction_Expecter {
 	return &MockTransaction_Expecter{mock: &_m.Mock}
 }
 
+// Documents provides a mock function with given fields: q
+func (_m *MockTransaction) Documents(q modules.Query) modules.QueryIterator {
+	ret := _m.Called(q)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Documents")
+	}
+
+	var r0 modules.QueryIterator
+	if rf, ok := ret.Get(0).(func(modules.Query) modules.QueryIterator); ok {
+		r0 = rf(q)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(modules.QueryIterator)
+		}
+	}
+
+	return r0
+}
+
+// MockTransaction_Documents_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Documents'
+type MockTransaction_Documents_Call struct {
+	*mock.Call
+}
+
+// Documents is a helper method to define mock.On call
+//   - q modules.Query
+func (_e *MockTransaction_Expecter) Documents(q interface{}) *MockTransaction_Documents_Call {
+	return &MockTransaction_Documents_Call{Call: _e.mock.On("Documents", q)}
+}
+
+func (_c *MockTransaction_Documents_Call) Run(run func(q modules.Query)) *MockTransaction_Documents_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(modules.Query))
+	})
+	return _c
+}
+
+func (_c *MockTransaction_Documents_Call) Return(_a0 modules.QueryIterator) *MockTransaction_Documents_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockTransaction_Documents_Call) RunAndReturn(run func(modules.Query) modules.QueryIterator) *MockTransaction_Documents_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Get provides a mock function with given fields: doc
 func (_m *MockTransaction) Get(doc modules.Document) (modules.DocumentSnapshot, error) {
 	ret := _m.Called(doc)

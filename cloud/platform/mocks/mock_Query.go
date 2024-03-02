@@ -22,50 +22,50 @@ func (_m *MockQuery) EXPECT() *MockQuery_Expecter {
 	return &MockQuery_Expecter{mock: &_m.Mock}
 }
 
-// Documents provides a mock function with given fields: ctx
-func (_m *MockQuery) Documents(ctx context.Context) modules.QuerySnapshot {
+// Get provides a mock function with given fields: ctx
+func (_m *MockQuery) Get(ctx context.Context) modules.QueryIterator {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Documents")
+		panic("no return value specified for Get")
 	}
 
-	var r0 modules.QuerySnapshot
-	if rf, ok := ret.Get(0).(func(context.Context) modules.QuerySnapshot); ok {
+	var r0 modules.QueryIterator
+	if rf, ok := ret.Get(0).(func(context.Context) modules.QueryIterator); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(modules.QuerySnapshot)
+			r0 = ret.Get(0).(modules.QueryIterator)
 		}
 	}
 
 	return r0
 }
 
-// MockQuery_Documents_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Documents'
-type MockQuery_Documents_Call struct {
+// MockQuery_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
+type MockQuery_Get_Call struct {
 	*mock.Call
 }
 
-// Documents is a helper method to define mock.On call
+// Get is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *MockQuery_Expecter) Documents(ctx interface{}) *MockQuery_Documents_Call {
-	return &MockQuery_Documents_Call{Call: _e.mock.On("Documents", ctx)}
+func (_e *MockQuery_Expecter) Get(ctx interface{}) *MockQuery_Get_Call {
+	return &MockQuery_Get_Call{Call: _e.mock.On("Get", ctx)}
 }
 
-func (_c *MockQuery_Documents_Call) Run(run func(ctx context.Context)) *MockQuery_Documents_Call {
+func (_c *MockQuery_Get_Call) Run(run func(ctx context.Context)) *MockQuery_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context))
 	})
 	return _c
 }
 
-func (_c *MockQuery_Documents_Call) Return(_a0 modules.QuerySnapshot) *MockQuery_Documents_Call {
+func (_c *MockQuery_Get_Call) Return(_a0 modules.QueryIterator) *MockQuery_Get_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockQuery_Documents_Call) RunAndReturn(run func(context.Context) modules.QuerySnapshot) *MockQuery_Documents_Call {
+func (_c *MockQuery_Get_Call) RunAndReturn(run func(context.Context) modules.QueryIterator) *MockQuery_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
