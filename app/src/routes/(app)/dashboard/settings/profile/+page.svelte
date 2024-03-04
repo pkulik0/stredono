@@ -62,12 +62,12 @@
 
 <Heading tag="h2">{$t("profile")}</Heading>
 <div class="flex flex-col w-full items-center justify-center p-4">
-    <Heading tag="h4" class="pb-4">{$t("preview")}</Heading>
+    <Heading tag="h4" class="mb-4">{$t("preview")}</Heading>
     <Card padding="xl" size="xl">
         <UserHeader interactive={false} {user}/>
     </Card>
 
-    <Heading tag="h4" class="mt-4">{$t("edit")}</Heading>
+    <Heading tag="h4" class="my-4">{$t("edit")}</Heading>
     <div class="space-y-6 w-full max-w-2xl">
         <Label class="flex-1">
             {$t("display_name")}

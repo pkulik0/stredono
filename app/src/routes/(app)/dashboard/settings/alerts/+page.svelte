@@ -14,7 +14,7 @@
 
     let userAlerts: UsersAlerts|undefined|null;
 
-    let selectOptions = [
+    $: selectOptions = [
         {value: EventType.TIP, name: $t("tip")},
         {value: EventType.CHEER, name: $t("cheer")},
         {value: EventType.SUBSCRIBE, name: $t("sub")},

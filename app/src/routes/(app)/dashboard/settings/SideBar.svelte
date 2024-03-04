@@ -41,7 +41,7 @@
                 </svelte:fragment>
             </SidebarItem>
 
-            <SidebarItem label={$t("text_to_speech")} href="{baseUrl}/tts">
+            <SidebarItem label={$t("tts")} href="{baseUrl}/tts">
                 <svelte:fragment slot="icon">
                     <VolumeUpSolid class={iconClass} />
                 </svelte:fragment>

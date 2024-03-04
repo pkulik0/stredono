@@ -7,14 +7,14 @@
 	import AccordItem from './AccordItem.svelte';
 	import { t } from 'svelte-i18n';
 
-	const authLevels = [
+	$: authLevels = [
 		{ value: AuthLevel.NONE, name: $t("disabled") },
 		{ value: AuthLevel.EMAIL, name: $t("email_verification") },
-		{ value: AuthLevel.OIDC, name: $t("oidc_login") }
+		{ value: AuthLevel.OIDC, name: $t("twitch_login") }
 	]
 	let selectedAuthLevel = AuthLevel.NONE;
 
-	const followFrequency = [
+	$: followFrequency = [
 		{ value: Frequency.NEVER, name: $t("never") },
 		{ value: Frequency.ALWAYS, name: $t("always") },
 		{ value: Frequency.EVERY_MINUTE, name: $t("every_minute") },

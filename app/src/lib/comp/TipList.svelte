@@ -3,7 +3,6 @@
     import {Button, Dropdown, DropdownItem, Listgroup, ListgroupItem} from "flowbite-svelte";
     import {DotsVerticalSolid, RedoOutline, RefreshOutline, ShieldSolid} from "flowbite-svelte-icons";
     import {slide, fade} from "svelte/transition";
-    import {streamModeStore} from "$lib/stores";
     import {t} from 'svelte-i18n';
 
     export let items: Tip[]
@@ -18,11 +17,9 @@
                 <p class="text-sm font-bold text-gray-900 truncate dark:text-white">
                     {item.DisplayName}
                 </p>
-                {#if $streamModeStore === false}
-                    <p class="text-sm text-gray-500 truncate dark:text-gray-400" transition:slide>
-                        <span transition:fade>{item.Email}</span>
-                    </p>
-                {/if}
+                <p class="text-sm text-gray-500 truncate dark:text-gray-400" transition:slide>
+                    <span transition:fade>{item.Email}</span>
+                </p>
             </div>
             <div class="flex-[0.70]">
                 {item.Message}

@@ -44,7 +44,7 @@
 </script>
 
 <Label>
-	Voice
+	{$t("voice")}
 	<div class="flex flex-row space-x-2">
 		<Select on:change={onChange} items={items} bind:value {placeholder}/>
 		<Button outline on:click={clickPlay} class="max-w-36 w-full">

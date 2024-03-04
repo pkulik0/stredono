@@ -18,9 +18,9 @@
 	import { InfoCircleSolid, PlaySolid } from 'flowbite-svelte-icons';
 	import { onDestroy, onMount } from 'svelte';
 	import VoiceSelect from './VoiceSelect.svelte';
-	import {t} from 'svelte-i18n';
+	import { locale, t } from 'svelte-i18n';
 
-	const langName = new Intl.DisplayNames(['en'], {type: 'language'})
+	$: langName = new Intl.DisplayNames([$locale || 'en'], {type: 'language'})
 
 	let voicesPlus: Voice[] = [];
 	$: languagesPlus = voicesPlus.length > 0 ? voicesPlus[0].Languages.map(l => langName.of(l) || l).sort() : Array(30).fill("???");
@@ -57,7 +57,7 @@
 	})
 </script>
 
-<Heading tag="h2">{$t("text_to_speech")}</Heading>
+<Heading tag="h2">{$t("tts")}</Heading>
 <div class="space-y-10 p-4">
 	<div class="space-y-6 flex flex-col">
 		<Heading tag="h4">{$t("plus")}</Heading>

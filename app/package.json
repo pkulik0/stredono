@@ -20,6 +20,7 @@
 		"@sveltejs/kit": "^2.5.2",
 		"@sveltejs/vite-plugin-svelte": "^3.0.2",
 		"@types/eslint": "8.56.0",
+		"@types/js-cookie": "^3.0.6",
 		"@types/uuid": "^9.0.8",
 		"@typescript-eslint/eslint-plugin": "^6.21.0",
 		"@typescript-eslint/parser": "^6.21.0",
@@ -54,6 +55,7 @@
 		"axios": "^1.6.7",
 		"chart.js": "^4.4.2",
 		"firebase": "^10.8.1",
+		"js-cookie": "^3.0.5",
 		"svelte-i18n": "^4.0.0",
 		"sveltekit-i18n": "^2.4.2",
 		"uuid": "^9.0.1"
