@@ -2,7 +2,19 @@
 	import { Tier, User, type Voice } from '$lib/pb/stredono_pb';
 	import { getVoices } from '$lib/tts';
 	import { userStore } from '$lib/user';
-	import { Alert, Button, Checkbox, Heading, Helper, Hr, Label, P, Select } from 'flowbite-svelte';
+	import {
+		Alert,
+		Button,
+		Checkbox,
+		Heading,
+		Helper,
+		Hr,
+		ImagePlaceholder,
+		Label,
+		P,
+		Select,
+		TextPlaceholder
+	} from 'flowbite-svelte';
 	import { InfoCircleSolid, PlaySolid } from 'flowbite-svelte-icons';
 	import { onDestroy, onMount } from 'svelte';
 	import VoiceSelect from './VoiceSelect.svelte';
@@ -10,7 +22,7 @@
 	const langName = new Intl.DisplayNames(['en'], {type: 'language'})
 
 	let voicesPlus: Voice[] = [];
-	$: languagesPlus = voicesPlus.length > 0 ? voicesPlus[0].Languages.map(l => langName.of(l) || l).sort() : []
+	$: languagesPlus = voicesPlus.length > 0 ? voicesPlus[0].Languages.map(l => langName.of(l) || l).sort() : Array(30).fill("???");
 	let selectedPlus: Voice|undefined;
 
 	let voicesBasic: Map<string, Voice[]> = new Map();
@@ -44,9 +56,10 @@
 	})
 </script>
 
-<div class="space-y-10 max-w-3xl">
-	<div class="space-y-4 flex flex-col">
-		<Heading tag="h3">Plus</Heading>
+<Heading tag="h2">Text-to-Speech</Heading>
+<div class="space-y-10 p-4">
+	<div class="space-y-6 flex flex-col">
+		<Heading tag="h4">Plus</Heading>
 
 		<Alert class="!items-start" color="gray">
 			<span slot="icon">
@@ -58,7 +71,7 @@
 				<br/>
 				Supported languages:
 			</p>
-			<ul class="mt-1.5 ms-4 list-disc list-inside grid grid-cols-5 gap-1.5">
+			<ul class="mt-1.5 ms-4 list-disc list-inside grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1">
 				{#each languagesPlus as l}
 					<li>{l}</li>
 				{/each}
@@ -70,8 +83,8 @@
 		<Checkbox bind:checked={enablePlus}>Enable TTS Plus</Checkbox>
 	</div>
 
-	<div class="space-y-4 flex flex-col">
-		<Heading tag="h3">Basic</Heading>
+	<div class="space-y-6 flex flex-col">
+		<Heading tag="h4">Basic</Heading>
 
 		<Label>
 			Language

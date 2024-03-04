@@ -122,7 +122,7 @@
     </div>
 
     <div class="w-full space-y-4">
-        <Heading tag="h6">Trigger</Heading>
+        <Heading tag="h5">Trigger</Heading>
 
         <div class="space-x-4 flex flex-row">
             <Label>
@@ -142,7 +142,21 @@
             </Label>
         </div>
 
-        <Heading tag="h6">Message</Heading>
+        <Heading tag="h5">Media</Heading>
+
+        <Button color={alert.GifUrl ? "alternative" : "primary"} class="w-full" size="xl" outline on:click={() => { gifPickerOpen = true; }}>
+            <ImageOutline class="w-5 h-5 me-1" />
+            {#if alert.GifUrl} Change {:else} Pick or Upload {/if}
+            GIF
+        </Button>
+
+        <Button color={alert.SoundUrl ? "alternative" : "primary"} class="w-full" size="xl" outline on:click={() => { soundPickerOpen = true; }}>
+            <VolumeUpSolid class="w-5 h-5 me-1" />
+            {#if alert.SoundUrl} Change {:else} Pick or Upload {/if}
+            Sound
+        </Button>
+
+        <Heading tag="h5">Message</Heading>
 
         <Label>
             Template
@@ -170,40 +184,26 @@
             <Radio value="{Position.BOTTOM}" bind:group={alert.TextPosition}/>
         </div>
 
-        <Heading tag="h6">Animation</Heading>
+        <Heading tag="h5">Look</Heading>
 
         <Label>
-            Type
+            Animation Type
             <Select bind:value={alert.Animation} items={animations}/>
         </Label>
 
         <Label>
-            Speed
+            Animation Speed
             <Range min={Speed.OFF} max={Speed.FASTER} step="1" bind:value={alert.AnimationSpeed}/>
         </Label>
 
-        <Heading tag="h6">Media</Heading>
-
-        <Button color={alert.GifUrl ? "alternative" : "primary"} class="w-full" size="xl" outline on:click={() => { gifPickerOpen = true; }}>
-            <ImageOutline class="w-5 h-5 me-1" />
-            {#if alert.GifUrl} Change {:else} Pick or Upload {/if}
-            GIF
-        </Button>
-
-        <Button color={alert.SoundUrl ? "alternative" : "primary"} class="w-full" size="xl" outline on:click={() => { soundPickerOpen = true; }}>
-            <VolumeUpSolid class="w-5 h-5 me-1" />
-            {#if alert.SoundUrl} Change {:else} Pick or Upload {/if}
-            Sound
-        </Button>
-
         <div class="flex space-x-10 pb-2">
             <Label class="flex flex-col">
-                Text
+                Text Color
                 <input type="color" bind:value={alert.TextColor} />
             </Label>
 
             <Label class="flex flex-col">
-                Accent
+                Accent Color
                 <input type="color" bind:value={alert.AccentColor} />
             </Label>
         </div>

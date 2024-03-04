@@ -68,6 +68,11 @@ func (fq *FirestoreQuery) Where(field string, op string, value interface{}) modu
 	return &FirestoreQuery{query: &q}
 }
 
+func (fq *FirestoreQuery) Limit(n int) modules.Query {
+	q := fq.query.Limit(n)
+	return &FirestoreQuery{query: &q}
+}
+
 type FirestoreQueryIterator struct {
 	iterator *firestore.DocumentIterator
 }

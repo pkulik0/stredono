@@ -2,7 +2,7 @@
     import type { Tip } from '$lib/pb/stredono_pb';
     import { Card, TextPlaceholder} from "flowbite-svelte";
     import {onMount} from "svelte";
-    import {tipsStore} from "$lib/donations";
+    import {tipsStore} from "$lib/tips";
     import DonationList from "$lib/comp/DonationList.svelte";
 
     let items: Tip[]|undefined = undefined;

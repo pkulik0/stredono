@@ -4,7 +4,7 @@ import { handleExtension, PlanType } from './ext';
 import { completeElevenlabsRegistration } from './flow';
 import { generatePassword, getEmail } from './util';
 
-export const numInstances = 10;
+export const numInstances = 5;
 export const headless = true;
 let success = 0;
 let fails = 0;

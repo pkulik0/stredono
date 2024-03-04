@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Tip } from '$lib/pb/stredono_pb';
     import {onDestroy, onMount} from "svelte";
-    import type {WebTip} from "$lib/donations";
+    import type {WebTip} from "$lib/tips";
     import Alert from "./Alert.svelte";
     import {page} from "$app/stores";
 

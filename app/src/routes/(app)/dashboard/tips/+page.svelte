@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {tipsStore, type TipsMap, fetchOldTips} from "$lib/donations";
+    import {tipsStore, type TipsMap, fetchOldTips} from "$lib/tips";
     import { auth } from '$lib/ext/firebase/firebase';
     import {Card, Checkbox, Hr, Input, Label, P, Pagination} from "flowbite-svelte";
     import {onMount} from "svelte";
@@ -10,23 +10,23 @@
 
     onMount(() => {
         return tipsStore.subscribe((value) => {
-            donations = value;
+            tipsMap = value;
         });
     });
 
-    let donations: TipsMap = {};
+    let tipsMap: TipsMap = {};
 
     $: activePage = Number.parseInt($page.url.searchParams.get('page') || '1')
-    $: label = donations[donationsIndex] ? `${donations[donationsIndex].startDate.toLocaleDateString()} - ${donations[donationsIndex].endDate.toLocaleDateString()}` : "??/??/???? - ??/??/????";
+    $: label = tipsMap[donationsIndex] ? `${tipsMap[donationsIndex].startDate.toLocaleDateString()} - ${tipsMap[donationsIndex].endDate.toLocaleDateString()}` : "??/??/???? - ??/??/????";
     $: pages =  [{
         active: false,
-        url: `/donations?page=${activePage}`,
+        url: `/tips?page=${activePage}`,
         label: label,
         name: label
     }];
 
     $: donationsIndex = activePage - 1;
-    $: items = donations[donationsIndex] ? donations[donationsIndex].tips : [];
+    $: items = tipsMap[donationsIndex] ? tipsMap[donationsIndex].tips : [];
 
     let searchTerm = "";
     let searchInSender = true;
@@ -34,7 +34,7 @@
     let searchInMessage = true;
     $: filteredItems = items.filter((item) => {
         const term = searchTerm.toLowerCase().trim();
-        const sender = item.Sender.toLowerCase();
+        const sender = item.DisplayName.toLowerCase();
         const email = item.Email.toLowerCase();
         const message = item.Message.toLowerCase();
 
@@ -61,7 +61,7 @@
         const user = auth.currentUser;
         if (!user) throw new Error('Not logged in');
 
-        const startDate = donations[donationsIndex].startDate
+        const startDate = tipsMap[donationsIndex].startDate
         if(user.metadata.creationTime) {
             const creationTime = new Date(user.metadata.creationTime);
             if (startDate < creationTime) {
@@ -69,7 +69,7 @@
             }
         }
 
-        if(!donations[activePage]) {
+        if(!tipsMap[activePage]) {
             await fetchOldTips(startDate, activePage);
         }
         activePage++;
@@ -113,7 +113,7 @@
         <Hr/>
 
         {#if filteredItems.length === 0}
-            <P class="text-center">No donations in this period</P>
+            <P class="text-center">No tips in this period</P>
         {:else}
             <DonationList items={filteredItems} />
         {/if}

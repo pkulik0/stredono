@@ -36,6 +36,26 @@ resource "google_firestore_index" "tips" {
   depends_on = [google_firestore_database.default]
 }
 
+resource "google_firestore_index" "users" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  database   = google_firestore_database.default.name
+  collection = "users"
+
+  fields {
+    field_path = "Username"
+    order      = "ASCENDING"
+  }
+
+  fields {
+    field_path = "Uid"
+    order      = "ASCENDING"
+  }
+
+  depends_on = [google_firestore_database.default]
+}
+
 resource "google_firestore_backup_schedule" "daily" {
   provider = google-beta
   project  = google_project.default.project_id

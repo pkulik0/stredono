@@ -1,7 +1,7 @@
 <script lang="ts">
     import FileDropzone from '$lib/comp/FileDropzone.svelte';
     import type { User } from '$lib/pb/stredono_pb';
-    import {Button, Card, Fileupload, Helper, Hr, Input, Label, Textarea,} from "flowbite-svelte";
+    import { Button, Card, Fileupload, Heading, Helper, Hr, Input, Label, Textarea } from 'flowbite-svelte';
     import UserHeader from "$lib/comp/UserHeader.svelte";
     import {saveUser, userStore} from "$lib/user";
     import {onMount} from "svelte";
@@ -59,13 +59,15 @@
     }
 </script>
 
-<div class="flex flex-col justify-center items-center">
+<Heading tag="h2">Profile</Heading>
+<div class="flex flex-col w-full items-center justify-center p-4">
+    <Heading tag="h4" class="pb-4">Preview</Heading>
     <Card padding="xl" size="lg">
         <UserHeader interactive={false} {user}/>
     </Card>
 
-    <div class="space-y-6 mt-10 w-full max-w-xl">
-
+    <Heading tag="h4" class="mt-4">Edit</Heading>
+    <div class="space-y-6 w-full max-w-xl">
         <Label class="flex-1">
             Display Name
             <Input placeholder={user?.Username || "???"} bind:value={displayName} type="text"/>

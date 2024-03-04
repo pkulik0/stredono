@@ -15,7 +15,7 @@
                 userListUnsub = await getUserListener(u.uid);
 
                 if (window.location.pathname === "/") {
-                    await goto("/panel")
+                    await goto("/dashboard")
                 }
                 return
             }

@@ -138,7 +138,8 @@ func (e *ElevenLabs) GetVoices(ctx context.Context) ([]*pb.Voice, error) {
 
 func (e *ElevenLabs) getKeyAndRun(ctx context.Context, requiredCharacters int, f func(context.Context) error) error {
 	return e.docDb.RunTransaction(ctx, func(ctx context.Context, tx modules.Transaction) error {
-		iter := tx.Documents(e.docDb.Collection(e.collection).Where("CharactersLeft", ">", requiredCharacters))
+		iter := tx.Documents(e.docDb.Collection(e.collection).Where("CharactersLeft", ">",
+			requiredCharacters).Limit(1))
 		defer iter.Stop()
 		snap, err := iter.Next()
 		if err != nil {
@@ -150,6 +151,7 @@ func (e *ElevenLabs) getKeyAndRun(ctx context.Context, requiredCharacters int, f
 			return err
 		}
 		e.SetApiKey(ttsKey.Key)
+		log.Printf("Using EL key with id %s", snap.Ref().Id())
 
 		// Prevent skipping the update of the key data in db
 		delayedErr := f(ctx)
@@ -177,10 +179,11 @@ func (e *ElevenLabs) getKeyAndRun(ctx context.Context, requiredCharacters int, f
 func (e *ElevenLabs) getKeyAndRunWithRetry(ctx context.Context, requiredCharacters int, f func(context.Context) error) error {
 	var err error
 	for i := 0; i < e.maxRetries; i++ {
-		if err = e.getKeyAndRun(ctx, requiredCharacters, f); err == nil {
+		err := e.getKeyAndRun(ctx, requiredCharacters, f)
+		if err == nil {
 			return nil
 		}
-		log.Errorf("failed to get key and run function, retrying with new key")
+		log.Errorf("failed to get key and run function, retrying with new key, attempt %d/%d\n%v", i+1, e.maxRetries, err)
 	}
 	return err
 }
@@ -222,14 +225,14 @@ func (e *ElevenLabs) GenerateSpeech(ctx context.Context, voice string, text stri
 	return audio, nil
 }
 
-type userInfo struct {
+type elUserInfo struct {
 	CharacterCount int   `json:"character_count"`
 	CharacterLimit int   `json:"character_limit"`
 	NextResetTime  int64 `json:"next_character_count_reset_unix"`
 }
 
-func (e *ElevenLabs) getUserInfo(ctx context.Context) (*userInfo, error) {
-	var userInfo *userInfo
+func (e *ElevenLabs) getUserInfo(ctx context.Context) (*elUserInfo, error) {
+	var userInfo *elUserInfo
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, basePath+"user/subscription", nil)
 	if err != nil {
 		return nil, err

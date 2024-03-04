@@ -7,7 +7,7 @@
         VolumeUpSolid,
         DollarSolid,
         WalletSolid,
-        ArrowRightToBracketSolid
+        ArrowRightToBracketSolid, NewspapperOutline
     } from 'flowbite-svelte-icons';
     import {page} from "$app/stores";
     import {auth} from "$lib/ext/firebase/firebase";
@@ -28,19 +28,12 @@
                 </svelte:fragment>
             </SidebarItem>
 
-            <SidebarItem label="Donations" href="{baseUrl}/donations">
+            <SidebarItem label="Events" href="{baseUrl}/events">
                 <svelte:fragment slot="icon">
-                    <DollarSolid class={iconClass} />
+                    <NewspapperOutline class={iconClass} />
                 </svelte:fragment>
             </SidebarItem>
 
-            <SidebarItem label="Payments" href="{baseUrl}/payments">
-                <svelte:fragment slot="icon">
-                    <WalletSolid class={iconClass} />
-                </svelte:fragment>
-            </SidebarItem>
-        </SidebarGroup>
-        <SidebarGroup border>
             <SidebarItem label="Alerts" href="{baseUrl}/alerts">
                 <svelte:fragment slot="icon">
                     <BellSolid class={iconClass} />

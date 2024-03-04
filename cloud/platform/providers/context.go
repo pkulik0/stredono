@@ -177,6 +177,9 @@ func NewContext(r *http.Request, config *Config) (*Context, error) {
 	}
 
 	if config.Helix {
+		if outCtx.DocDb == nil {
+			return nil, platform.ErrorMissingModuleDep
+		}
 		token, ok := outCtx.GetAuthToken(r)
 		if !ok {
 			return nil, platform.ErrorMissingAuthToken

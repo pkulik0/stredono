@@ -3,6 +3,7 @@ package alerts
 import (
 	"context"
 	"errors"
+	"github.com/google/uuid"
 	"github.com/pkulik0/stredono/cloud/pb"
 	"github.com/pkulik0/stredono/cloud/platform"
 	"github.com/pkulik0/stredono/cloud/platform/modules"
@@ -81,6 +82,11 @@ func add(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
 		if err := validateAlert(alert); err != nil {
 			return errors.New("invalid alert: " + err.Error())
 		}
+		alertUuid, err := uuid.NewUUID()
+		if err != nil {
+			return err
+		}
+		alert.Id = strings.ReplaceAll(alertUuid.String(), "-", "")[:8]
 
 		log.Info("adding alert: ", alert)
 		usersAlerts.Alerts = append(usersAlerts.Alerts, alert)

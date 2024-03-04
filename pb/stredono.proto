@@ -190,3 +190,13 @@ message TTSProvider {
   repeated Voice Voices = 2;
   repeated string Languages = 3;
 }
+
+enum Frequency {
+  NEVER = 0;
+  ALWAYS = 1;
+  EVERY_MINUTE = 2;
+  EVERY_FIVE_MINUTES = 3;
+  EVERY_QUARTER_HOUR = 4;
+  EVERY_HALF_HOUR = 5;
+  EVERY_HOUR = 6;
+}

@@ -537,6 +537,67 @@ func (Gender) EnumDescriptor() ([]byte, []int) {
 	return file_pb_stredono_proto_rawDescGZIP(), []int{9}
 }
 
+type Frequency int32
+
+const (
+	Frequency_NEVER              Frequency = 0
+	Frequency_ALWAYS             Frequency = 1
+	Frequency_EVERY_MINUTE       Frequency = 2
+	Frequency_EVERY_FIVE_MINUTES Frequency = 3
+	Frequency_EVERY_QUARTER_HOUR Frequency = 4
+	Frequency_EVERY_HALF_HOUR    Frequency = 5
+	Frequency_EVERY_HOUR         Frequency = 6
+)
+
+// Enum value maps for Frequency.
+var (
+	Frequency_name = map[int32]string{
+		0: "NEVER",
+		1: "ALWAYS",
+		2: "EVERY_MINUTE",
+		3: "EVERY_FIVE_MINUTES",
+		4: "EVERY_QUARTER_HOUR",
+		5: "EVERY_HALF_HOUR",
+		6: "EVERY_HOUR",
+	}
+	Frequency_value = map[string]int32{
+		"NEVER":              0,
+		"ALWAYS":             1,
+		"EVERY_MINUTE":       2,
+		"EVERY_FIVE_MINUTES": 3,
+		"EVERY_QUARTER_HOUR": 4,
+		"EVERY_HALF_HOUR":    5,
+		"EVERY_HOUR":         6,
+	}
+)
+
+func (x Frequency) Enum() *Frequency {
+	p := new(Frequency)
+	*p = x
+	return p
+}
+
+func (x Frequency) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Frequency) Descriptor() protoreflect.EnumDescriptor {
+	return file_pb_stredono_proto_enumTypes[10].Descriptor()
+}
+
+func (Frequency) Type() protoreflect.EnumType {
+	return &file_pb_stredono_proto_enumTypes[10]
+}
+
+func (x Frequency) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Frequency.Descriptor instead.
+func (Frequency) EnumDescriptor() ([]byte, []int) {
+	return file_pb_stredono_proto_rawDescGZIP(), []int{10}
+}
+
 type Tip struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1809,10 +1870,19 @@ var file_pb_stredono_proto_rawDesc = []byte{
 	0x0a, 0x04, 0x50, 0x4c, 0x55, 0x53, 0x10, 0x01, 0x2a, 0x31, 0x0a, 0x06, 0x47, 0x65, 0x6e, 0x64,
 	0x65, 0x72, 0x12, 0x11, 0x0a, 0x0d, 0x4e, 0x4f, 0x54, 0x5f, 0x53, 0x50, 0x45, 0x43, 0x49, 0x46,
 	0x49, 0x45, 0x44, 0x10, 0x00, 0x12, 0x08, 0x0a, 0x04, 0x4d, 0x41, 0x4c, 0x45, 0x10, 0x01, 0x12,
-	0x0a, 0x0a, 0x06, 0x46, 0x45, 0x4d, 0x41, 0x4c, 0x45, 0x10, 0x02, 0x42, 0x26, 0x5a, 0x24, 0x67,
-	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x70, 0x6b, 0x75, 0x6c, 0x69, 0x6b,
-	0x30, 0x2f, 0x73, 0x74, 0x72, 0x65, 0x64, 0x6f, 0x6e, 0x6f, 0x2f, 0x63, 0x6c, 0x6f, 0x75, 0x64,
-	0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x0a, 0x0a, 0x06, 0x46, 0x45, 0x4d, 0x41, 0x4c, 0x45, 0x10, 0x02, 0x2a, 0x89, 0x01, 0x0a, 0x09,
+	0x46, 0x72, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x79, 0x12, 0x09, 0x0a, 0x05, 0x4e, 0x45, 0x56,
+	0x45, 0x52, 0x10, 0x00, 0x12, 0x0a, 0x0a, 0x06, 0x41, 0x4c, 0x57, 0x41, 0x59, 0x53, 0x10, 0x01,
+	0x12, 0x10, 0x0a, 0x0c, 0x45, 0x56, 0x45, 0x52, 0x59, 0x5f, 0x4d, 0x49, 0x4e, 0x55, 0x54, 0x45,
+	0x10, 0x02, 0x12, 0x16, 0x0a, 0x12, 0x45, 0x56, 0x45, 0x52, 0x59, 0x5f, 0x46, 0x49, 0x56, 0x45,
+	0x5f, 0x4d, 0x49, 0x4e, 0x55, 0x54, 0x45, 0x53, 0x10, 0x03, 0x12, 0x16, 0x0a, 0x12, 0x45, 0x56,
+	0x45, 0x52, 0x59, 0x5f, 0x51, 0x55, 0x41, 0x52, 0x54, 0x45, 0x52, 0x5f, 0x48, 0x4f, 0x55, 0x52,
+	0x10, 0x04, 0x12, 0x13, 0x0a, 0x0f, 0x45, 0x56, 0x45, 0x52, 0x59, 0x5f, 0x48, 0x41, 0x4c, 0x46,
+	0x5f, 0x48, 0x4f, 0x55, 0x52, 0x10, 0x05, 0x12, 0x0e, 0x0a, 0x0a, 0x45, 0x56, 0x45, 0x52, 0x59,
+	0x5f, 0x48, 0x4f, 0x55, 0x52, 0x10, 0x06, 0x42, 0x26, 0x5a, 0x24, 0x67, 0x69, 0x74, 0x68, 0x75,
+	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x70, 0x6b, 0x75, 0x6c, 0x69, 0x6b, 0x30, 0x2f, 0x73, 0x74,
+	0x72, 0x65, 0x64, 0x6f, 0x6e, 0x6f, 0x2f, 0x63, 0x6c, 0x6f, 0x75, 0x64, 0x2f, 0x70, 0x62, 0x62,
+	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1827,7 +1897,7 @@ func file_pb_stredono_proto_rawDescGZIP() []byte {
 	return file_pb_stredono_proto_rawDescData
 }
 
-var file_pb_stredono_proto_enumTypes = make([]protoimpl.EnumInfo, 10)
+var file_pb_stredono_proto_enumTypes = make([]protoimpl.EnumInfo, 11)
 var file_pb_stredono_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_pb_stredono_proto_goTypes = []interface{}{
 	(Currency)(0),         // 0: stredono.Currency
@@ -1840,20 +1910,21 @@ var file_pb_stredono_proto_goTypes = []interface{}{
 	(Speed)(0),            // 7: stredono.Speed
 	(Tier)(0),             // 8: stredono.Tier
 	(Gender)(0),           // 9: stredono.Gender
-	(*Tip)(nil),           // 10: stredono.Tip
-	(*User)(nil),          // 11: stredono.User
-	(*Event)(nil),         // 12: stredono.Event
-	(*UsersAlerts)(nil),   // 13: stredono.UsersAlerts
-	(*Alert)(nil),         // 14: stredono.Alert
-	(*Token)(nil),         // 15: stredono.Token
-	(*TwitchReward)(nil),  // 16: stredono.TwitchReward
-	(*TwitchUser)(nil),    // 17: stredono.TwitchUser
-	(*SpeechRequest)(nil), // 18: stredono.SpeechRequest
-	(*Voice)(nil),         // 19: stredono.Voice
-	(*Voices)(nil),        // 20: stredono.Voices
-	(*TTSKey)(nil),        // 21: stredono.TTSKey
-	(*TTSProvider)(nil),   // 22: stredono.TTSProvider
-	nil,                   // 23: stredono.Event.DataEntry
+	(Frequency)(0),        // 10: stredono.Frequency
+	(*Tip)(nil),           // 11: stredono.Tip
+	(*User)(nil),          // 12: stredono.User
+	(*Event)(nil),         // 13: stredono.Event
+	(*UsersAlerts)(nil),   // 14: stredono.UsersAlerts
+	(*Alert)(nil),         // 15: stredono.Alert
+	(*Token)(nil),         // 16: stredono.Token
+	(*TwitchReward)(nil),  // 17: stredono.TwitchReward
+	(*TwitchUser)(nil),    // 18: stredono.TwitchUser
+	(*SpeechRequest)(nil), // 19: stredono.SpeechRequest
+	(*Voice)(nil),         // 20: stredono.Voice
+	(*Voices)(nil),        // 21: stredono.Voices
+	(*TTSKey)(nil),        // 22: stredono.TTSKey
+	(*TTSProvider)(nil),   // 23: stredono.TTSProvider
+	nil,                   // 24: stredono.Event.DataEntry
 }
 var file_pb_stredono_proto_depIdxs = []int32{
 	0,  // 0: stredono.Tip.Currency:type_name -> stredono.Currency
@@ -1862,8 +1933,8 @@ var file_pb_stredono_proto_depIdxs = []int32{
 	0,  // 3: stredono.User.Currency:type_name -> stredono.Currency
 	8,  // 4: stredono.User.VoiceTier:type_name -> stredono.Tier
 	3,  // 5: stredono.Event.Type:type_name -> stredono.EventType
-	23, // 6: stredono.Event.Data:type_name -> stredono.Event.DataEntry
-	14, // 7: stredono.UsersAlerts.Alerts:type_name -> stredono.Alert
+	24, // 6: stredono.Event.Data:type_name -> stredono.Event.DataEntry
+	15, // 7: stredono.UsersAlerts.Alerts:type_name -> stredono.Alert
 	3,  // 8: stredono.Alert.EventType:type_name -> stredono.EventType
 	4,  // 9: stredono.Alert.Animation:type_name -> stredono.AnimationType
 	7,  // 10: stredono.Alert.AnimationSpeed:type_name -> stredono.Speed
@@ -1871,8 +1942,8 @@ var file_pb_stredono_proto_depIdxs = []int32{
 	6,  // 12: stredono.Alert.TextPosition:type_name -> stredono.Position
 	9,  // 13: stredono.Voice.Gender:type_name -> stredono.Gender
 	8,  // 14: stredono.Voice.Tier:type_name -> stredono.Tier
-	19, // 15: stredono.Voices.Voices:type_name -> stredono.Voice
-	19, // 16: stredono.TTSProvider.Voices:type_name -> stredono.Voice
+	20, // 15: stredono.Voices.Voices:type_name -> stredono.Voice
+	20, // 16: stredono.TTSProvider.Voices:type_name -> stredono.Voice
 	17, // [17:17] is the sub-list for method output_type
 	17, // [17:17] is the sub-list for method input_type
 	17, // [17:17] is the sub-list for extension type_name
@@ -2048,7 +2119,7 @@ func file_pb_stredono_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_pb_stredono_proto_rawDesc,
-			NumEnums:      10,
+			NumEnums:      11,
 			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   0,

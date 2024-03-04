@@ -5,7 +5,7 @@
     import AlertCard from './AlertCard.svelte';
     import AlertsDrawer from "./AlertsDrawer.svelte";
     import {
-        Button,
+        Button, Heading,
         ImagePlaceholder, Input, Label, P, Select
     } from 'flowbite-svelte';
     import {onMount} from "svelte";
@@ -47,7 +47,8 @@
 
 </script>
 
-<div class="space-y-4">
+<Heading tag="h2">Alerts</Heading>
+<div class="space-y-4 w-full p-4">
     <Label>
         Type
         <Select items={selectOptions} bind:value={selectedType} placeholder="Filter by type"/>

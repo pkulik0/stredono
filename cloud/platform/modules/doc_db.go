@@ -39,6 +39,7 @@ type Collection interface {
 type Query interface {
 	Get(ctx context.Context) QueryIterator
 	Where(field, op string, value interface{}) Query
+	Limit(n int) Query
 }
 
 type QueryIterator interface {

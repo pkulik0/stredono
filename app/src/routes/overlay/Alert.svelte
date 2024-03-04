@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type {WebTip} from "$lib/donations";
+    import type {WebTip} from "$lib/tips";
     import 'animate.css';
     import {fade} from "svelte/transition";
 

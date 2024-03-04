@@ -2,12 +2,12 @@
     import SideBar from "./SideBar.svelte";
 </script>
 
-<div class="flex">
-    <div class="min-w-xl p-4">
+<div class="flex p-4">
+    <div class="hidden md:pe-4 md:flex">
         <SideBar/>
     </div>
 
-    <div class="flex-1 p-4">
+    <div class="flex flex-col mx-auto max-w-3xl w-full items-center">
         <slot/>
     </div>
 </div>

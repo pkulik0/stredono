@@ -51,7 +51,6 @@ func validateUser(user *pb.User, uid string) error {
 	}
 
 	matched, err = regexp.Match(storageUrlRegex, []byte(user.PictureUrl))
-	log.Printf("pic url: %s", user.PictureUrl)
 	if len(user.PictureUrl) > 0 && (err != nil || !matched) {
 		return errors.New("invalid picture url")
 	}
