@@ -2,6 +2,7 @@
 	import { auth } from '$lib/ext/firebase/firebase';
 	import { OAuthProvider, signInWithPopup } from 'firebase/auth';
 	import { Button } from 'flowbite-svelte';
+	import {t} from 'svelte-i18n';
 
 	const loginTwitch = async () => {
 		const provider = new OAuthProvider("oidc.twitch")
@@ -23,4 +24,4 @@
 	}
 </script>
 
-<Button color="purple" outline class="w-full" on:click={loginTwitch}>Login with Twitch</Button>
+<Button color="purple" outline class="w-full" on:click={loginTwitch}>{$t("continue_with_twitch")}</Button>

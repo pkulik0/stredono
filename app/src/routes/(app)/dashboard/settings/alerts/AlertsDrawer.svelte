@@ -28,6 +28,7 @@
         VolumeUpSolid
     } from 'flowbite-svelte-icons';
     import { onMount } from 'svelte';
+    import { t } from 'svelte-i18n';
     import { sineIn } from 'svelte/easing';
     import AlertViewer from './AlertViewer.svelte';
 
@@ -116,17 +117,17 @@
     <div class="flex items-center">
         <h5 id="drawer-label" class="inline-flex items-center mb-6 text-base font-semibold text-gray-500 uppercase dark:text-gray-400">
             <BellActiveSolid class="w-4 h-4 me-2.5" />
-            New {JSON.parse(JSON.stringify(EventType))[eventType]} Alert
+            {$t("new_alert")} - {JSON.parse(JSON.stringify(EventType))[eventType]}
         </h5>
         <CloseButton on:click={() => (hidden = true)} class="mb-4 dark:text-white" />
     </div>
 
     <div class="w-full space-y-4">
-        <Heading tag="h5">Trigger</Heading>
+        <Heading tag="h5">{$t("trigger")}</Heading>
 
         <div class="space-x-4 flex flex-row">
             <Label>
-                From
+                {$t("range_from")}
                 <ButtonGroup>
                     <Input type="number" bind:value={startValue} />
                     <InputAddon>{currencySymbol}</InputAddon>
@@ -134,7 +135,7 @@
             </Label>
 
             <Label>
-                To
+                {$t("range_to")}
                 <ButtonGroup>
                     <Input type="number" bind:value={endValue} />
                     <InputAddon>{currencySymbol}</InputAddon>
@@ -142,24 +143,24 @@
             </Label>
         </div>
 
-        <Heading tag="h5">Media</Heading>
+        <Heading tag="h5">{$t("media")}</Heading>
 
         <Button color={alert.GifUrl ? "alternative" : "primary"} class="w-full" size="xl" outline on:click={() => { gifPickerOpen = true; }}>
             <ImageOutline class="w-5 h-5 me-1" />
-            {#if alert.GifUrl} Change {:else} Pick or Upload {/if}
-            GIF
+            {#if alert.GifUrl} {$t("change")} {:else} {$t("pick_or_upload")} {/if}
+            {$t("gif")}
         </Button>
 
         <Button color={alert.SoundUrl ? "alternative" : "primary"} class="w-full" size="xl" outline on:click={() => { soundPickerOpen = true; }}>
             <VolumeUpSolid class="w-5 h-5 me-1" />
-            {#if alert.SoundUrl} Change {:else} Pick or Upload {/if}
-            Sound
+            {#if alert.SoundUrl} {$t("change")} {:else} {$t("pick_or_upload")} {/if}
+            {$t("sound")}
         </Button>
 
-        <Heading tag="h5">Message</Heading>
+        <Heading tag="h5">{$t("message")}</Heading>
 
         <Label>
-            Template
+            {$t("template")}
             <Textarea bind:value={alert.Message} />
         </Label>
 
@@ -170,7 +171,7 @@
             <RadioButton value={Alignment.JUSTIFY} bind:group={alert.Alignment}><BarsSolid/></RadioButton>
         </div>
 
-        <Heading tag="h6">Text Position</Heading>
+        <Heading tag="h6">{$t("text_position")}</Heading>
 
         <div class="flex flex-col items-center space-y-2">
             <Radio value={Position.TOP} bind:group={alert.TextPosition}/>
@@ -184,39 +185,39 @@
             <Radio value="{Position.BOTTOM}" bind:group={alert.TextPosition}/>
         </div>
 
-        <Heading tag="h5">Look</Heading>
+        <Heading tag="h5">{$t("appearance")}</Heading>
 
         <Label>
-            Animation Type
+            {$t("animation_type")}
             <Select bind:value={alert.Animation} items={animations}/>
         </Label>
 
         <Label>
-            Animation Speed
+            {$t("animation_speed")}
             <Range min={Speed.OFF} max={Speed.FASTER} step="1" bind:value={alert.AnimationSpeed}/>
         </Label>
 
         <div class="flex space-x-10 pb-2">
             <Label class="flex flex-col">
-                Text Color
+                {$t("text_color")}
                 <input type="color" bind:value={alert.TextColor} />
             </Label>
 
             <Label class="flex flex-col">
-                Accent Color
+                {$t("accent_color")}
                 <input type="color" bind:value={alert.AccentColor} />
             </Label>
         </div>
 
         <Button on:click={addNew} class="w-full">
             <PlusSolid class="w-5 h-5 me-1" />
-            Add
+            {$t("save")}
         </Button>
     </div>
 
 </Drawer>
 
-<GifPicker bind:url={alert.GifUrl} searchTerm="money" bind:open={gifPickerOpen} />
+<GifPicker bind:url={alert.GifUrl} searchTerm={$t("default_gif_search_term")} bind:open={gifPickerOpen} />
 <SoundPicker bind:url={alert.SoundUrl} bind:open={soundPickerOpen} />
 
 {#if !hidden}

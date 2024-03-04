@@ -1,10 +1,11 @@
 <script lang="ts">
+    import FileDropzone from '$lib/comp/FileDropzone.svelte';
     import { storage, uploadToStorage } from '$lib/ext/firebase/storage';
     import { Button, Heading, Input, Label, Modal, P } from 'flowbite-svelte';
-    import FileDropzone from "$lib/comp/FileDropzone.svelte";
     import {ref, listAll, getDownloadURL} from 'firebase/storage';
     import { onMount } from 'svelte';
     import { v4 as uuidv4 } from 'uuid';
+    import {t} from 'svelte-i18n';
 
     export let url: string;
     export let open: boolean = false;
@@ -55,32 +56,22 @@
 </script>
 
 
-<Modal bind:open title="Sounds" autoclose outsideclose class="z-100" {backdropClass}>
-    <svelte:fragment slot="header">
-<!--        <Label class="w-full me-5">-->
-<!--            Search-->
-<!--            <Input bind:value={searchTerm} placeholder="Type in anything!" />-->
-<!--        </Label>-->
-    </svelte:fragment>
-
+<Modal bind:open title={$t("sounds")} autoclose outsideclose class="z-100" {backdropClass}>
     <svelte:fragment slot="footer">
         {#if upload}
-            <FileDropzone bind:file description="Audio (max 10MB)" />
+            <FileDropzone bind:file description={$t("size_limit_label", {values: {format: "Audio", "size": "10", "unit": "MB"}})} />
         {/if}
     </svelte:fragment>
 
-    <P>All these sounds are copyright-free and available for commercial use.</P>
+    <P>{$t("sounds_commercial_use")}</P>
 
     {#each items as item}
         <div class="flex items-center justify-between w-full px-4 space-y-22">
             <P class="font-bold flex-[0.6]">{item.name}</P>
 
-            <audio controls>
-                <source src={item.url} type="audio/mpeg" />
-                Your browser does not support the audio element.
-            </audio>
+            <audio src={item.url} controls/>
 
-            <Button on:click={() => pickSound(item.url)}>Pick</Button>
+            <Button on:click={() => pickSound(item.url)}>{$t("pick")}</Button>
         </div>
     {/each}
 </Modal>

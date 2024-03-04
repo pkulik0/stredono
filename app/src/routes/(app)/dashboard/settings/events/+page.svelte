@@ -5,83 +5,84 @@
 	import {slide} from 'svelte/transition';
 	import InputMin from './InputMin.svelte';
 	import AccordItem from './AccordItem.svelte';
+	import { t } from 'svelte-i18n';
 
 	const authLevels = [
-		{ value: AuthLevel.NONE, name: 'Disabled' },
-		{ value: AuthLevel.EMAIL, name: 'Email verification' },
-		{ value: AuthLevel.OIDC, name: 'Twitch login' }
+		{ value: AuthLevel.NONE, name: $t("disabled") },
+		{ value: AuthLevel.EMAIL, name: $t("email_verification") },
+		{ value: AuthLevel.OIDC, name: $t("oidc_login") }
 	]
 	let selectedAuthLevel = AuthLevel.NONE;
 
 	const followFrequency = [
-		{ value: Frequency.NEVER, name: "Never" },
-		{ value: Frequency.ALWAYS, name: "Always" },
-		{ value: Frequency.EVERY_MINUTE, name: "Every minute" },
-		{ value: Frequency.EVERY_FIVE_MINUTES, name: "Every 5 minutes" },
-		{ value: Frequency.EVERY_QUARTER_HOUR, name: "Every 15 minutes" },
-		{ value: Frequency.EVERY_HALF_HOUR, name: "Every half an hour" },
-		{ value: Frequency.EVERY_HOUR, name: "Every hour" },
+		{ value: Frequency.NEVER, name: $t("never") },
+		{ value: Frequency.ALWAYS, name: $t("always") },
+		{ value: Frequency.EVERY_MINUTE, name: $t("every_minute") },
+		{ value: Frequency.EVERY_FIVE_MINUTES, name: $t("every_5_minutes") },
+		{ value: Frequency.EVERY_QUARTER_HOUR, name: $t("every_10_minutes") },
+		{ value: Frequency.EVERY_HALF_HOUR, name: $t("every_half_hour") },
+		{ value: Frequency.EVERY_HOUR, name: $t("every_hour") },
 	]
 	let selectedFreq = Frequency.NEVER;
 
 </script>
 
-<Heading tag="h2">Events</Heading>
+<Heading tag="h2">{$t("events")}</Heading>
 <div class="space-y-4 w-full p-4">
-	<Heading tag="h4">Tips</Heading>
+	<Heading tag="h4">{$t("tips")}</Heading>
 	<div class="space-y-4 px-4">
 		<Label>
 			<div class="flex">
-				Require authentication
+				{$t("require_auth")}
 				<InfoCircleOutline class="ms-1.5"/>
 				<Popover class="w-96">
 					<div class="p-4">
-						<p>If enabled, before tipping, users will have to verify their email or log in with Twitch.</p>
+						<p>{$t("require_auth_help")}</p>
 					</div>
 				</Popover>
 			</div>
 			<Select items={authLevels} bind:value={selectedAuthLevel}/>
 		</Label>
 
-		<InputMin label="Minimum tip" type="number" placeholder="5.00"/>
+		<InputMin label={$t("min_tip")} type="number" placeholder="5.00"/>
 
 		<Checkbox checked={true}>
-			Show availability on the tipping page
+			{$t("tip_availability")}
 			<InfoCircleOutline class="ms-1.5 mt-0.5"/>
 			<Popover class="w-96">
 				<div class="p-4">
-					<p>If you go offline or temporarily turn off alerts, sound or TTS, a message will be displayed on the tipping page.</p>
+					<p>{$t("tip_availability_help")}</p>
 				</div>
 			</Popover>
 		</Checkbox>
 	</div>
 
-	<Heading tag="h4">Twitch</Heading>
+	<Heading tag="h4">{$t("twitch")}</Heading>
 
 	<div class="space-y-4 px-4">
 		<Accordion class="w-full">
-			<AccordItem header="Subscriptions">
-				<InputMin label="Minimum months" type="number" placeholder="1" />
+			<AccordItem header={$t("subs")}>
+				<InputMin label={$t("min_amount")} type="number" placeholder="1" />
 			</AccordItem>
-			<AccordItem header="Gifts">
-				<InputMin label="Minimum amount" type="number" placeholder="1" />
+			<AccordItem header={$t("sub_gifts")}>
+				<InputMin label={$t("min_amount")} type="number" placeholder="1" />
 			</AccordItem>
-			<AccordItem header="Follows">
+			<AccordItem header={$t("follows")}>
 				<Label>
-					Frequency
+					{$t("frequency")}
 					<Select items={followFrequency} bind:value={selectedFreq}/>
 				</Label>
 			</AccordItem>
-			<AccordItem header="Cheers">
-				<InputMin label="Minimum bits" type="number" placeholder="1" />
+			<AccordItem header={$t("cheers")}>
+				<InputMin label={$t("min_bits")} type="number" placeholder="1" />
 			</AccordItem>
-			<AccordItem header="Raids">
-				<InputMin label="Minimum viewers" type="number" placeholder="10" />
+			<AccordItem header={$t("raids")}>
+				<InputMin label={$t("min_viewers")} type="number" placeholder="10" />
 			</AccordItem>
 		</Accordion>
 	</div>
 
 	<div class="pt-4">
-		<Button>Save</Button>
+		<Button>{$t("save")}</Button>
 	</div>
 </div>

@@ -8,7 +8,7 @@
 <AccordionItem bind:open>
 	<span slot="header">{header}</span>
 	<div class="space-y-4">
-		<Checkbox>Enable TTS</Checkbox>
+		<Checkbox>Read out loud</Checkbox>
 		<slot/>
 	</div>
 </AccordionItem>

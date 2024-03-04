@@ -18,6 +18,7 @@
 	import { InfoCircleSolid, PlaySolid } from 'flowbite-svelte-icons';
 	import { onDestroy, onMount } from 'svelte';
 	import VoiceSelect from './VoiceSelect.svelte';
+	import {t} from 'svelte-i18n';
 
 	const langName = new Intl.DisplayNames(['en'], {type: 'language'})
 
@@ -56,20 +57,20 @@
 	})
 </script>
 
-<Heading tag="h2">Text-to-Speech</Heading>
+<Heading tag="h2">{$t("text_to_speech")}</Heading>
 <div class="space-y-10 p-4">
 	<div class="space-y-6 flex flex-col">
-		<Heading tag="h4">Plus</Heading>
+		<Heading tag="h4">{$t("plus")}</Heading>
 
 		<Alert class="!items-start" color="gray">
 			<span slot="icon">
 				<InfoCircleSolid class="w-5 h-5"/>
-				<span class="sr-only">Info</span>
+				<span class="sr-only">{$t("info")}</span>
 			</span>
 			<p class="font-medium">
-				Plus voices are capable of speaking multiple languages even in one sentence. They might still have a slight accent or work better in some languages than others. Pick the one that suits your needs.
+				{$t("tts_plus_info")}
 				<br/>
-				Supported languages:
+				{$t("supported_languages")}:
 			</p>
 			<ul class="mt-1.5 ms-4 list-disc list-inside grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1">
 				{#each languagesPlus as l}
@@ -80,14 +81,14 @@
 
 		<VoiceSelect voices={voicesPlus} bind:value={selectedPlus}/>
 
-		<Checkbox bind:checked={enablePlus}>Enable TTS Plus</Checkbox>
+		<Checkbox bind:checked={enablePlus}>{$t("tts_plus_enable")}</Checkbox>
 	</div>
 
 	<div class="space-y-6 flex flex-col">
-		<Heading tag="h4">Basic</Heading>
+		<Heading tag="h4">{$t("basic")}</Heading>
 
 		<Label>
-			Language
+			{$t("language")}
 			<Select items={languagesBasic} bind:value={selectedLanguage}/>
 		</Label>
 
@@ -95,6 +96,6 @@
 	</div>
 
 	<Button>
-		Save
+		{$t("save")}
 	</Button>
 </div>

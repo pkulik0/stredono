@@ -7,6 +7,7 @@
     import {onMount} from "svelte";
     import {uploadToStorage} from "$lib/ext/firebase/storage";
     import {sendNotification, Notification} from "$lib/notifications";
+    import {t} from "svelte-i18n";
 
     let displayName: string = "";
     let url: string = "";
@@ -18,7 +19,7 @@
 
     onMount(() => {
         return userStore.subscribe((u) => {
-            user = u;
+            user = u||undefined;
 
             if(u) {
                 displayName = u.DisplayName;
@@ -59,38 +60,36 @@
     }
 </script>
 
-<Heading tag="h2">Profile</Heading>
+<Heading tag="h2">{$t("profile")}</Heading>
 <div class="flex flex-col w-full items-center justify-center p-4">
-    <Heading tag="h4" class="pb-4">Preview</Heading>
-    <Card padding="xl" size="lg">
+    <Heading tag="h4" class="pb-4">{$t("preview")}</Heading>
+    <Card padding="xl" size="xl">
         <UserHeader interactive={false} {user}/>
     </Card>
 
-    <Heading tag="h4" class="mt-4">Edit</Heading>
-    <div class="space-y-6 w-full max-w-xl">
+    <Heading tag="h4" class="mt-4">{$t("edit")}</Heading>
+    <div class="space-y-6 w-full max-w-2xl">
         <Label class="flex-1">
-            Display Name
+            {$t("display_name")}
             <Input placeholder={user?.Username || "???"} bind:value={displayName} type="text"/>
         </Label>
 
         <Label>
-            Description
+            {$t("description")}
             <Textarea bind:value={description} />
         </Label>
 
         <Label>
-            Your Link
+            {$t("your_url")}
             <Input bind:value={url} type="text"/>
-            <Helper class="mt-1">
-                Clicking on your profile picture will take visitors to this link
-            </Helper>
+            <Helper class="mt-1">{$t("your_url_help")}</Helper>
         </Label>
 
         <Label>
-            Picture
+            {$t("picture")}
             <FileDropzone description=".png .jpg .jpeg .webp" bind:file={pictureFile} />
         </Label>
 
-        <Button class="w-full" on:click={clickSave}>Save</Button>
+        <Button on:click={clickSave}>{$t("save")}</Button>
     </div>
 </div>

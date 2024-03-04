@@ -3,10 +3,11 @@
     import { auth } from '$lib/ext/firebase/firebase';
     import {Card, Checkbox, Hr, Input, Label, P, Pagination} from "flowbite-svelte";
     import {onMount} from "svelte";
-    import DonationList from "$lib/comp/DonationList.svelte";
+    import TipList from "$lib/comp/TipList.svelte";
     import {ChevronLeftOutline, ChevronRightOutline} from "flowbite-svelte-icons";
     import {page} from "$app/stores";
     import {goto} from "$app/navigation";
+    import {t} from "svelte-i18n";
 
     onMount(() => {
         return tipsStore.subscribe((value) => {
@@ -95,27 +96,27 @@
         </div>
 
         <Label class="p-2">
-            Search
+            {$t("search")}
             <Input type="text" bind:value={searchTerm}></Input>
         </Label>
         <div class="flex flex-row space-x-4 ms-4 mt-1">
             <Checkbox bind:checked={searchInSender} class="mb-4">
-                Senders
+                {$t("users")}
             </Checkbox>
             <Checkbox bind:checked={searchInEmail} class="mb-4">
-                Emails
+                {$t("emails")}
             </Checkbox>
             <Checkbox bind:checked={searchInMessage} class="mb-4">
-                Messages
+                {$t("app_name")}
             </Checkbox>
         </div>
 
         <Hr/>
 
         {#if filteredItems.length === 0}
-            <P class="text-center">No tips in this period</P>
+            <P class="text-center">{$t("no_tips_in_period")}</P>
         {:else}
-            <DonationList items={filteredItems} />
+            <TipList items={filteredItems} />
         {/if}
     </Card>
 </div>

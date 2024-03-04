@@ -4,6 +4,7 @@
     import {fly} from "svelte/transition";
     import {onMount} from "svelte";
     import {type Notification} from "$lib/notifications";
+    import {t} from 'svelte-i18n';
 
     export let notification: Notification;
 
@@ -54,5 +55,5 @@
     </svelte:fragment>
 
     {notification.message}
-    <span class="text-gray-500">({counter}s)</span>
+    <span class="text-gray-500">({$t("seconds_label", {values: {seconds: counter} })})</span>
 </Toast>

@@ -2,13 +2,13 @@
     import { uploadToStorage } from '$lib/ext/firebase/storage';
     import {getTopGifs, type Gif, searchGifs} from "$lib/ext/tenor";
     import {onMount} from "svelte";
-    import { Dropzone, Input, Label, Modal, Spinner } from 'flowbite-svelte';
+    import { Img, Input, Label, Modal } from 'flowbite-svelte';
     import GifGallery from "$lib/comp/GifGallery.svelte";
     import {writable, type Writable} from "svelte/store";
-    import {UploadOutline} from "flowbite-svelte-icons";
     import axios from "axios";
     import FileDropzone from "$lib/comp/FileDropzone.svelte";
     import { v4 as uuidv4 } from 'uuid';
+    import {t} from 'svelte-i18n';
 
     const limit = 30;
 
@@ -103,25 +103,25 @@
 
     $: loadMore = function () {
         if (foundGifs) return () => getGifsByTerm(termTrimmed);
-        if (lastGifs && termTrimmed) return () => getGifsByTerm(lastTerm || "ALWAYS NOT NULL, DONT MIND");
+        if (lastGifs && termTrimmed) return () => getGifsByTerm(lastTerm || "always not null");
         return getTrendingGifs;
     }()
 
     let backdropClass = "fixed inset-0 z-50 bg-gray-900 bg-opacity-50 dark:bg-opacity-80";
 </script>
 
-<Modal bind:open title="Gifs" autoclose outsideclose class="z-100" {backdropClass}>
+<Modal bind:open title={$t("gifs")} autoclose outsideclose class="z-100" {backdropClass}>
 
     <svelte:fragment slot="header">
         <Label class="w-full me-5">
-            Search
-            <Input bind:value={searchTerm} on:input={onSearchInputChange} placeholder="Type in anything!" />
+            {$t("search")}
+            <Input bind:value={searchTerm} on:input={onSearchInputChange} placeholder={$t("type_in_anything")} />
         </Label>
     </svelte:fragment>
 
     <svelte:fragment slot="footer">
         {#if upload}
-            <FileDropzone bind:file description=".gif (max. 5MB)"/>
+            <FileDropzone bind:file description={$t("size_limit_label", {values: {format: ".gif", "size": "5", "unit": "MB"}})}/>
         {/if}
     </svelte:fragment>
 

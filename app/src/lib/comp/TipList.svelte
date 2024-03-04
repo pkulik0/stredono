@@ -4,6 +4,7 @@
     import {DotsVerticalSolid, RedoOutline, RefreshOutline, ShieldSolid} from "flowbite-svelte-icons";
     import {slide, fade} from "svelte/transition";
     import {streamModeStore} from "$lib/stores";
+    import {t} from 'svelte-i18n';
 
     export let items: Tip[]
 
@@ -15,7 +16,7 @@
         <ListgroupItem class="flex items-center space-x-4 rtl:space-x-reverse">
             <div class="flex-[0.3]">
                 <p class="text-sm font-bold text-gray-900 truncate dark:text-white">
-                    {item.Sender}
+                    {item.DisplayName}
                 </p>
                 {#if $streamModeStore === false}
                     <p class="text-sm text-gray-500 truncate dark:text-gray-400" transition:slide>
@@ -35,22 +36,22 @@
             <Dropdown>
                 <DropdownItem class="{menuButtonClass}">
                     <RefreshOutline/>
-                    Rerun
+                    {$t("rerun")}
                 </DropdownItem>
                 <DropdownItem class="{menuButtonClass}">
                     <ShieldSolid/>
-                    Block
+                    {$t("block")}
                 </DropdownItem>
                 <DropdownItem slot="footer" class="{menuButtonClass} text-red-500">
                     <RedoOutline/>
-                    Refund
+                    {$t("refund")}
                 </DropdownItem>
             </Dropdown>
         </ListgroupItem>
     {/each}
     {#if items.length === 0}
         <ListgroupItem class="flex items-center justify-center h-16">
-            <p class="text-gray-500 dark:text-gray-400">You haven't received any donations recently.</p>
+            <p class="text-gray-500 dark:text-gray-400">{$t("no_tips_recently")}</p>
         </ListgroupItem>
     {/if}
 </Listgroup>

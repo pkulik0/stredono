@@ -14,19 +14,19 @@
 
 <Navbar color="primary">
     <NavBrand href={baseUrl}>
-        <span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">Stredono</span>
+        <span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">{$t("app_name")}</span>
     </NavBrand>
     <NavHamburger />
     <NavUl {activeUrl} {activeClass} {nonActiveClass}>
         {#if $userStore}
-            <NavLi href={baseUrl}>{$t('nav_panel')}</NavLi>
-            <NavLi href={baseUrl+"/tips"}>Tips</NavLi>
-            <NavLi href={baseUrl+"/payments"}>Payments</NavLi>
-            <NavLi href={baseUrl+"/settings"}>Settings</NavLi>
+            <NavLi href={baseUrl}>{$t('dashboard')}</NavLi>
+            <NavLi href={baseUrl+"/tips"}>{$t("tips")}</NavLi>
+            <NavLi href={baseUrl+"/payments"}>{$t("payments")}</NavLi>
+            <NavLi href={baseUrl+"/settings"}>{$t("settings")}</NavLi>
         {/if}
         <div class="sm:flex sm:justify-end">
             {#if $userStore}
-                <Toggle checked={$streamModeStore} on:click={() => { streamModeStore.update((v) => { return !v }) }}>Stream Mode</Toggle>
+                <Toggle checked={$streamModeStore} on:click={() => { streamModeStore.update((v) => { return !v }) }}>{$t("stream_mode")}</Toggle>
             {/if}
         </div>
     </NavUl>

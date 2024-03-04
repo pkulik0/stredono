@@ -3,10 +3,11 @@
 	import { Button, Label, Select } from 'flowbite-svelte';
 	import { PauseSolid, PlaySolid } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
+	import { t } from 'svelte-i18n';
 
 	export let voices: Voice[];
 	export let value: Voice|undefined;
-	export let placeholder = "Choose a voice...";
+	export let placeholder = $t("voice_placeholder");
 
 	$: items = voices.map((voice) => ({ value: voice, name: voice.Name })).sort((a, b) => a.name.localeCompare(b.name));
 
@@ -49,10 +50,10 @@
 		<Button outline on:click={clickPlay} class="max-w-36 w-full">
 			{#if isPlaying}
 				<PauseSolid class="me-1.5"/>
-				Stop
+				{$t("stop")}
 			{:else}
 				<PlaySolid class="me-1.5"/>
-				Listen
+				{$t("listen")}
 			{/if}
 		</Button>
 	</div>

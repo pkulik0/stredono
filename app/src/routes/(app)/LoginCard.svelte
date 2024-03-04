@@ -6,21 +6,21 @@
     import {onMount} from "svelte";
     import {userStore} from "$lib/user";
     import {goto} from "$app/navigation";
+    import { t } from 'svelte-i18n';
     import {slide} from 'svelte/transition';
     import {OAuthProvider} from "firebase/auth";
 
     let email = "";
-    let tosAccepted = false;
     const emailKey = "sign-in-email";
 
     let success = false;
 
     const onTosDetailsClicked = () => {
         console.log("tos details clicked");
+        // TODO: impl
     }
 
     const login = async () => {
-        tosAccepted = true;
         try {
             const actionCodeSettings = {
                 url: window.location.href,
@@ -46,7 +46,8 @@
         if (!isSignInWithEmailLink(auth, window.location.href)) return;
         const email = window.localStorage.getItem(emailKey);
         if (!email) {
-            alert("Open the link on the same device you tried to sign in on.");
+            alert($t("new_alert"));
+            // TODO: handle better
             return;
         }
         try {
@@ -61,34 +62,25 @@
 
 <div class="w-full max-w-lg">
     {#if !success}
-        <div transition:slide>
+        <div transition:slide class="space-y-4">
             <Label class="mb-4">
-                Email
+                {$t("email")}
                 <Input type="text" class="mt-1" bind:value={email}/>
             </Label>
 
-            <div class="mb-10">
-                <Checkbox bind:checked={tosAccepted}>
-                <span class="inline">
-                    I agree to the
-                    <button on:click={onTosDetailsClicked} class="text-primary-700 dark:text-primary-500 hover:underline">terms and conditions</button>
-                </span>
-                </Checkbox>
-            </div>
-
-            <Button class="mb-4 w-full" type="submit" on:click={login}>Enter</Button>
+            <Button class="w-full" type="submit" on:click={login}>{$t("continue")}</Button>
             <LoginWithTwitch/>
-            <Helper class="mt-4">
-                <span class="text-gray-500">By continuing you agree to our <button class="hover:underline" on:click={onTosDetailsClicked}>terms and conditions.</button></span>
+            <Helper>
+                <span class="text-gray-500">{$t("tos_agree")} <button class="hover:underline" on:click={onTosDetailsClicked}>{$t("tos")}.</button></span>
             </Helper>
         </div>
     {:else}
         <div transition:slide>
-            <P class="text-justify mb-6">An email has been sent to {email}. Please click the link in the email to sign in.</P>
+            <P class="text-justify mb-6">{$t("email_confirmation", { values: {email: email}})}</P>
 
-            <Button class="w-full mb-2" outline on:click={checkEmail}>Check email</Button>
+            <Button class="w-full mb-2" outline on:click={checkEmail}>{$t("email_check")}</Button>
             <Helper>
-                <span class="text-gray-500">This will send you to your email provider.</span>
+                <span class="text-gray-500">{$t("email_button_help")}</span>
             </Helper>
         </div>
     {/if}

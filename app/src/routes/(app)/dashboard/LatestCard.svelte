@@ -3,7 +3,8 @@
     import { Card, TextPlaceholder} from "flowbite-svelte";
     import {onMount} from "svelte";
     import {tipsStore} from "$lib/tips";
-    import DonationList from "$lib/comp/DonationList.svelte";
+    import TipList from "$lib/comp/TipList.svelte";
+    import { t } from 'svelte-i18n';
 
     let items: Tip[]|undefined = undefined;
     $: itemsSlice = items?.slice(Math.min(items?.length - size, 0)).reverse();
@@ -21,12 +22,12 @@
 
 <Card padding="xl" size="xl" class="mt-4 flex-1">
     <div class="flex justify-between mb-4">
-        <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">Latest Donations</h5>
-        <a href="/panel/donations" class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500"> View all </a>
+        <h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">{$t("latest_tips")}</h5>
+        <a href="/dashboard/tips" class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">{$t("view_all")}</a>
     </div>
 
     {#if itemsSlice}
-        <DonationList items={itemsSlice}/>
+        <TipList items={itemsSlice}/>
     {:else}
         <TextPlaceholder/>
     {/if}

@@ -1,6 +1,7 @@
 <script lang="ts">
     import {UploadOutline} from "flowbite-svelte-icons";
-    import {Dropzone} from "flowbite-svelte";
+    import { Dropzone, Heading } from 'flowbite-svelte';
+    import { t } from 'svelte-i18n';
 
     export let file: File | undefined;
     export let description: string = "";
@@ -36,6 +37,6 @@
 
 <Dropzone class="max-h-40" id="dropzone" on:drop={dropHandle} on:dragover={e => e.preventDefault()} on:change={handleChange}>
     <UploadOutline class="mb-3 w-10 h-10 text-gray-400" />
-    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+    <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">{$t("dropzone_msg")}</p>
     <p class="text-xs text-gray-500 dark:text-gray-400">{description}</p>
 </Dropzone>

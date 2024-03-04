@@ -16,22 +16,24 @@ resource "google_project_iam_member" "firebase_admin" {
 resource "google_storage_bucket" "fn_bucket" {
   provider                    = google-beta
   project                     = google_project.default.project_id
-  name                        = "${google_project.default.project_id}-gcf-source"
+  name                        = "${google_project.default.project_id}-cloud-source"
   location                    = var.storage_location
   uniform_bucket_level_access = true
 
   depends_on = [google_project_service.default]
 }
 
+
 data "archive_file" "source" {
   type        = "zip"
   source_dir  = "${local.base_path}/cloud"
   excludes    = ["cmd"]
-  output_path = "${path.module}/.terraform/functions_source.zip"
+  output_path = "${path.module}/.terraform/cloud_source.zip"
 }
 
+// The hash of the zip is needed to ensure that the function is updated when the source changes
 resource "google_storage_bucket_object" "functions_source" {
-  name   = "functions_source.zip"
+  name   = "cloud_source_${data.archive_file.source.output_sha256}}.zip"
   source = data.archive_file.source.output_path
   bucket = google_storage_bucket.fn_bucket.name
 

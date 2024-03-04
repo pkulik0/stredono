@@ -6,13 +6,25 @@
     import AlertsDrawer from "./AlertsDrawer.svelte";
     import {
         Button, Heading,
-        ImagePlaceholder, Input, Label, P, Select
+        ImagePlaceholder, Label, P, Select
     } from 'flowbite-svelte';
     import {onMount} from "svelte";
     import {userStore} from "$lib/user";
-    import AlertViewer from './AlertViewer.svelte';
+    import {t} from "svelte-i18n";
 
     let userAlerts: UsersAlerts|undefined|null;
+
+    let selectOptions = [
+        {value: EventType.TIP, name: $t("tip")},
+        {value: EventType.CHEER, name: $t("cheer")},
+        {value: EventType.SUBSCRIBE, name: $t("sub")},
+        {value: EventType.SUBGIFT, name: $t("sub_gift")},
+        {value: EventType.FOLLOW, name: $t("follow")},
+        {value: EventType.RAID, name: $t("raid")},
+    ];
+    let selectedType: EventType = EventType.TIP;
+
+    let drawerHidden = true;
 
     onMount(() => {
         let listenerUnsub: (() => void)|undefined;
@@ -32,39 +44,26 @@
             alertsUnsub();
         }
     });
-
-    let drawerHidden = true;
-
-    let selectOptions = [
-        {value: EventType.TIP, name: 'Tip'},
-        {value: EventType.CHEER, name: 'Cheer'},
-        {value: EventType.SUBSCRIBE, name: 'Sub'},
-        {value: EventType.SUBGIFT, name: 'Sub Gift'},
-        {value: EventType.FOLLOW, name: 'Follow'},
-        {value: EventType.RAID, name: 'Raid'},
-    ];
-    let selectedType: EventType = EventType.TIP;
-
 </script>
 
-<Heading tag="h2">Alerts</Heading>
+<Heading tag="h2">{$t("alerts")}</Heading>
 <div class="space-y-4 w-full p-4">
     <Label>
-        Type
-        <Select items={selectOptions} bind:value={selectedType} placeholder="Filter by type"/>
+        {$t("type")}
+        <Select items={selectOptions} bind:value={selectedType} placeholder={$t("type_filter")}/>
     </Label>
 
     <div class="flex justify-end">
         <Button on:click={() => drawerHidden = false}>
             <PlusSolid class="w-4 h-4" />
-            <span class="ms-2">New</span>
+            <span class="ms-2">{$t("new")}</span>
         </Button>
     </div>
 
     {#if userAlerts !== undefined}
         {#if userAlerts === null}
             <P class="text-center py-8">
-                You have no alerts of this type.
+                {$t("no_alerts")}
             </P>
         {:else}
             {#each userAlerts.Alerts as alert}
