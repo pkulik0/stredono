@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package stredono;
+
+option go_package="github.com/pkulik0/stredono/cloud/pb";
+
+enum SubTier {
+  PRIME = 0;
+  TIER_1 = 1;
+  TIER_2 = 2;
+  TIER_3 = 3;
+}
+
+enum EventType {
+  TIP = 0;
+  CHEER = 1;
+  FOLLOW = 2;
+  SUB = 3;
+  SUB_GIFT = 4;
+  RAID = 5;
+}
+
+message Event {
+  string Id = 1;
+
+  string Channel = 2;
+  string Username = 3;
+
+  string TTSUrl = 4;
+
+  EventType Type = 5;
+  oneof Payload {
+    TipPayload Tip = 6;
+    CheerPayload Cheer = 7;
+    SubPayload Sub = 8;
+    SubGiftPayload SubGift = 9;
+    RaidPayload Raid = 10;
+    ChatMessagePayload ChatMessage = 11;
+  }
+
+  message SubGiftPayload {
+    string Recipient = 1;
+    SubTier Tier = 2;
+  }
+
+  message SubPayload {
+    string Message = 1;
+    SubTier Tier = 2;
+  }
+
+  message RaidPayload {
+    int32 Viewers = 1;
+  }
+
+  message TipPayload {
+    string Message = 1;
+    double Amount = 2;
+    string Currency = 3;
+  }
+
+  message CheerPayload {
+    string Message = 1;
+    int32 Amount = 2;
+  }
+
+  message ChatMessagePayload {
+    string Message = 1;
+  }
+}

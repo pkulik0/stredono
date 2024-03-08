@@ -1,5 +1,5 @@
 import { InvocationType, printStats } from './main';
-import { TTSKey, TTSProvider } from './pb/stredono_pb';
+import { TTSKey } from './pb/tts_pb';
 import { getFirestore } from 'firebase-admin/firestore';
 import { initializeApp, applicationDefault } from 'firebase-admin/app';
 

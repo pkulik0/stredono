@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Tier, User, type Voice } from '$lib/pb/stredono_pb';
+	import type { Voice } from '$lib/pb/tts_pb';
+	import type { User } from '$lib/pb/user_pb';
 	import { getVoices } from '$lib/tts';
 	import { userStore } from '$lib/user';
 	import {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Voice } from '$lib/pb/stredono_pb';
+	import type { Voice } from '$lib/pb/tts_pb';
 	import { Button, Label, Select } from 'flowbite-svelte';
 	import { PauseSolid, PlaySolid } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';

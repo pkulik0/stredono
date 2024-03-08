@@ -9,7 +9,7 @@ type PubSubMessage struct {
 
 type PubSubTopic interface {
 	Close()
-	Publish(ctx context.Context, msg *PubSubMessage)
+	Publish(ctx context.Context, msg *PubSubMessage) (string, error)
 }
 
 type PubSubClient interface {

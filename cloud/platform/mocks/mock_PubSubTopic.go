@@ -55,8 +55,31 @@ func (_c *MockPubSubTopic_Close_Call) RunAndReturn(run func()) *MockPubSubTopic_
 }
 
 // Publish provides a mock function with given fields: ctx, msg
-func (_m *MockPubSubTopic) Publish(ctx context.Context, msg *modules.PubSubMessage) {
-	_m.Called(ctx, msg)
+func (_m *MockPubSubTopic) Publish(ctx context.Context, msg *modules.PubSubMessage) (string, error) {
+	ret := _m.Called(ctx, msg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Publish")
+	}
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *modules.PubSubMessage) (string, error)); ok {
+		return rf(ctx, msg)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *modules.PubSubMessage) string); ok {
+		r0 = rf(ctx, msg)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *modules.PubSubMessage) error); ok {
+		r1 = rf(ctx, msg)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // MockPubSubTopic_Publish_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Publish'
@@ -78,12 +101,12 @@ func (_c *MockPubSubTopic_Publish_Call) Run(run func(ctx context.Context, msg *m
 	return _c
 }
 
-func (_c *MockPubSubTopic_Publish_Call) Return() *MockPubSubTopic_Publish_Call {
-	_c.Call.Return()
+func (_c *MockPubSubTopic_Publish_Call) Return(_a0 string, _a1 error) *MockPubSubTopic_Publish_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockPubSubTopic_Publish_Call) RunAndReturn(run func(context.Context, *modules.PubSubMessage)) *MockPubSubTopic_Publish_Call {
+func (_c *MockPubSubTopic_Publish_Call) RunAndReturn(run func(context.Context, *modules.PubSubMessage) (string, error)) *MockPubSubTopic_Publish_Call {
 	_c.Call.Return(run)
 	return _c
 }

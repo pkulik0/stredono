@@ -5,11 +5,28 @@ resource "google_service_account" "account" {
   depends_on   = [google_project_service.default]
 }
 
+
+resource "google_project_iam_member" "event_receiver" {
+  provider   = google-beta
+  project    = google_project.default.project_id
+  role       = "roles/eventarc.eventReceiver"
+  member     = "serviceAccount:${google_service_account.account.email}"
+  depends_on = [google_service_account.account]
+}
+
+resource "google_project_iam_member" "pubsub_publisher" {
+  provider   = google-beta
+  project    = google_project.default.project_id
+  role       = "roles/pubsub.publisher"
+  member     = "serviceAccount:${google_service_account.account.email}"
+  depends_on = [google_service_account.account]
+}
+
 resource "google_project_iam_member" "firebase_admin" {
-  provider = google-beta
-  project = google_project.default.project_id
-  role    = "roles/firebase.admin"
-  member  = "serviceAccount:${google_service_account.account.email}"
+  provider   = google-beta
+  project    = google_project.default.project_id
+  role       = "roles/firebase.admin"
+  member     = "serviceAccount:${google_service_account.account.email}"
   depends_on = [google_service_account.account]
 }
 
@@ -31,31 +48,25 @@ data "archive_file" "source" {
   output_path = "${path.module}/.terraform/cloud_source.zip"
 }
 
-// The hash of the zip is needed to ensure that the function is updated when the source changes
+// The hash of the zip is needed to ensure that the functions are updated when the source changes
 resource "google_storage_bucket_object" "functions_source" {
-  name   = "cloud_source_${data.archive_file.source.output_sha256}}.zip"
+  name   = "cloud_source_${data.archive_file.source.output_sha256}.zip"
   source = data.archive_file.source.output_path
   bucket = google_storage_bucket.fn_bucket.name
 
   depends_on = [google_storage_bucket.fn_bucket, data.archive_file.source]
 }
 
-locals {
-  public_functions = { for function in google_cloudfunctions2_function.cloud_functions : function.name => function.location if var.cloud_functions[function.name].public }
-}
-
-resource "google_cloudfunctions2_function" "cloud_functions" {
-  for_each = var.cloud_functions
-
+resource "google_cloudfunctions2_function" "user_register" {
   provider = google-beta
   project  = google_project.default.project_id
 
-  name     = each.key
-  location = each.value.location
+  name     = "UserRegister"
+  location = var.gcf_location
 
   build_config {
-    runtime     = each.value.runtime
-    entry_point = each.value.entry
+    runtime     = "go121"
+    entry_point = "UserRegister"
     source {
       storage_source {
         bucket = google_storage_bucket.fn_bucket.name
@@ -65,34 +76,370 @@ resource "google_cloudfunctions2_function" "cloud_functions" {
   }
 
   service_config {
-    min_instance_count               = each.value.min_instances
-    max_instance_count               = each.value.max_instances
-    available_memory                 = each.value.memory
-    max_instance_request_concurrency = each.value.concurrency
-    timeout_seconds                  = each.value.timeout
-    ingress_settings                 = each.value.public ? "ALLOW_ALL" : "ALLOW_INTERNAL_ONLY"
+    min_instance_count               = 0
+    max_instance_count               = 1
+    available_memory                 = "256M"
+    max_instance_request_concurrency = 1
+    timeout_seconds                  = 60
+    ingress_settings                 = "ALLOW_ALL"
     service_account_email            = google_service_account.account.email
-  }
-
-  lifecycle {
-
   }
 
   depends_on = [google_storage_bucket_object.functions_source, google_service_account.account]
 }
 
-// run.invoker for Gen 2 (used to be cloudfunctions.invoker for Gen 1)
-resource "google_cloud_run_service_iam_member" "invoker" {
-  for_each = local.public_functions
-
+resource "google_cloud_run_service_iam_member" "user_register_invoker" {
   provider = google-beta
   project  = google_project.default.project_id
 
-  service  = lower(each.key)
-  location = each.value
+  service  = lower(google_cloudfunctions2_function.user_register.name)
+  location = google_cloudfunctions2_function.user_register.location
 
   member = "allUsers"
   role   = "roles/run.invoker"
 
-  depends_on = [google_cloudfunctions2_function.cloud_functions]
+  depends_on = [google_cloudfunctions2_function.user_register]
+}
+
+resource "google_cloudfunctions2_function" "user_edit" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  name     = "UserEdit"
+  location = var.gcf_location
+
+  build_config {
+    runtime     = "go121"
+    entry_point = "UserEdit"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.fn_bucket.name
+        object = google_storage_bucket_object.functions_source.name
+      }
+    }
+  }
+
+  service_config {
+    min_instance_count               = 0
+    max_instance_count               = 1
+    available_memory                 = "256M"
+    max_instance_request_concurrency = 1
+    timeout_seconds                  = 60
+    ingress_settings                 = "ALLOW_ALL"
+    service_account_email            = google_service_account.account.email
+  }
+
+  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account]
+}
+
+resource "google_cloud_run_service_iam_member" "user_edit_invoker" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  service  = lower(google_cloudfunctions2_function.user_edit.name)
+  location = google_cloudfunctions2_function.user_edit.location
+
+  member = "allUsers"
+  role   = "roles/run.invoker"
+
+  depends_on = [google_cloudfunctions2_function.user_edit]
+}
+
+resource "google_cloudfunctions2_function" "tip_send" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  name     = "TipSend"
+  location = var.gcf_location
+
+  build_config {
+    runtime     = "go121"
+    entry_point = "TipSend"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.fn_bucket.name
+        object = google_storage_bucket_object.functions_source.name
+      }
+    }
+  }
+
+  service_config {
+    min_instance_count               = 0
+    max_instance_count               = 1
+    available_memory                 = "256M"
+    max_instance_request_concurrency = 1
+    timeout_seconds                  = 60
+    ingress_settings                 = "ALLOW_ALL"
+    service_account_email            = google_service_account.account.email
+  }
+
+  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account]
+}
+
+resource "google_cloud_run_service_iam_member" "tip_send_invoker" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  service  = lower(google_cloudfunctions2_function.tip_send.name)
+  location = google_cloudfunctions2_function.tip_send.location
+
+  member = "allUsers"
+  role   = "roles/run.invoker"
+
+  depends_on = [google_cloudfunctions2_function.tip_send]
+}
+
+resource "google_cloudfunctions2_function" "tip_confirm" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  name     = "TipConfirm"
+  location = var.gcf_location
+
+  build_config {
+    runtime     = "go121"
+    entry_point = "TipConfirm"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.fn_bucket.name
+        object = google_storage_bucket_object.functions_source.name
+      }
+    }
+  }
+
+  service_config {
+    min_instance_count               = 0
+    max_instance_count               = 1
+    available_memory                 = "256M"
+    max_instance_request_concurrency = 1
+    timeout_seconds                  = 60
+    ingress_settings                 = "ALLOW_ALL"
+    service_account_email            = google_service_account.account.email
+  }
+
+  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_cloudfunctions2_function.tip_send]
+}
+
+resource "google_cloud_run_service_iam_member" "tip_confirm_invoker" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  service  = lower(google_cloudfunctions2_function.tip_confirm.name)
+  location = google_cloudfunctions2_function.tip_confirm.location
+
+  member = "allUsers"
+  role   = "roles/run.invoker"
+
+  depends_on = [google_cloudfunctions2_function.tip_confirm]
+}
+
+resource "google_cloudfunctions2_function" "twitch_webhook" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  name     = "TwitchWebhook"
+  location = var.gcf_location
+
+  build_config {
+    runtime     = "go121"
+    entry_point = "TwitchWebhook"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.fn_bucket.name
+        object = google_storage_bucket_object.functions_source.name
+      }
+    }
+  }
+
+  service_config {
+    min_instance_count               = 0
+    max_instance_count               = 1
+    available_memory                 = "256M"
+    max_instance_request_concurrency = 1
+    timeout_seconds                  = 60
+    ingress_settings                 = "ALLOW_ALL"
+    service_account_email            = google_service_account.account.email
+  }
+
+  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_pubsub_topic.twitch_eventsub, google_cloudfunctions2_function.user_register]
+}
+
+resource "google_cloud_run_service_iam_member" "twitch_webhook_invoker" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  service  = lower(google_cloudfunctions2_function.twitch_webhook.name)
+  location = google_cloudfunctions2_function.twitch_webhook.location
+
+  member = "allUsers"
+  role   = "roles/run.invoker"
+
+  depends_on = [google_cloudfunctions2_function.twitch_webhook]
+}
+
+resource "google_cloudfunctions2_function" "alert_add" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  name     = "AlertAdd"
+  location = var.gcf_location
+
+  build_config {
+    runtime     = "go121"
+    entry_point = "AlertAdd"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.fn_bucket.name
+        object = google_storage_bucket_object.functions_source.name
+      }
+    }
+  }
+
+  service_config {
+    min_instance_count               = 0
+    max_instance_count               = 1
+    available_memory                 = "256M"
+    max_instance_request_concurrency = 1
+    timeout_seconds                  = 60
+    ingress_settings                 = "ALLOW_ALL"
+    service_account_email            = google_service_account.account.email
+  }
+
+  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_cloudfunctions2_function.user_edit]
+}
+
+resource "google_cloud_run_service_iam_member" "alert_add_invoker" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  service  = lower(google_cloudfunctions2_function.alert_add.name)
+  location = google_cloudfunctions2_function.alert_add.location
+
+  member = "allUsers"
+  role   = "roles/run.invoker"
+
+  depends_on = [google_cloudfunctions2_function.alert_add]
+}
+
+resource "google_cloudfunctions2_function" "on_event" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  name     = "OnEvent"
+  location = var.gcf_location
+
+  build_config {
+    runtime     = "go121"
+    entry_point = "OnEvent"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.fn_bucket.name
+        object = google_storage_bucket_object.functions_source.name
+      }
+    }
+  }
+
+  service_config {
+    min_instance_count               = 0
+    max_instance_count               = 1
+    available_memory                 = "256M"
+    max_instance_request_concurrency = 1
+    timeout_seconds                  = 60
+    ingress_settings                 = "ALLOW_INTERNAL_ONLY"
+    service_account_email            = google_service_account.account.email
+  }
+
+  event_trigger {
+    event_type            = "google.cloud.pubsub.topic.v1.messagePublished"
+    pubsub_topic          = google_pubsub_topic.events.id
+    retry_policy          = "RETRY_POLICY_DO_NOT_RETRY"
+    service_account_email = google_service_account.account.email
+  }
+
+  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_pubsub_topic.events, google_cloudfunctions2_function.alert_add]
+}
+
+resource "google_cloudfunctions2_function" "twitch_on_token" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  name     = "TwitchOnToken"
+  location = var.gcf_location
+
+  build_config {
+    runtime     = "go121"
+    entry_point = "TwitchOnToken"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.fn_bucket.name
+        object = google_storage_bucket_object.functions_source.name
+      }
+    }
+  }
+
+  service_config {
+    min_instance_count               = 0
+    max_instance_count               = 1
+    available_memory                 = "256M"
+    max_instance_request_concurrency = 1
+    timeout_seconds                  = 60
+    ingress_settings                 = "ALLOW_INTERNAL_ONLY"
+    service_account_email            = google_service_account.account.email
+  }
+
+  event_trigger {
+    event_type            = "google.cloud.firestore.document.v1.written"
+    retry_policy          = "RETRY_POLICY_DO_NOT_RETRY"
+    service_account_email = google_service_account.account.email
+    trigger_region        = "eur3"
+    event_filters {
+      attribute = "database"
+      value     = google_firestore_database.default.name
+    }
+    event_filters {
+      attribute = "document"
+      value     = "twitch-tokens/{path=**}"
+      operator  = "match-path-pattern"
+    }
+  }
+
+  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_firestore_database.default, google_cloudfunctions2_function.twitch_webhook]
+}
+
+resource "google_cloudfunctions2_function" "twitch_on_event" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  name     = "TwitchOnEvent"
+  location = var.gcf_location
+
+  build_config {
+    runtime     = "go121"
+    entry_point = "TwitchOnEvent"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.fn_bucket.name
+        object = google_storage_bucket_object.functions_source.name
+      }
+    }
+  }
+
+  service_config {
+    min_instance_count               = 0
+    max_instance_count               = 1
+    available_memory                 = "256M"
+    max_instance_request_concurrency = 1
+    timeout_seconds                  = 60
+    ingress_settings                 = "ALLOW_INTERNAL_ONLY"
+    service_account_email            = google_service_account.account.email
+  }
+
+  event_trigger {
+    event_type            = "google.cloud.pubsub.topic.v1.messagePublished"
+    pubsub_topic          = google_pubsub_topic.twitch_eventsub.id
+    retry_policy          = "RETRY_POLICY_DO_NOT_RETRY"
+    service_account_email = google_service_account.account.email
+  }
+
+  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_pubsub_topic.twitch_eventsub, google_cloudfunctions2_function.tip_confirm]
 }

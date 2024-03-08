@@ -2,11 +2,8 @@
     import { Sidebar, SidebarGroup, SidebarItem, SidebarWrapper} from 'flowbite-svelte';
     import {
         UserSolid,
-        MessageDotsSolid,
         BellSolid,
         VolumeUpSolid,
-        DollarSolid,
-        WalletSolid,
         ArrowRightToBracketSolid, NewspapperOutline
     } from 'flowbite-svelte-icons';
     import {page} from "$app/stores";

@@ -2,7 +2,9 @@
     import { saveAlert } from '$lib/alerts';
     import GifPicker from '$lib/comp/GifPicker.svelte';
     import SoundPicker from '$lib/comp/SoundPicker.svelte';
-    import { Alert, Alignment, AnimationType, Currency, Event, EventType, Position, Speed } from '$lib/pb/stredono_pb';
+    import { Alert, Alignment, AnimationType, Position, Speed } from '$lib/pb/alert_pb';
+    import { Currency } from '$lib/pb/enums_pb';
+    import { Event, EventType } from '$lib/pb/event_pb';
     import { userStore } from '$lib/user';
     import { pbEnumToItems } from '$lib/util';
     import {
@@ -11,7 +13,6 @@
         CloseButton,
         Drawer,
         Heading,
-        Hr,
         Input,
         InputAddon,
         Label, Radio, RadioButton, Range,
@@ -31,14 +32,16 @@
     import { t } from 'svelte-i18n';
     import { sineIn } from 'svelte/easing';
     import AlertViewer from './AlertViewer.svelte';
+    import {fade} from 'svelte/transition';
 
     export let hidden = true;
     export let eventType: EventType;
 
-    let alert = new Alert();
+    export let alert = new Alert();
     let startValue = "0";
     let endValue = "10";
-    $: {
+    let hasMax = false;
+    $: if(alert.Id === "") {
         alert.EventType = eventType;
         alert.Min = Number.parseFloat(startValue)
         alert.Max = Number.parseFloat(endValue)
@@ -54,10 +57,9 @@
     let exampleEvent = new Event();
     $: {
         exampleEvent.Type = eventType;
-        const amount = Math.round(alert.Min + (alert.Max - alert.Min) / 2);
         exampleEvent.Data = {
             "user": "John",
-            "value": (isNaN(amount) ? 2137 : amount).toString(),
+            "value": "2137",
             "currency": currencySymbol,
             "message": "This is an example message. See which settings you like the most and adjust them to your needs."
         }
@@ -111,13 +113,16 @@
         easing: sineIn,
     };
     let divClass = "overflow-y-auto z-50 p-4 bg-gray-100 dark:bg-gray-800";
+    let triggerClass = hasMax ? "" : "flex-row";
+
+    const eventTypeNames = JSON.parse(JSON.stringify(EventType));
 </script>
 
 <Drawer activateClickOutside={false} transitionType="fly" {transitionParams} bind:hidden {divClass} placement="right" width="w-96">
     <div class="flex items-center">
         <h5 id="drawer-label" class="inline-flex items-center mb-6 text-base font-semibold text-gray-500 uppercase dark:text-gray-400">
             <BellActiveSolid class="w-4 h-4 me-2.5" />
-            {$t("new_alert")} - {JSON.parse(JSON.stringify(EventType))[eventType]}
+            {$t("new_alert")} ({$t(eventTypeNames[eventType].toLowerCase())})
         </h5>
         <CloseButton on:click={() => (hidden = true)} class="mb-4 dark:text-white" />
     </div>
@@ -125,23 +130,28 @@
     <div class="w-full space-y-4">
         <Heading tag="h5">{$t("trigger")}</Heading>
 
-        <div class="space-x-4 flex flex-row">
-            <Label>
+        <div class="space-x-4 flex {triggerClass}">
+            <Label class="w-full">
                 {$t("range_from")}
-                <ButtonGroup>
+                <ButtonGroup class="w-full">
                     <Input type="number" bind:value={startValue} />
                     <InputAddon>{currencySymbol}</InputAddon>
                 </ButtonGroup>
             </Label>
 
-            <Label>
-                {$t("range_to")}
-                <ButtonGroup>
-                    <Input type="number" bind:value={endValue} />
-                    <InputAddon>{currencySymbol}</InputAddon>
-                </ButtonGroup>
-            </Label>
+            {#if hasMax}
+                <div transition:fade>
+                    <Label>
+                        {$t("range_to")}
+                        <ButtonGroup>
+                            <Input type="number" bind:value={endValue} />
+                            <InputAddon>{currencySymbol}</InputAddon>
+                        </ButtonGroup>
+                    </Label>
+                </div>
+            {/if}
         </div>
+        <Checkbox bind:checked={hasMax} class="mt-1.5 ms-1">{$t("set_max")}</Checkbox>
 
         <Heading tag="h5">{$t("media")}</Heading>
 

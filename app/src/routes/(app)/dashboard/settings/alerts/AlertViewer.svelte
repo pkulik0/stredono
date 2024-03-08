@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { eventToAlert } from '$lib/alerts';
-	import { Alert, Alignment, AnimationType, Event, Position, Speed } from '$lib/pb/stredono_pb';
+	import { type Alert, Alignment, AnimationType, Position, Speed } from '$lib/pb/alert_pb';
+	import { Event } from '$lib/pb/event_pb';
 	import 'animate.css';
+
 	export let alerts: Alert[];
 
 	export let visible: boolean = true;

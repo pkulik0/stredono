@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Tip } from '$lib/pb/stredono_pb';
+    import type { Tip } from '$lib/pb/tip_pb';
     import {Button, Dropdown, DropdownItem, Listgroup, ListgroupItem} from "flowbite-svelte";
     import {DotsVerticalSolid, RedoOutline, RefreshOutline, ShieldSolid} from "flowbite-svelte-icons";
     import {slide, fade} from "svelte/transition";

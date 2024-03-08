@@ -70,6 +70,54 @@ func (_c *MockQuery_Get_Call) RunAndReturn(run func(context.Context) modules.Que
 	return _c
 }
 
+// Limit provides a mock function with given fields: n
+func (_m *MockQuery) Limit(n int) modules.Query {
+	ret := _m.Called(n)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Limit")
+	}
+
+	var r0 modules.Query
+	if rf, ok := ret.Get(0).(func(int) modules.Query); ok {
+		r0 = rf(n)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(modules.Query)
+		}
+	}
+
+	return r0
+}
+
+// MockQuery_Limit_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Limit'
+type MockQuery_Limit_Call struct {
+	*mock.Call
+}
+
+// Limit is a helper method to define mock.On call
+//   - n int
+func (_e *MockQuery_Expecter) Limit(n interface{}) *MockQuery_Limit_Call {
+	return &MockQuery_Limit_Call{Call: _e.mock.On("Limit", n)}
+}
+
+func (_c *MockQuery_Limit_Call) Run(run func(n int)) *MockQuery_Limit_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(int))
+	})
+	return _c
+}
+
+func (_c *MockQuery_Limit_Call) Return(_a0 modules.Query) *MockQuery_Limit_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockQuery_Limit_Call) RunAndReturn(run func(int) modules.Query) *MockQuery_Limit_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Where provides a mock function with given fields: field, op, value
 func (_m *MockQuery) Where(field string, op string, value interface{}) modules.Query {
 	ret := _m.Called(field, op, value)

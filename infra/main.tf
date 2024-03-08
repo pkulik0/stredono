@@ -66,12 +66,21 @@ resource "google_project_service" "default" {
     "cloudkms.googleapis.com",
     "iam.googleapis.com",
     "texttospeech.googleapis.com",
+    "eventarc.googleapis.com",
   ])
 
   service            = each.key
   disable_on_destroy = false
 }
 
+
+resource "google_project_iam_member" "pubsubTokenCreator" {
+  provider   = google-beta
+  project    = google_project.default.project_id
+  role       = "roles/iam.serviceAccountTokenCreator"
+  member     = "serviceAccount:service-${google_project.default.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
+  depends_on = [google_project_service.default]
+}
 
 resource "google_project_iam_member" "default" {
   provider   = google-beta
@@ -152,12 +161,8 @@ output "frontend_public_files" {
   }
 }
 
-resource "google_pubsub_topic" "donations_topic" {
-  provider = google-beta
-  project  = google_project.default.project_id
-  name     = "donations"
-
-  depends_on = [google_project_service.default]
+data "local_file" "events_pb" {
+  filename = "${local.base_path}/pb/event.proto"
 }
 
 resource "google_identity_platform_config" "default" {
@@ -182,7 +187,7 @@ resource "google_identity_platform_config" "default" {
   blocking_functions {
     triggers {
       event_type   = "beforeCreate"
-      function_uri = [for f in google_cloudfunctions2_function.cloud_functions : f.service_config[0].uri if f.name == var.fn_on_register][0]
+      function_uri = google_cloudfunctions2_function.user_register.service_config[0].uri
     }
 
     forward_inbound_credentials {
@@ -199,5 +204,5 @@ resource "google_identity_platform_config" "default" {
     "${google_project.default.project_id}.web.app",
   ]
 
-  depends_on = [google_project_service.default, google_cloudfunctions2_function.cloud_functions]
+  depends_on = [google_project_service.default, google_cloudfunctions2_function.user_register]
 }

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package stredono;
+
+option go_package="github.com/pkulik0/stredono/cloud/pb";
+
+enum Currency {
+  UNKNOWN = 0;
+  PLN = 1;
+}
+
+enum Frequency {
+  NEVER = 0;
+  ALWAYS = 1;
+  EVERY_MINUTE = 2;
+  EVERY_FIVE_MINUTES = 3;
+  EVERY_QUARTER_HOUR = 4;
+  EVERY_HALF_HOUR = 5;
+  EVERY_HOUR = 6;
+}

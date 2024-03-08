@@ -3,8 +3,9 @@ package user
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/golang-jwt/jwt"
-	"github.com/google/uuid"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/pkulik0/stredono/cloud/pb"
 	"github.com/pkulik0/stredono/cloud/platform"
 	"github.com/pkulik0/stredono/cloud/platform/modules"
@@ -18,8 +19,9 @@ import (
 
 func RegisterEntrypoint(w http.ResponseWriter, r *http.Request) {
 	ctx, err := providers.NewContext(r, &providers.Config{
-		DocDb: true,
-		Auth:  true,
+		DocDb:         true,
+		Auth:          true,
+		SecretManager: true,
 	})
 	if err != nil {
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
@@ -53,6 +55,7 @@ type userClaims struct {
 }
 
 func (c *userClaims) Valid() error {
+	log.Printf("Validating claims | %v", c)
 	matched, err := regexp.Match(`^https://onregister-[a-z0-9-.]+\.run\.app$`, []byte(c.Aud))
 	if err != nil {
 		return err
@@ -72,30 +75,27 @@ func (c *userClaims) Valid() error {
 func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 	log.Println("handleRegistration", claims)
 
-	randomUsernameUuid, err := uuid.NewRandom()
-	if err != nil {
-		return err
-	}
-	randomUsername := strings.ReplaceAll(randomUsernameUuid.String(), "-", "")[:defaultUsernameLength]
-
 	user := &pb.User{
-		Username:     randomUsername,
-		DisplayName:  "Unnamed",
+		Username:     "",
+		DisplayName:  "",
 		Uid:          claims.Uid,
 		Url:          "",
-		Description:  "Default description.", // TODO: Change to something better, based on locale
+		Description:  "",
 		MinAmount:    1,
 		MinAuthLevel: pb.AuthLevel_NONE,
 		Currency:     pb.Currency_PLN,
-		VoiceBasic:   "pl-PL-Wavenet-C", // TODO: Fetch default by locale, fallback if not found
-		VoicePlus:    "onwK4e9ZLuTAKqWW03F9",
+		TtsSettings: &pb.TTSSettings{
+			BasicId: "pl-PL-Wavenet-C", // TODO: Change to something better, based on locale
+			PlusId:  "onwK4e9ZLuTAKqWW03F9",
+			Tier:    pb.Tier_PLUS,
+		},
 	}
 
 	switch claims.SignInMethod {
 	case methodEmailLink:
 		break
 	case methodTwitch: // add new providers here
-		err := handleOauthRegistration(ctx, user, claims)
+		err := handleOauthRegistration(ctx, claims, user)
 		if err != nil {
 			return err
 		}
@@ -108,22 +108,45 @@ func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 	if !ok {
 		return errorContextValue
 	}
-	_, err = db.Collection("users").Doc(user.Uid).Create(ctx.Ctx, user)
+
+	_, err := db.Collection("users").Doc(user.Uid).Create(ctx.Ctx, user)
 	return err
 }
 
-func handleOauthRegistration(ctx *providers.Context, user *pb.User, claims *userClaims) error {
+func handleOauthRegistration(ctx *providers.Context, claims *userClaims, user *pb.User) error {
+	helixClient, err := providers.GetHelixAppClient(ctx)
+	if err != nil {
+		log.Printf("Failed to get helix client | %v", err)
+		return fmt.Errorf("failed to get helix client | %v", err)
+	}
+	helixClient.SetUserAccessToken(claims.OauthAccessToken)
+
+	users, err := helixClient.GetUsers(&helix.UsersParams{})
+	if err != nil {
+		log.Printf("Failed to get users | %v", err)
+		return err
+	}
+	if len(users.Data.Users) == 0 {
+		return fmt.Errorf("no twitch user returned from api")
+	}
+
+	twitchUser := users.Data.Users[0]
+
+	user.DisplayName = twitchUser.DisplayName
+	user.PictureUrl = twitchUser.ProfileImageURL
+	user.Description = twitchUser.Description
+
 	db, ok := ctx.GetDocDb()
 	if !ok {
 		return errorContextValue
 	}
 
-	_, err := db.Collection("tokens").Doc(claims.Uid).Set(ctx.Ctx, map[string]interface{}{
-		claims.SignInMethod: &pb.Token{
-			Access:  claims.OauthAccessToken,
-			Refresh: claims.OauthRefreshToken,
-		},
-	}, modules.DbOpts{MergeAll: true})
+	path := fmt.Sprintf("%s-tokens", strings.Split(claims.SignInMethod, ".")[1])
+	_, err = db.Collection(path).Doc(claims.Uid).Set(ctx.Ctx, &pb.Token{
+		AccessToken:  claims.OauthAccessToken,
+		RefreshToken: claims.OauthRefreshToken,
+		ProviderUid:  twitchUser.ID,
+	}, modules.DbOpts{})
 	if err != nil {
 		return err
 	}

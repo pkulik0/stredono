@@ -12,8 +12,12 @@ output "backend_firebase_storage_bucket" {
   value = data.google_firebase_web_app_config.default.storage_bucket
 }
 
-output "frontend_function_urls" {
-  value = { for function in google_cloudfunctions2_function.cloud_functions : function.name => function.service_config[0].uri if var.cloud_functions[function.name].public }
+output "backend_twitch_client_id" {
+  value = var.twitch_client_id
+}
+
+output "backend_twitch_uid" {
+  value = var.twitch_uid
 }
 
 output "firebase_hosting_url" {

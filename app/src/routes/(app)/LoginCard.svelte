@@ -1,14 +1,13 @@
 <script>
     import LoginWithTwitch from '$lib/comp/LoginWithTwitch.svelte';
-    import { Button, Checkbox, Helper, Input, Label, P } from 'flowbite-svelte';
-    import {isSignInWithEmailLink, sendSignInLinkToEmail, signInWithEmailLink, signInWithPopup} from "firebase/auth";
+    import { Button, Helper, Input, Label, P } from 'flowbite-svelte';
+    import {isSignInWithEmailLink, sendSignInLinkToEmail, signInWithEmailLink} from "firebase/auth";
     import {auth} from "$lib/ext/firebase/firebase";
     import {onMount} from "svelte";
     import {userStore} from "$lib/user";
     import {goto} from "$app/navigation";
     import { t } from 'svelte-i18n';
     import {slide} from 'svelte/transition';
-    import {OAuthProvider} from "firebase/auth";
 
     let email = "";
     const emailKey = "sign-in-email";

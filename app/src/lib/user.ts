@@ -1,5 +1,5 @@
 import { auth, db } from '$lib/ext/firebase/firebase';
-import { User } from '$lib/pb/stredono_pb';
+import { User } from '$lib/pb/user_pb';
 import { terraformOutput } from '$lib/constants';
 import axios from 'axios';
 import {collection, doc, getDocs, query, where, onSnapshot, setDoc} from "firebase/firestore";
@@ -26,7 +26,7 @@ export const saveUser = async (user: User) => {
     const token = await authUser.getIdToken();
 
     try {
-        await axios.post(terraformOutput.FunctionUrls.UserEdit, user.toBinary(), {
+        await axios.post("terraformOutput.FunctionUrls.UserEdit", user.toBinary(), {
             headers: {
                 'Content-Type': 'application/octet-stream',
                 'Authorization': 'Bearer ' + token

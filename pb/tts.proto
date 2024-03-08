@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package stredono;
+
+option go_package="github.com/pkulik0/stredono/cloud/pb";
+
+import 'pb/enums.proto';
+
+message SpeechRequest {
+  string Id = 1;
+  string Uid = 2;
+  string Text = 3;
+  string VoiceIdBasic = 4;
+  string VoiceIdPlus = 5;
+}
+
+message Voice {
+  string Id = 1;
+  string Name = 2;
+  Gender Gender = 3;
+  Tier Tier = 4;
+  string Provider = 5;
+  repeated string Languages = 7;
+  string SampleUrl = 8;
+}
+
+enum Tier {
+  BASIC = 0;
+  PLUS = 1;
+}
+
+enum Gender {
+  NOT_SPECIFIED = 0;
+  MALE = 1;
+  FEMALE = 2;
+}
+
+message Voices {
+  repeated Voice Voices = 1;
+}
+
+message TTSKey {
+  string Key = 1;
+  int32 CharactersLeft = 2;
+  int32 CharactersLimit = 3;
+  int64 ResetTimestamp = 4;
+  int64 LastUsed = 5;
+}
+
+message TTSProvider {
+  int64 LastUpdated = 1;
+  repeated Voice Voices = 2;
+  repeated string Languages = 3;
+}
+
+message TTSSettings {
+  string BasicId = 1;
+  string PlusId = 2;
+  Tier Tier = 3;
+}

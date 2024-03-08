@@ -1,7 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
-    import { Heading } from 'flowbite-svelte';
     import { onMount } from 'svelte';
     import SideBar from "./SideBar.svelte";
 

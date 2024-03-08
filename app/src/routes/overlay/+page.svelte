@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Tip } from '$lib/pb/stredono_pb';
+    import { Tip } from '$lib/pb/tip_pb';
     import {onDestroy, onMount} from "svelte";
     import type {WebTip} from "$lib/tips";
     import Alert from "./Alert.svelte";
@@ -13,7 +13,7 @@
             amount: pbDonate.Amount,
             currency: pbDonate.Currency,
             message: pbDonate.Message,
-            user: pbDonate.Sender
+            user: pbDonate.DisplayName
         };
         donations = [donate, ...donations];
 

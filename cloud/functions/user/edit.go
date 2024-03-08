@@ -113,7 +113,7 @@ func edit(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	docs, err := db.Collection("users").Where("Username", "==", user.Username).Where("Uid", "!=", token.UserId()).Get(ctx.Ctx).All()
+	docs, err := db.Collection("users").Where("Username", "==", user.Username).Where("Uid", "!=", token.UserId()).Limit(1).Get(ctx.Ctx).All()
 	if err != nil {
 		log.Errorf("failed to get user | %s", err)
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)

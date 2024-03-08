@@ -1,6 +1,6 @@
 <script lang="ts">
     import FileDropzone from '$lib/comp/FileDropzone.svelte';
-    import type { User } from '$lib/pb/stredono_pb';
+    import type { User } from '$lib/pb/user_pb';
     import { Button, Card, Fileupload, Heading, Helper, Hr, Input, Label, Textarea } from 'flowbite-svelte';
     import UserHeader from "$lib/comp/UserHeader.svelte";
     import {saveUser, userStore} from "$lib/user";

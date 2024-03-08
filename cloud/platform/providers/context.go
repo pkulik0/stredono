@@ -6,28 +6,13 @@ import (
 	texttospeech "cloud.google.com/go/texttospeech/apiv1"
 	"context"
 	firebase "firebase.google.com/go/v4"
-	"github.com/nicklaw5/helix"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/pkulik0/stredono/cloud/platform"
 	"github.com/pkulik0/stredono/cloud/platform/adapters"
 	"github.com/pkulik0/stredono/cloud/platform/modules"
-	log "github.com/sirupsen/logrus"
-	"golang.org/x/oauth2"
 	"net/http"
 	"os"
 	"strings"
-	"time"
-)
-
-const (
-	authCtxKey       = "auth"
-	docDbCtxKey      = "docDb"
-	realtimeDbCtxKey = "realtimeDb"
-	storageCtxKey    = "storage"
-	pubsubCtxKey     = "pubsub"
-	messagingCtxKey  = "messaging"
-	secretsCtxKey    = "secrets"
-	ttsCtxKey        = "tts"
-	helixCtxKey      = "twitchHelix"
 )
 
 type Config struct {
@@ -40,7 +25,6 @@ type Config struct {
 	SecretManager bool
 	Proxy         bool
 	TextToSpeech  bool
-	Helix         bool
 }
 
 type Context struct {
@@ -52,12 +36,6 @@ type Context struct {
 	TTSPlus       modules.TTS
 	TTSBasic      modules.TTS
 	SecretManager modules.SecretManager
-	Helix         modules.HelixClient
-}
-
-func (c *Context) WithValue(key, value interface{}) *Context {
-	c.Ctx = context.WithValue(c.Ctx, key, value)
-	return c
 }
 
 func (c *Context) GetDocDb() (db modules.DocDb, ok bool) {
@@ -88,8 +66,62 @@ func (c *Context) GetSecretManager() (secretManager modules.SecretManager, ok bo
 	return c.SecretManager, c.SecretManager != nil
 }
 
-func (c *Context) GetHelix() (helix modules.HelixClient, ok bool) {
-	return c.Helix, c.Helix != nil
+var twitchScopes = []string{
+	"user:read:email",
+	"moderator:read:followers",
+	"user:read:chat",
+	"channel:bot",
+	"channel:moderate",
+	"channel:read:subscriptions",
+	"channel:read:redemptions",
+	"channel:manage:redemptions",
+	"bits:read",
+	"channel:manage:ads",
+	"channel:read:ads",
+	"channel:manage:broadcast",
+	"channel:edit:commercial",
+	"channel:read:hype_train",
+	"channel:read:goals",
+	"channel:read:vips",
+	"user:read:broadcast",
+	"moderation:read",
+}
+
+func GetHelixAppClient(ctx *Context) (modules.HelixClient, error) {
+	secretManager, ok := ctx.GetSecretManager()
+	if !ok {
+		return nil, platform.ErrorMissingContextValue
+	}
+
+	clientSecret, err := secretManager.GetSecret(ctx.Ctx, "twitch-client-secret", "latest")
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := helix.NewClient(&helix.Options{
+		ClientID:     platform.TwitchClientId,
+		ClientSecret: string(clientSecret),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// idk why the helix pkg requires scopes, the client credential grant flow doesn't need them
+	appToken, err := client.RequestAppAccessToken([]string{})
+	if err != nil {
+		return nil, err
+	}
+	client.SetAppAccessToken(appToken.Data.AccessToken)
+
+	return client, nil
+}
+
+func NewContextEvent(ctx context.Context, config *Config) (*Context, error) {
+	r, err := http.NewRequestWithContext(ctx, "GET", "http://localhost", nil)
+	if err != nil {
+		return nil, err
+	}
+	return NewContext(r, config)
 }
 
 func NewContext(r *http.Request, config *Config) (*Context, error) {
@@ -176,71 +208,6 @@ func NewContext(r *http.Request, config *Config) (*Context, error) {
 		outCtx.Storage = &adapters.FirebaseStorage{Client: client}
 	}
 
-	if config.Helix {
-		if outCtx.DocDb == nil {
-			return nil, platform.ErrorMissingModuleDep
-		}
-		token, ok := outCtx.GetAuthToken(r)
-		if !ok {
-			return nil, platform.ErrorMissingAuthToken
-		}
-		uid := token.UserId()
-
-		tokensDoc, err := outCtx.DocDb.Collection("tokens").Doc(uid).Get(outCtx.Ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		var tokensData map[string]interface{}
-		if err := tokensDoc.DataTo(&tokensData); err != nil {
-			return nil, err
-		}
-
-		twitchTokenData, ok := tokensData["twitch"].(map[string]interface{})
-		if !ok {
-			return nil, platform.ErrorMissingAuthToken
-		}
-
-		oauthConfig, err := outCtx.getTwitchOauth2Config()
-		if err != nil {
-			return nil, err
-		}
-
-		oauthToken := &oauth2.Token{
-			AccessToken:  twitchTokenData["AccessToken"].(string),
-			RefreshToken: twitchTokenData["RefreshToken"].(string),
-			Expiry:       twitchTokenData["Expiry"].(time.Time),
-			TokenType:    twitchTokenData["TokenType"].(string),
-		}
-		oldAccessToken := oauthToken.AccessToken
-
-		tokenSource := oauthConfig.TokenSource(outCtx.Ctx, oauthToken)
-		oauthToken, err = tokenSource.Token()
-		if err != nil {
-			return nil, err
-		}
-
-		if oldAccessToken != oauthToken.AccessToken {
-			_, err = outCtx.DocDb.Collection("tokens").Doc(uid).Set(outCtx.Ctx, map[string]interface{}{
-				"twitch": oauthToken,
-			}, modules.DbOpts{MergeAll: true})
-			if err != nil {
-				return nil, err
-			}
-			log.Infof("Updated token for user %s", uid)
-		}
-
-		client, err := helix.NewClient(&helix.Options{
-			ClientID: modules.TwitchClientId,
-		})
-		if err != nil {
-			return nil, err
-		}
-		client.SetUserAccessToken(oauthToken.AccessToken)
-
-		outCtx.Helix = client
-	}
-
 	//if config.Messaging {
 	//	client, err := app.Messaging(ctx)
 	//	if err != nil {
@@ -258,6 +225,22 @@ func NewContext(r *http.Request, config *Config) (*Context, error) {
 	//}
 
 	return outCtx, nil
+}
+
+func (c *Context) Close() error {
+	if c.PubSub != nil {
+		if err := c.PubSub.Close(); err != nil {
+			return err
+		}
+	}
+
+	if c.SecretManager != nil {
+		if err := c.SecretManager.Close(); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (c *Context) GetAuthToken(r *http.Request) (modules.Token, bool) {

@@ -33,10 +33,6 @@ func CreateContextMock(config *Config, t *testing.T) *Context {
 		c.Storage = mocks.NewMockStorage(t)
 	}
 
-	if config.Helix {
-		c.Helix = mocks.NewMockHelixClient(t)
-	}
-
 	//if config.Messaging {
 	//	c.Messaging = mocks.NewMockMessaging(t)
 	//}

@@ -1,6 +1,8 @@
 <script lang="ts">
     import { alertsStore, getAlertsListener } from '$lib/alerts';
-    import { EventType, UsersAlerts } from '$lib/pb/stredono_pb';
+    import { EventType } from '$lib/pb/event_pb';
+    import { UsersAlerts } from '$lib/pb/alert_pb';
+    import { pbEnumToItems } from '$lib/util';
     import {PlusSolid} from "flowbite-svelte-icons";
     import AlertCard from './AlertCard.svelte';
     import AlertsDrawer from "./AlertsDrawer.svelte";
@@ -14,14 +16,7 @@
 
     let userAlerts: UsersAlerts|undefined|null;
 
-    $: selectOptions = [
-        {value: EventType.TIP, name: $t("tip")},
-        {value: EventType.CHEER, name: $t("cheer")},
-        {value: EventType.SUBSCRIBE, name: $t("sub")},
-        {value: EventType.SUBGIFT, name: $t("sub_gift")},
-        {value: EventType.FOLLOW, name: $t("follow")},
-        {value: EventType.RAID, name: $t("raid")},
-    ];
+    $: eventTypesItems = pbEnumToItems(EventType)
     let selectedType: EventType = EventType.TIP;
 
     let drawerHidden = true;
@@ -50,7 +45,7 @@
 <div class="space-y-4 w-full p-4">
     <Label>
         {$t("type")}
-        <Select items={selectOptions} bind:value={selectedType} placeholder={$t("type_filter")}/>
+        <Select items={eventTypesItems} bind:value={selectedType} placeholder={$t("type_filter")}/>
     </Label>
 
     <div class="flex justify-end">
@@ -60,19 +55,21 @@
         </Button>
     </div>
 
-    {#if userAlerts !== undefined}
-        {#if userAlerts === null}
-            <P class="text-center py-8">
-                {$t("no_alerts")}
-            </P>
+    <div class="p-4">
+        {#if userAlerts !== undefined}
+            {#if userAlerts === null}
+                <P class="text-center py-8">
+                    {$t("no_alerts")}
+                </P>
+            {:else}
+                {#each userAlerts.Alerts as alert}
+                    <AlertCard {alert}/>
+                {/each}
+            {/if}
         {:else}
-            {#each userAlerts.Alerts as alert}
-                <AlertCard {alert}/>
-            {/each}
+            <ImagePlaceholder/>
         {/if}
-    {:else}
-        <ImagePlaceholder/>
-    {/if}
+    </div>
 </div>
 
 <AlertsDrawer eventType={selectedType} bind:hidden={drawerHidden}/>

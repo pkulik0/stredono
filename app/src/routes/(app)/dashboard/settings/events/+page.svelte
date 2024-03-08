@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { AuthLevel, Frequency } from '$lib/pb/stredono_pb';
-	import { Accordion, AccordionItem, Button, Checkbox, Heading, Input, Label, Popover, Select } from 'flowbite-svelte';
-	import { InfoCircleOutline, InfoCircleSolid } from 'flowbite-svelte-icons';
-	import {slide} from 'svelte/transition';
+	import { AuthLevel } from '$lib/pb/user_pb';
+	import { Accordion, Button, Checkbox, Heading, Label, Popover, Select } from 'flowbite-svelte';
+	import { InfoCircleOutline } from 'flowbite-svelte-icons';
 	import InputMin from './InputMin.svelte';
 	import AccordItem from './AccordItem.svelte';
 	import { t } from 'svelte-i18n';
+	import {Frequency} from '$lib/pb/enums_pb';
 
 	$: authLevels = [
 		{ value: AuthLevel.NONE, name: $t("disabled") },

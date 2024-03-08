@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Tip } from '$lib/pb/stredono_pb';
+    import type { Tip } from '$lib/pb/tip_pb';
     import { Card, TextPlaceholder} from "flowbite-svelte";
     import {onMount} from "svelte";
     import {tipsStore} from "$lib/tips";

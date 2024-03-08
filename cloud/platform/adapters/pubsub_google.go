@@ -35,6 +35,11 @@ func platformToGcpMessage(msg *modules.PubSubMessage) *pubsub.Message {
 	}
 }
 
-func (t *GcpPubSubTopic) Publish(ctx context.Context, msg *modules.PubSubMessage) {
-	_ = t.topic.Publish(ctx, platformToGcpMessage(msg))
+func (t *GcpPubSubTopic) Publish(ctx context.Context, msg *modules.PubSubMessage) (string, error) {
+	result := t.topic.Publish(ctx, platformToGcpMessage(msg))
+	id, err := result.Get(ctx)
+	if err != nil {
+		return "", err
+	}
+	return id, nil
 }

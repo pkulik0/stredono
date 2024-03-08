@@ -1,4 +1,4 @@
-import { Tip, TipStatus } from '$lib/pb/stredono_pb';
+import { Tip, TipStatus } from '$lib/pb/tip_pb';
 import {collection, onSnapshot, query, where, getDocs} from "firebase/firestore";
 import {auth, db} from "$lib/ext/firebase/firebase";
 import {userStore} from "$lib/user";

@@ -1,5 +1,6 @@
 import { auth, db } from '$lib/ext/firebase/firebase';
-import { type Alert, UsersAlerts, Event } from '$lib/pb/stredono_pb';
+import { type Alert, UsersAlerts } from '$lib/pb/alert_pb';
+import { Event } from '$lib/pb/event_pb';
 import { terraformOutput } from '$lib/constants';
 import axios from 'axios';
 import { doc, onSnapshot } from 'firebase/firestore';
@@ -23,7 +24,7 @@ export const saveAlert = async (alert: Alert) => {
 	if (!user) throw new Error('User not logged in');
 
 	try {
-		const res = await axios.post(terraformOutput.FunctionUrls.AlertAdd, alert.toBinary(), {
+		const res = await axios.post("terraformOutput.FunctionUrls.AlertAdd", alert.toBinary(), {
 			headers: {
 				'Content-Type': 'application/octet-stream',
 				'Authorization': 'Bearer ' + await user.getIdToken()
@@ -41,7 +42,9 @@ export const eventToAlert = (event: Event, alerts: Alert[]): Alert|undefined => 
 
 		const value = Number.parseFloat(event.Data.Value);
 		if(value < alert.Min) continue;
-		if(value > alert.Max) continue;
+		if(alert.Max) {
+			if(value > alert.Max) continue;
+		}
 
 		return alert;
 	}

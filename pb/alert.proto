@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package stredono;
+
+option go_package="github.com/pkulik0/stredono/cloud/pb";
+
+import 'pb/enums.proto';
+import 'pb/event.proto';
+
+message Alert {
+  string Id = 1;
+  EventType EventType = 2;
+  string Message = 3;
+
+  double Min = 4;
+  optional double Max = 5;
+
+  string GifUrl = 6;
+  string SoundUrl = 7;
+
+  AnimationType Animation = 8;
+  Speed AnimationSpeed = 9;
+
+  string TextColor = 10;
+  string AccentColor = 11;
+
+  Alignment Alignment = 12;
+  Position TextPosition = 13;
+}
+
+message UsersAlerts {
+  repeated Alert Alerts = 1;
+}
+
+
+enum AnimationType {
+  PULSE = 0;
+  HEART_BEAT = 2;
+  SHAKE_VERTICALLY = 4;
+  SHAKE_HORIZONTALLY = 5;
+  TADA = 8;
+  JELLO = 9;
+  BOUNCE = 10;
+}
+
+enum Alignment {
+  START = 0;
+  CENTER = 1;
+  END = 2;
+  JUSTIFY = 3;
+}
+
+enum Position {
+  TOP = 0;
+  LEFT = 1;
+  RIGHT = 2;
+  BOTTOM = 3;
+}
+
+enum Speed {
+  OFF = 0;
+  SLOW = 1;
+  MEDIUM = 2;
+  FAST = 3;
+  FASTER = 4;
+}

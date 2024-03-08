@@ -1,6 +1,6 @@
 <script lang="ts">
     import LoginWithTwitch from '$lib/comp/LoginWithTwitch.svelte';
-    import { Currency } from '$lib/pb/stredono_pb';
+    import { Currency } from '$lib/pb/enums_pb';
     import { Alert, Button, ButtonGroup, Hr, Input, InputAddon, Label, P, Textarea } from 'flowbite-svelte';
     import {ExclamationCircleSolid} from "flowbite-svelte-icons";
     import {emailStore, senderStore} from "$lib/stores";

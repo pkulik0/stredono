@@ -1,7 +1,9 @@
 <script lang="ts">
     import { auth } from '$lib/ext/firebase/firebase';
-    import { Currency, Tip, TipStatus, User } from '$lib/pb/stredono_pb';
     import { terraformOutput } from '$lib/constants';
+    import { Currency } from '$lib/pb/enums_pb';
+    import { Tip, TipStatus } from '$lib/pb/tip_pb';
+    import type { User } from '$lib/pb/user_pb';
     import axios from 'axios';
     import { onAuthStateChanged } from 'firebase/auth';
     import {

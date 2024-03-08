@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package stredono;
+
+option go_package="github.com/pkulik0/stredono/cloud/pb";
+
+import 'pb/enums.proto';
+import 'pb/tts.proto';
+
+message User {
+  string Uid = 1;
+  string Username = 2;
+  string DisplayName = 3;
+  string Description = 4;
+
+  string PictureUrl = 5;
+  string Url = 6;
+
+  AuthLevel MinAuthLevel = 7;
+  double MinAmount = 8;
+  Currency Currency = 9;
+
+  TTSSettings TtsSettings = 10;
+}
+
+enum AuthLevel {
+  NONE = 0;
+  EMAIL = 1;
+  OIDC = 2;
+}

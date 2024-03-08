@@ -22,6 +22,64 @@ func (_m *MockObject) EXPECT() *MockObject_Expecter {
 	return &MockObject_Expecter{mock: &_m.Mock}
 }
 
+// Attrs provides a mock function with given fields: ctx
+func (_m *MockObject) Attrs(ctx context.Context) (*modules.ObjectAttrs, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Attrs")
+	}
+
+	var r0 *modules.ObjectAttrs
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (*modules.ObjectAttrs, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) *modules.ObjectAttrs); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*modules.ObjectAttrs)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockObject_Attrs_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Attrs'
+type MockObject_Attrs_Call struct {
+	*mock.Call
+}
+
+// Attrs is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockObject_Expecter) Attrs(ctx interface{}) *MockObject_Attrs_Call {
+	return &MockObject_Attrs_Call{Call: _e.mock.On("Attrs", ctx)}
+}
+
+func (_c *MockObject_Attrs_Call) Run(run func(ctx context.Context)) *MockObject_Attrs_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockObject_Attrs_Call) Return(_a0 *modules.ObjectAttrs, _a1 error) *MockObject_Attrs_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockObject_Attrs_Call) RunAndReturn(run func(context.Context) (*modules.ObjectAttrs, error)) *MockObject_Attrs_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Name provides a mock function with given fields:
 func (_m *MockObject) Name() string {
 	ret := _m.Called()
@@ -111,6 +169,52 @@ func (_c *MockObject_NewWriter_Call) Return(_a0 modules.Writer) *MockObject_NewW
 }
 
 func (_c *MockObject_NewWriter_Call) RunAndReturn(run func(context.Context) modules.Writer) *MockObject_NewWriter_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SetPublicRead provides a mock function with given fields: ctx
+func (_m *MockObject) SetPublicRead(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetPublicRead")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockObject_SetPublicRead_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetPublicRead'
+type MockObject_SetPublicRead_Call struct {
+	*mock.Call
+}
+
+// SetPublicRead is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockObject_Expecter) SetPublicRead(ctx interface{}) *MockObject_SetPublicRead_Call {
+	return &MockObject_SetPublicRead_Call{Call: _e.mock.On("SetPublicRead", ctx)}
+}
+
+func (_c *MockObject_SetPublicRead_Call) Run(run func(ctx context.Context)) *MockObject_SetPublicRead_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockObject_SetPublicRead_Call) Return(_a0 error) *MockObject_SetPublicRead_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockObject_SetPublicRead_Call) RunAndReturn(run func(context.Context) error) *MockObject_SetPublicRead_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	helix "github.com/nicklaw5/helix"
+	helix "github.com/nicklaw5/helix/v2"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -78,6 +78,64 @@ func (_c *MockHelixClient_CreateEventSubSubscription_Call) RunAndReturn(run func
 	return _c
 }
 
+// GetEventSubSubscriptions provides a mock function with given fields: params
+func (_m *MockHelixClient) GetEventSubSubscriptions(params *helix.EventSubSubscriptionsParams) (*helix.EventSubSubscriptionsResponse, error) {
+	ret := _m.Called(params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetEventSubSubscriptions")
+	}
+
+	var r0 *helix.EventSubSubscriptionsResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*helix.EventSubSubscriptionsParams) (*helix.EventSubSubscriptionsResponse, error)); ok {
+		return rf(params)
+	}
+	if rf, ok := ret.Get(0).(func(*helix.EventSubSubscriptionsParams) *helix.EventSubSubscriptionsResponse); ok {
+		r0 = rf(params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*helix.EventSubSubscriptionsResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*helix.EventSubSubscriptionsParams) error); ok {
+		r1 = rf(params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockHelixClient_GetEventSubSubscriptions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetEventSubSubscriptions'
+type MockHelixClient_GetEventSubSubscriptions_Call struct {
+	*mock.Call
+}
+
+// GetEventSubSubscriptions is a helper method to define mock.On call
+//   - params *helix.EventSubSubscriptionsParams
+func (_e *MockHelixClient_Expecter) GetEventSubSubscriptions(params interface{}) *MockHelixClient_GetEventSubSubscriptions_Call {
+	return &MockHelixClient_GetEventSubSubscriptions_Call{Call: _e.mock.On("GetEventSubSubscriptions", params)}
+}
+
+func (_c *MockHelixClient_GetEventSubSubscriptions_Call) Run(run func(params *helix.EventSubSubscriptionsParams)) *MockHelixClient_GetEventSubSubscriptions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*helix.EventSubSubscriptionsParams))
+	})
+	return _c
+}
+
+func (_c *MockHelixClient_GetEventSubSubscriptions_Call) Return(_a0 *helix.EventSubSubscriptionsResponse, _a1 error) *MockHelixClient_GetEventSubSubscriptions_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockHelixClient_GetEventSubSubscriptions_Call) RunAndReturn(run func(*helix.EventSubSubscriptionsParams) (*helix.EventSubSubscriptionsResponse, error)) *MockHelixClient_GetEventSubSubscriptions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetUsers provides a mock function with given fields: params
 func (_m *MockHelixClient) GetUsers(params *helix.UsersParams) (*helix.UsersResponse, error) {
 	ret := _m.Called(params)
@@ -132,6 +190,188 @@ func (_c *MockHelixClient_GetUsers_Call) Return(_a0 *helix.UsersResponse, _a1 er
 }
 
 func (_c *MockHelixClient_GetUsers_Call) RunAndReturn(run func(*helix.UsersParams) (*helix.UsersResponse, error)) *MockHelixClient_GetUsers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RemoveEventSubSubscription provides a mock function with given fields: id
+func (_m *MockHelixClient) RemoveEventSubSubscription(id string) (*helix.RemoveEventSubSubscriptionParamsResponse, error) {
+	ret := _m.Called(id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RemoveEventSubSubscription")
+	}
+
+	var r0 *helix.RemoveEventSubSubscriptionParamsResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (*helix.RemoveEventSubSubscriptionParamsResponse, error)); ok {
+		return rf(id)
+	}
+	if rf, ok := ret.Get(0).(func(string) *helix.RemoveEventSubSubscriptionParamsResponse); ok {
+		r0 = rf(id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*helix.RemoveEventSubSubscriptionParamsResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockHelixClient_RemoveEventSubSubscription_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveEventSubSubscription'
+type MockHelixClient_RemoveEventSubSubscription_Call struct {
+	*mock.Call
+}
+
+// RemoveEventSubSubscription is a helper method to define mock.On call
+//   - id string
+func (_e *MockHelixClient_Expecter) RemoveEventSubSubscription(id interface{}) *MockHelixClient_RemoveEventSubSubscription_Call {
+	return &MockHelixClient_RemoveEventSubSubscription_Call{Call: _e.mock.On("RemoveEventSubSubscription", id)}
+}
+
+func (_c *MockHelixClient_RemoveEventSubSubscription_Call) Run(run func(id string)) *MockHelixClient_RemoveEventSubSubscription_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *MockHelixClient_RemoveEventSubSubscription_Call) Return(_a0 *helix.RemoveEventSubSubscriptionParamsResponse, _a1 error) *MockHelixClient_RemoveEventSubSubscription_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockHelixClient_RemoveEventSubSubscription_Call) RunAndReturn(run func(string) (*helix.RemoveEventSubSubscriptionParamsResponse, error)) *MockHelixClient_RemoveEventSubSubscription_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RequestAppAccessToken provides a mock function with given fields: scopes
+func (_m *MockHelixClient) RequestAppAccessToken(scopes []string) (*helix.AppAccessTokenResponse, error) {
+	ret := _m.Called(scopes)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RequestAppAccessToken")
+	}
+
+	var r0 *helix.AppAccessTokenResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func([]string) (*helix.AppAccessTokenResponse, error)); ok {
+		return rf(scopes)
+	}
+	if rf, ok := ret.Get(0).(func([]string) *helix.AppAccessTokenResponse); ok {
+		r0 = rf(scopes)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*helix.AppAccessTokenResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func([]string) error); ok {
+		r1 = rf(scopes)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockHelixClient_RequestAppAccessToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RequestAppAccessToken'
+type MockHelixClient_RequestAppAccessToken_Call struct {
+	*mock.Call
+}
+
+// RequestAppAccessToken is a helper method to define mock.On call
+//   - scopes []string
+func (_e *MockHelixClient_Expecter) RequestAppAccessToken(scopes interface{}) *MockHelixClient_RequestAppAccessToken_Call {
+	return &MockHelixClient_RequestAppAccessToken_Call{Call: _e.mock.On("RequestAppAccessToken", scopes)}
+}
+
+func (_c *MockHelixClient_RequestAppAccessToken_Call) Run(run func(scopes []string)) *MockHelixClient_RequestAppAccessToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].([]string))
+	})
+	return _c
+}
+
+func (_c *MockHelixClient_RequestAppAccessToken_Call) Return(_a0 *helix.AppAccessTokenResponse, _a1 error) *MockHelixClient_RequestAppAccessToken_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockHelixClient_RequestAppAccessToken_Call) RunAndReturn(run func([]string) (*helix.AppAccessTokenResponse, error)) *MockHelixClient_RequestAppAccessToken_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SetAppAccessToken provides a mock function with given fields: token
+func (_m *MockHelixClient) SetAppAccessToken(token string) {
+	_m.Called(token)
+}
+
+// MockHelixClient_SetAppAccessToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetAppAccessToken'
+type MockHelixClient_SetAppAccessToken_Call struct {
+	*mock.Call
+}
+
+// SetAppAccessToken is a helper method to define mock.On call
+//   - token string
+func (_e *MockHelixClient_Expecter) SetAppAccessToken(token interface{}) *MockHelixClient_SetAppAccessToken_Call {
+	return &MockHelixClient_SetAppAccessToken_Call{Call: _e.mock.On("SetAppAccessToken", token)}
+}
+
+func (_c *MockHelixClient_SetAppAccessToken_Call) Run(run func(token string)) *MockHelixClient_SetAppAccessToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *MockHelixClient_SetAppAccessToken_Call) Return() *MockHelixClient_SetAppAccessToken_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockHelixClient_SetAppAccessToken_Call) RunAndReturn(run func(string)) *MockHelixClient_SetAppAccessToken_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SetUserAccessToken provides a mock function with given fields: token
+func (_m *MockHelixClient) SetUserAccessToken(token string) {
+	_m.Called(token)
+}
+
+// MockHelixClient_SetUserAccessToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetUserAccessToken'
+type MockHelixClient_SetUserAccessToken_Call struct {
+	*mock.Call
+}
+
+// SetUserAccessToken is a helper method to define mock.On call
+//   - token string
+func (_e *MockHelixClient_Expecter) SetUserAccessToken(token interface{}) *MockHelixClient_SetUserAccessToken_Call {
+	return &MockHelixClient_SetUserAccessToken_Call{Call: _e.mock.On("SetUserAccessToken", token)}
+}
+
+func (_c *MockHelixClient_SetUserAccessToken_Call) Run(run func(token string)) *MockHelixClient_SetUserAccessToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *MockHelixClient_SetUserAccessToken_Call) Return() *MockHelixClient_SetUserAccessToken_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockHelixClient_SetUserAccessToken_Call) RunAndReturn(run func(string)) *MockHelixClient_SetUserAccessToken_Call {
 	_c.Call.Return(run)
 	return _c
 }

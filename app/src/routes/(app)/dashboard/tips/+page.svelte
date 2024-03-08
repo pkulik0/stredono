@@ -99,15 +99,16 @@
             {$t("search")}
             <Input type="text" bind:value={searchTerm}></Input>
         </Label>
-        <div class="flex flex-row space-x-4 ms-4 mt-1">
-            <Checkbox bind:checked={searchInSender} class="mb-4">
-                {$t("users")}
+        <div class="flex flex-row space-x-4 ms-3">
+            <P color="gray">{$t("filter")}:</P>
+            <Checkbox bind:checked={searchInSender} class="mt-1">
+                {$t("display_names")}
             </Checkbox>
-            <Checkbox bind:checked={searchInEmail} class="mb-4">
+            <Checkbox bind:checked={searchInEmail} class="mt-1">
                 {$t("emails")}
             </Checkbox>
-            <Checkbox bind:checked={searchInMessage} class="mb-4">
-                {$t("app_name")}
+            <Checkbox bind:checked={searchInMessage} class="mt-1">
+                {$t("messages")}
             </Checkbox>
         </div>
 

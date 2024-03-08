@@ -2,8 +2,8 @@ rules_version = '2';
 
 service cloud.firestore {
     match /databases/{database}/documents {
-        match /alerts/{userId} {
-            allow read: if request.auth != null && request.auth.uid == userId;
+        match /alerts/{uid} {
+            allow read: if request.auth != null && request.auth.uid == uid;
             allow write: if false;
         }
 
@@ -12,16 +12,18 @@ service cloud.firestore {
             allow write: if false;
         }
 
-        match /tokens/{anything=**} {
-            allow read, write: if false;
+        match /users/{uid} {
+            allow read: if request.auth != null;
+            allow write: if false;
         }
 
-        match /elevenlabs-keys/{anything=**} {
-            allow read, write: if false;
+        match /tts/voices {
+            allow read: if request.auth != null;
+            allow write: if false;
         }
 
         match /{anything=**} {
-            allow read: if request.auth != null;
+            allow read: if false
             allow write: if false;
         }
     }

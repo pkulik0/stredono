@@ -11,8 +11,10 @@ const getUserLocale = () => {
 }
 
 const setupLocale = () => {
-	register('en', () => import('$lib/i18n/en.json'));
-	register('pl', () => import('$lib/i18n/pl.json'));
+	const languages = ['en', 'pl', 'es', 'fr', 'de'];
+	languages.forEach(lang => {
+		register(lang, () => import(`$lib/i18n/${lang}.json`));
+	})
 
 	init({
 		fallbackLocale: 'en',
