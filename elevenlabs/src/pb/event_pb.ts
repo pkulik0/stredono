@@ -11,9 +11,9 @@ import { Message, proto3 } from "@bufbuild/protobuf";
  */
 export enum SubTier {
   /**
-   * @generated from enum value: PRIME = 0;
+   * @generated from enum value: TIER_UNKNOWN = 0;
    */
-  PRIME = 0,
+  TIER_UNKNOWN = 0,
 
   /**
    * @generated from enum value: TIER_1 = 1;
@@ -32,7 +32,7 @@ export enum SubTier {
 }
 // Retrieve enum metadata with: proto3.getEnumType(SubTier)
 proto3.util.setEnumType(SubTier, "stredono.SubTier", [
-  { no: 0, name: "PRIME" },
+  { no: 0, name: "TIER_UNKNOWN" },
   { no: 1, name: "TIER_1" },
   { no: 2, name: "TIER_2" },
   { no: 3, name: "TIER_3" },
@@ -107,19 +107,20 @@ export class Event extends Message<Event> {
   TTSUrl = "";
 
   /**
-   * @generated from field: stredono.EventType Type = 5;
-   */
-  Type = EventType.TIP;
-
-  /**
    * @generated from oneof stredono.Event.Payload
    */
   Payload: {
     /**
-     * @generated from field: stredono.Event.TipPayload Tip = 6;
+     * @generated from field: stredono.Event.TipPayload Tip = 5;
      */
     value: Event_TipPayload;
     case: "Tip";
+  } | {
+    /**
+     * @generated from field: stredono.Event.FollowPayload Follow = 6;
+     */
+    value: Event_FollowPayload;
+    case: "Follow";
   } | {
     /**
      * @generated from field: stredono.Event.CheerPayload Cheer = 7;
@@ -164,8 +165,8 @@ export class Event extends Message<Event> {
     { no: 2, name: "Channel", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "Username", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 4, name: "TTSUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "Type", kind: "enum", T: proto3.getEnumType(EventType) },
-    { no: 6, name: "Tip", kind: "message", T: Event_TipPayload, oneof: "Payload" },
+    { no: 5, name: "Tip", kind: "message", T: Event_TipPayload, oneof: "Payload" },
+    { no: 6, name: "Follow", kind: "message", T: Event_FollowPayload, oneof: "Payload" },
     { no: 7, name: "Cheer", kind: "message", T: Event_CheerPayload, oneof: "Payload" },
     { no: 8, name: "Sub", kind: "message", T: Event_SubPayload, oneof: "Payload" },
     { no: 9, name: "SubGift", kind: "message", T: Event_SubGiftPayload, oneof: "Payload" },
@@ -191,18 +192,54 @@ export class Event extends Message<Event> {
 }
 
 /**
+ * @generated from message stredono.Event.FollowPayload
+ */
+export class Event_FollowPayload extends Message<Event_FollowPayload> {
+  constructor(data?: PartialMessage<Event_FollowPayload>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.Event.FollowPayload";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Event_FollowPayload {
+    return new Event_FollowPayload().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Event_FollowPayload {
+    return new Event_FollowPayload().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Event_FollowPayload {
+    return new Event_FollowPayload().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: Event_FollowPayload | PlainMessage<Event_FollowPayload> | undefined, b: Event_FollowPayload | PlainMessage<Event_FollowPayload> | undefined): boolean {
+    return proto3.util.equals(Event_FollowPayload, a, b);
+  }
+}
+
+/**
  * @generated from message stredono.Event.SubGiftPayload
  */
 export class Event_SubGiftPayload extends Message<Event_SubGiftPayload> {
   /**
-   * @generated from field: string Recipient = 1;
+   * @generated from field: stredono.SubTier Tier = 1;
    */
-  Recipient = "";
+  Tier = SubTier.TIER_UNKNOWN;
 
   /**
-   * @generated from field: stredono.SubTier Tier = 2;
+   * @generated from field: int32 Count = 2;
    */
-  Tier = SubTier.PRIME;
+  Count = 0;
+
+  /**
+   * @generated from field: int32 Total = 3;
+   */
+  Total = 0;
 
   constructor(data?: PartialMessage<Event_SubGiftPayload>) {
     super();
@@ -212,8 +249,9 @@ export class Event_SubGiftPayload extends Message<Event_SubGiftPayload> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "stredono.Event.SubGiftPayload";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "Recipient", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "Tier", kind: "enum", T: proto3.getEnumType(SubTier) },
+    { no: 1, name: "Tier", kind: "enum", T: proto3.getEnumType(SubTier) },
+    { no: 2, name: "Count", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 3, name: "Total", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Event_SubGiftPayload {
@@ -245,7 +283,7 @@ export class Event_SubPayload extends Message<Event_SubPayload> {
   /**
    * @generated from field: stredono.SubTier Tier = 2;
    */
-  Tier = SubTier.PRIME;
+  Tier = SubTier.TIER_UNKNOWN;
 
   constructor(data?: PartialMessage<Event_SubPayload>) {
     super();

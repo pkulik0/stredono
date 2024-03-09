@@ -5,7 +5,7 @@ package stredono;
 option go_package="github.com/pkulik0/stredono/cloud/pb";
 
 enum SubTier {
-  PRIME = 0;
+  TIER_UNKNOWN = 0;
   TIER_1 = 1;
   TIER_2 = 2;
   TIER_3 = 3;
@@ -28,9 +28,9 @@ message Event {
 
   string TTSUrl = 4;
 
-  EventType Type = 5;
   oneof Payload {
-    TipPayload Tip = 6;
+    TipPayload Tip = 5;
+    FollowPayload Follow = 6;
     CheerPayload Cheer = 7;
     SubPayload Sub = 8;
     SubGiftPayload SubGift = 9;
@@ -38,9 +38,14 @@ message Event {
     ChatMessagePayload ChatMessage = 11;
   }
 
+  message FollowPayload {
+
+  }
+
   message SubGiftPayload {
-    string Recipient = 1;
-    SubTier Tier = 2;
+    SubTier Tier = 1;
+    int32 Count = 2;
+    int32 Total = 3;
   }
 
   message SubPayload {

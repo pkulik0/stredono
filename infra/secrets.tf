@@ -2,6 +2,7 @@ locals {
   secrets = {
     "twitch-client-secret"   = {},
     "twitch-eventsub-secret" = {}
+    "twitch-bot-token"       = {}
     "proxy"                  = {}
   }
 }

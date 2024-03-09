@@ -14,7 +14,9 @@ import (
 )
 
 const (
-	eventsubMessageTypeHeader = "Twitch-Eventsub-Message-Type"
+	eventsubMessageHeaderType      = "Twitch-Eventsub-Message-Type"
+	eventsubMessageHeaderId        = "Twitch-Eventsub-Message-Id"
+	eventsubMessageHeaderTimestamp = "Twitch-Eventsub-Message-Timestamp"
 
 	eventsubMessageTypeWebhookCallback = "webhook_callback_verification"
 	eventsubMessageTypeNotification    = "notification"
@@ -75,20 +77,20 @@ func webhook(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, platform.BadRequestMessage, http.StatusBadRequest)
 		return
 	}
+	notification.fill(r.Header)
 
-	msgType := r.Header.Get(eventsubMessageTypeHeader)
-	switch msgType {
+	switch notification.Type {
 	case eventsubMessageTypeWebhookCallback:
 		_, err = w.Write([]byte(notification.Challenge))
 		if err != nil {
 			log.Errorf("Failed to write response | %s", err)
 			return
 		}
-		log.Infof("Webhook verification successful")
+		log.Infof("Webhook verification successful: %v", notification.Subscription)
 	case eventsubMessageTypeNotification:
 		err = handleEvent(ctx, notification)
 		if err != nil {
-			log.Errorf("Failed to handle event | %s", err)
+			log.Errorf("Failed to handle event | %s \n %v", err, notification)
 			http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
 			return
 		}
@@ -98,15 +100,12 @@ func webhook(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
 			log.Errorf("Failed to write response | %s", err)
 		}
 	default:
-		log.Errorf("Unknown message type: %s", msgType)
+		log.Errorf("Unknown message type: %s", notification.Type)
 		http.Error(w, platform.BadRequestMessage, http.StatusBadRequest)
 	}
 }
 
 func handleEvent(ctx *providers.Context, notification *eventsubNotification) error {
-	eventTypeName := notification.Subscription.Type
-	twitchUid := notification.Subscription.Condition.BroadcasterUserID
-
 	bytes, err := json.Marshal(notification.Event)
 	if err != nil {
 		return err
@@ -120,18 +119,21 @@ func handleEvent(ctx *providers.Context, notification *eventsubNotification) err
 	topic := pubsubClient.Topic("twitch-eventsub")
 	defer topic.Close()
 
+	eventType := notification.Subscription.Type
 	publishedId, err := topic.Publish(ctx.Ctx, &modules.PubSubMessage{
 		Data: bytes,
 		Attributes: map[string]string{
-			"twitchUid": twitchUid,
-			"eventType": eventTypeName,
+			"twitchUid": notification.Subscription.Condition.BroadcasterUserID,
+			"type":      eventType,
+			"id":        notification.Id,
+			"timestamp": notification.Timestamp,
 		},
 	})
 	if err != nil {
 		return err
 	}
 
-	log.Infof("Published %s (id %s): %+v", eventTypeName, publishedId, notification.Event)
+	log.Infof("Published %s (id %s): %+v", eventType, publishedId, notification.Event)
 	return nil
 }
 
@@ -139,4 +141,13 @@ type eventsubNotification struct {
 	Subscription helix.EventSubSubscription `json:"subscription"`
 	Event        map[string]interface{}     `json:"event"`
 	Challenge    string                     `json:"challenge"`
+	Id           string
+	Timestamp    string
+	Type         string
+}
+
+func (e *eventsubNotification) fill(headers http.Header) {
+	e.Id = headers.Get(eventsubMessageHeaderId)
+	e.Timestamp = headers.Get(eventsubMessageHeaderTimestamp)
+	e.Type = headers.Get(eventsubMessageHeaderType)
 }

@@ -9,6 +9,7 @@
     "projectId": "stredono-6394ee11",
     "storageBucket": "stredono-6394ee11.appspot.com"
   },
+  "FunctionsUrl": "https://europe-west1-stredono-6394ee11.cloudfunctions.net",
   "PublicFiles": {
     "audio": [
       "public/audio/trash-can-hit.wav",

@@ -1,15 +1,18 @@
 package providers
 
 import (
+	kms "cloud.google.com/go/kms/apiv1"
 	"cloud.google.com/go/pubsub"
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	texttospeech "cloud.google.com/go/texttospeech/apiv1"
 	"context"
 	firebase "firebase.google.com/go/v4"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/pkulik0/stredono/cloud/pb"
 	"github.com/pkulik0/stredono/cloud/platform"
 	"github.com/pkulik0/stredono/cloud/platform/adapters"
 	"github.com/pkulik0/stredono/cloud/platform/modules"
+	"google.golang.org/protobuf/proto"
 	"net/http"
 	"os"
 	"strings"
@@ -21,8 +24,8 @@ type Config struct {
 	RealtimeDb    bool
 	Storage       bool
 	PubSub        bool
-	Messaging     bool
 	SecretManager bool
+	KeyManager    bool
 	Proxy         bool
 	TextToSpeech  bool
 }
@@ -32,10 +35,12 @@ type Context struct {
 	DocDb         modules.DocDb
 	Auth          modules.Auth
 	Storage       modules.Storage
+	RealtimeDb    modules.RealtimeDb
 	PubSub        modules.PubSubClient
 	TTSPlus       modules.TTS
 	TTSBasic      modules.TTS
 	SecretManager modules.SecretManager
+	KeyManager    modules.KeyManager
 }
 
 func (c *Context) GetDocDb() (db modules.DocDb, ok bool) {
@@ -66,26 +71,14 @@ func (c *Context) GetSecretManager() (secretManager modules.SecretManager, ok bo
 	return c.SecretManager, c.SecretManager != nil
 }
 
-var twitchScopes = []string{
-	"user:read:email",
-	"moderator:read:followers",
-	"user:read:chat",
-	"channel:bot",
-	"channel:moderate",
-	"channel:read:subscriptions",
-	"channel:read:redemptions",
-	"channel:manage:redemptions",
-	"bits:read",
-	"channel:manage:ads",
-	"channel:read:ads",
-	"channel:manage:broadcast",
-	"channel:edit:commercial",
-	"channel:read:hype_train",
-	"channel:read:goals",
-	"channel:read:vips",
-	"user:read:broadcast",
-	"moderation:read",
+func (c *Context) GetKeyManager() (keyManager modules.KeyManager, ok bool) {
+	return c.KeyManager, c.KeyManager != nil
 }
+
+const (
+	SecretClientSecret = "twitch-client-secret"
+	SecretBotToken     = "twitch-bot-token"
+)
 
 func GetHelixAppClient(ctx *Context) (modules.HelixClient, error) {
 	secretManager, ok := ctx.GetSecretManager()
@@ -93,12 +86,13 @@ func GetHelixAppClient(ctx *Context) (modules.HelixClient, error) {
 		return nil, platform.ErrorMissingContextValue
 	}
 
-	clientSecret, err := secretManager.GetSecret(ctx.Ctx, "twitch-client-secret", "latest")
+	clientSecret, err := secretManager.GetSecret(ctx.Ctx, SecretClientSecret, "latest")
 	if err != nil {
 		return nil, err
 	}
 
 	client, err := helix.NewClient(&helix.Options{
+		RedirectURI:  "http://localhost:8080/TwitchBotInit", // used only for the bot account (others go through firebase auth)
 		ClientID:     platform.TwitchClientId,
 		ClientSecret: string(clientSecret),
 	})
@@ -112,6 +106,63 @@ func GetHelixAppClient(ctx *Context) (modules.HelixClient, error) {
 		return nil, err
 	}
 	client.SetAppAccessToken(appToken.Data.AccessToken)
+
+	return client, nil
+}
+
+func GetHelixBotClient(ctx *Context) (modules.HelixClient, error) {
+	secretManager, ok := ctx.GetSecretManager()
+	if !ok {
+		return nil, platform.ErrorMissingContextValue
+	}
+
+	clientSecret, err := secretManager.GetSecret(ctx.Ctx, SecretClientSecret, "latest")
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := helix.NewClient(&helix.Options{
+		ClientID:     platform.TwitchClientId,
+		ClientSecret: string(clientSecret),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	tokenBytes, err := secretManager.GetSecret(ctx.Ctx, SecretBotToken, "latest")
+	if err != nil {
+		return nil, err
+	}
+
+	token := &pb.Token{}
+	if err := proto.Unmarshal(tokenBytes, token); err != nil {
+		return nil, err
+	}
+
+	client.SetRefreshToken(token.RefreshToken)
+	client.SetUserAccessToken(token.AccessToken)
+
+	return client, nil
+}
+
+func GetHelixClient(ctx *Context) (modules.HelixClient, error) {
+	secretManager, ok := ctx.GetSecretManager()
+	if !ok {
+		return nil, platform.ErrorMissingContextValue
+	}
+
+	clientSecret, err := secretManager.GetSecret(ctx.Ctx, SecretClientSecret, "latest")
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := helix.NewClient(&helix.Options{
+		ClientID:     platform.TwitchClientId,
+		ClientSecret: string(clientSecret),
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return client, nil
 }
@@ -165,6 +216,14 @@ func NewContext(r *http.Request, config *Config) (*Context, error) {
 		outCtx.SecretManager = &adapters.GcpSecretManager{Client: client}
 	}
 
+	if config.KeyManager {
+		client, err := kms.NewKeyManagementClient(outCtx.Ctx)
+		if err != nil {
+			return nil, err
+		}
+		outCtx.KeyManager = &adapters.KeyManagerGoogle{Client: client}
+	}
+
 	if config.Proxy {
 		if outCtx.SecretManager == nil {
 			return nil, platform.ErrorMissingModuleDep
@@ -208,21 +267,13 @@ func NewContext(r *http.Request, config *Config) (*Context, error) {
 		outCtx.Storage = &adapters.FirebaseStorage{Client: client}
 	}
 
-	//if config.Messaging {
-	//	client, err := app.Messaging(ctx)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	ctx = context.WithValue(ctx, messagingCtxKey, client)
-	//}
-	//
-	//if config.RealtimeDb {
-	//	client, err := app.Database(ctx)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	ctx = context.WithValue(ctx, realtimeDbCtxKey, client)
-	//}
+	if config.RealtimeDb {
+		client, err := app.Database(outCtx.Ctx)
+		if err != nil {
+			return nil, err
+		}
+		outCtx.RealtimeDb = &adapters.FirebaseRealtimeDbAdapter{Client: client}
+	}
 
 	return outCtx, nil
 }

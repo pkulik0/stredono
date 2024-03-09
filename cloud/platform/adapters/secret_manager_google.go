@@ -22,6 +22,19 @@ func (gsm *GcpSecretManager) GetSecret(ctx context.Context, name string, version
 	return response.Payload.Data, nil
 }
 
+func (gsm *GcpSecretManager) SetSecret(ctx context.Context, name string, secret []byte) error {
+	_, err := gsm.Client.AddSecretVersion(ctx, &secretmanagerpb.AddSecretVersionRequest{
+		Parent: fmt.Sprintf("projects/%s/secrets/%s", platform.ProjectNumber, name),
+		Payload: &secretmanagerpb.SecretPayload{
+			Data: secret,
+		},
+	})
+	if err != nil {
+		return err
+	}
+	return err
+}
+
 func (gsm *GcpSecretManager) Close() error {
 	return gsm.Client.Close()
 }

@@ -6,9 +6,11 @@
 
 	const loginTwitch = async () => {
 		const provider = new OAuthProvider("oidc.twitch")
+
 		provider.addScope("user:read:email");
 		provider.addScope("channel:bot");
 		provider.addScope("channel:moderate");
+		provider.addScope("channel:manage:moderators");
 		provider.addScope("moderation:read");
 		provider.addScope("moderator:read:followers");
 		provider.addScope("channel:read:subscriptions");
@@ -25,7 +27,6 @@
 		provider.addScope("user:read:broadcast");
 		provider.addScope("user:read:chat");
 
-		provider.addScope("user:bot");
 		await signInWithPopup(auth, provider);
 	}
 </script>

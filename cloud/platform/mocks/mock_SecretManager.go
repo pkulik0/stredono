@@ -126,6 +126,54 @@ func (_c *MockSecretManager_GetSecret_Call) RunAndReturn(run func(context.Contex
 	return _c
 }
 
+// SetSecret provides a mock function with given fields: ctx, name, secret
+func (_m *MockSecretManager) SetSecret(ctx context.Context, name string, secret []byte) error {
+	ret := _m.Called(ctx, name, secret)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetSecret")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, []byte) error); ok {
+		r0 = rf(ctx, name, secret)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockSecretManager_SetSecret_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetSecret'
+type MockSecretManager_SetSecret_Call struct {
+	*mock.Call
+}
+
+// SetSecret is a helper method to define mock.On call
+//   - ctx context.Context
+//   - name string
+//   - secret []byte
+func (_e *MockSecretManager_Expecter) SetSecret(ctx interface{}, name interface{}, secret interface{}) *MockSecretManager_SetSecret_Call {
+	return &MockSecretManager_SetSecret_Call{Call: _e.mock.On("SetSecret", ctx, name, secret)}
+}
+
+func (_c *MockSecretManager_SetSecret_Call) Run(run func(ctx context.Context, name string, secret []byte)) *MockSecretManager_SetSecret_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].([]byte))
+	})
+	return _c
+}
+
+func (_c *MockSecretManager_SetSecret_Call) Return(_a0 error) *MockSecretManager_SetSecret_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockSecretManager_SetSecret_Call) RunAndReturn(run func(context.Context, string, []byte) error) *MockSecretManager_SetSecret_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockSecretManager creates a new instance of MockSecretManager. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockSecretManager(t interface {

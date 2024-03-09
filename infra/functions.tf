@@ -22,6 +22,14 @@ resource "google_project_iam_member" "pubsub_publisher" {
   depends_on = [google_service_account.account]
 }
 
+resource "google_project_iam_member" "kms_encrypter_decrypter" {
+  provider   = google-beta
+  project = google_project.default.project_id
+  role    = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
+  member  = "serviceAccount:${google_service_account.account.email}"
+  depends_on = [google_service_account.account]
+}
+
 resource "google_project_iam_member" "firebase_admin" {
   provider   = google-beta
   project    = google_project.default.project_id
@@ -253,7 +261,7 @@ resource "google_cloudfunctions2_function" "twitch_webhook" {
 
   service_config {
     min_instance_count               = 0
-    max_instance_count               = 1
+    max_instance_count               = 3
     available_memory                 = "256M"
     max_instance_request_concurrency = 1
     timeout_seconds                  = 60
@@ -359,53 +367,6 @@ resource "google_cloudfunctions2_function" "on_event" {
   depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_pubsub_topic.events, google_cloudfunctions2_function.alert_add]
 }
 
-resource "google_cloudfunctions2_function" "twitch_on_token" {
-  provider = google-beta
-  project  = google_project.default.project_id
-
-  name     = "TwitchOnToken"
-  location = var.gcf_location
-
-  build_config {
-    runtime     = "go121"
-    entry_point = "TwitchOnToken"
-    source {
-      storage_source {
-        bucket = google_storage_bucket.fn_bucket.name
-        object = google_storage_bucket_object.functions_source.name
-      }
-    }
-  }
-
-  service_config {
-    min_instance_count               = 0
-    max_instance_count               = 1
-    available_memory                 = "256M"
-    max_instance_request_concurrency = 1
-    timeout_seconds                  = 60
-    ingress_settings                 = "ALLOW_INTERNAL_ONLY"
-    service_account_email            = google_service_account.account.email
-  }
-
-  event_trigger {
-    event_type            = "google.cloud.firestore.document.v1.written"
-    retry_policy          = "RETRY_POLICY_DO_NOT_RETRY"
-    service_account_email = google_service_account.account.email
-    trigger_region        = "eur3"
-    event_filters {
-      attribute = "database"
-      value     = google_firestore_database.default.name
-    }
-    event_filters {
-      attribute = "document"
-      value     = "twitch-tokens/{path=**}"
-      operator  = "match-path-pattern"
-    }
-  }
-
-  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_firestore_database.default, google_cloudfunctions2_function.twitch_webhook]
-}
-
 resource "google_cloudfunctions2_function" "twitch_on_event" {
   provider = google-beta
   project  = google_project.default.project_id
@@ -426,7 +387,7 @@ resource "google_cloudfunctions2_function" "twitch_on_event" {
 
   service_config {
     min_instance_count               = 0
-    max_instance_count               = 1
+    max_instance_count               = 3
     available_memory                 = "256M"
     max_instance_request_concurrency = 1
     timeout_seconds                  = 60

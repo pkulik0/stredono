@@ -49,8 +49,6 @@ func init() {
 
 	cloudfunc.CloudEvent("OnEvent", functions.OnEventEntrypoint)
 
-	cloudfunc.CloudEvent("TwitchOnToken", twitch.OnTokenEntrypoint)
-
 	cloudfunc.CloudEvent("TwitchOnEvent", twitch.OnEventEntrypoint)
 
 	// HTTP
@@ -67,5 +65,7 @@ func init() {
 	cloudfunc.HTTP("TipConfirm", platform.CorsMiddleware(tips.ConfirmEntrypoint))
 
 	cloudfunc.HTTP("TwitchWebhook", platform.CorsMiddleware(twitch.WebhookEntrypoint))
+	cloudfunc.HTTP("TwitchEventsubInit", platform.CorsMiddleware(twitch.EventsubInitEntrypoint))
 	cloudfunc.HTTP("TwitchEventsubList", platform.CorsMiddleware(twitch.EventsubListEntrypoint))
+	cloudfunc.HTTP("TwitchBotInit", platform.CorsMiddleware(twitch.BotInitEntrypoint))
 }

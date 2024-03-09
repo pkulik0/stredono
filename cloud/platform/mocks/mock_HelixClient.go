@@ -20,6 +20,64 @@ func (_m *MockHelixClient) EXPECT() *MockHelixClient_Expecter {
 	return &MockHelixClient_Expecter{mock: &_m.Mock}
 }
 
+// AddChannelModerator provides a mock function with given fields: params
+func (_m *MockHelixClient) AddChannelModerator(params *helix.AddChannelModeratorParams) (*helix.AddChannelModeratorResponse, error) {
+	ret := _m.Called(params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddChannelModerator")
+	}
+
+	var r0 *helix.AddChannelModeratorResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*helix.AddChannelModeratorParams) (*helix.AddChannelModeratorResponse, error)); ok {
+		return rf(params)
+	}
+	if rf, ok := ret.Get(0).(func(*helix.AddChannelModeratorParams) *helix.AddChannelModeratorResponse); ok {
+		r0 = rf(params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*helix.AddChannelModeratorResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*helix.AddChannelModeratorParams) error); ok {
+		r1 = rf(params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockHelixClient_AddChannelModerator_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddChannelModerator'
+type MockHelixClient_AddChannelModerator_Call struct {
+	*mock.Call
+}
+
+// AddChannelModerator is a helper method to define mock.On call
+//   - params *helix.AddChannelModeratorParams
+func (_e *MockHelixClient_Expecter) AddChannelModerator(params interface{}) *MockHelixClient_AddChannelModerator_Call {
+	return &MockHelixClient_AddChannelModerator_Call{Call: _e.mock.On("AddChannelModerator", params)}
+}
+
+func (_c *MockHelixClient_AddChannelModerator_Call) Run(run func(params *helix.AddChannelModeratorParams)) *MockHelixClient_AddChannelModerator_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*helix.AddChannelModeratorParams))
+	})
+	return _c
+}
+
+func (_c *MockHelixClient_AddChannelModerator_Call) Return(_a0 *helix.AddChannelModeratorResponse, _a1 error) *MockHelixClient_AddChannelModerator_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockHelixClient_AddChannelModerator_Call) RunAndReturn(run func(*helix.AddChannelModeratorParams) (*helix.AddChannelModeratorResponse, error)) *MockHelixClient_AddChannelModerator_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateEventSubSubscription provides a mock function with given fields: payload
 func (_m *MockHelixClient) CreateEventSubSubscription(payload *helix.EventSubSubscription) (*helix.EventSubSubscriptionsResponse, error) {
 	ret := _m.Called(payload)
@@ -78,6 +136,110 @@ func (_c *MockHelixClient_CreateEventSubSubscription_Call) RunAndReturn(run func
 	return _c
 }
 
+// EditChannelInformation provides a mock function with given fields: params
+func (_m *MockHelixClient) EditChannelInformation(params *helix.EditChannelInformationParams) (*helix.EditChannelInformationResponse, error) {
+	ret := _m.Called(params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EditChannelInformation")
+	}
+
+	var r0 *helix.EditChannelInformationResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*helix.EditChannelInformationParams) (*helix.EditChannelInformationResponse, error)); ok {
+		return rf(params)
+	}
+	if rf, ok := ret.Get(0).(func(*helix.EditChannelInformationParams) *helix.EditChannelInformationResponse); ok {
+		r0 = rf(params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*helix.EditChannelInformationResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*helix.EditChannelInformationParams) error); ok {
+		r1 = rf(params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockHelixClient_EditChannelInformation_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'EditChannelInformation'
+type MockHelixClient_EditChannelInformation_Call struct {
+	*mock.Call
+}
+
+// EditChannelInformation is a helper method to define mock.On call
+//   - params *helix.EditChannelInformationParams
+func (_e *MockHelixClient_Expecter) EditChannelInformation(params interface{}) *MockHelixClient_EditChannelInformation_Call {
+	return &MockHelixClient_EditChannelInformation_Call{Call: _e.mock.On("EditChannelInformation", params)}
+}
+
+func (_c *MockHelixClient_EditChannelInformation_Call) Run(run func(params *helix.EditChannelInformationParams)) *MockHelixClient_EditChannelInformation_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*helix.EditChannelInformationParams))
+	})
+	return _c
+}
+
+func (_c *MockHelixClient_EditChannelInformation_Call) Return(_a0 *helix.EditChannelInformationResponse, _a1 error) *MockHelixClient_EditChannelInformation_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockHelixClient_EditChannelInformation_Call) RunAndReturn(run func(*helix.EditChannelInformationParams) (*helix.EditChannelInformationResponse, error)) *MockHelixClient_EditChannelInformation_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAuthorizationURL provides a mock function with given fields: params
+func (_m *MockHelixClient) GetAuthorizationURL(params *helix.AuthorizationURLParams) string {
+	ret := _m.Called(params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAuthorizationURL")
+	}
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(*helix.AuthorizationURLParams) string); ok {
+		r0 = rf(params)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// MockHelixClient_GetAuthorizationURL_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAuthorizationURL'
+type MockHelixClient_GetAuthorizationURL_Call struct {
+	*mock.Call
+}
+
+// GetAuthorizationURL is a helper method to define mock.On call
+//   - params *helix.AuthorizationURLParams
+func (_e *MockHelixClient_Expecter) GetAuthorizationURL(params interface{}) *MockHelixClient_GetAuthorizationURL_Call {
+	return &MockHelixClient_GetAuthorizationURL_Call{Call: _e.mock.On("GetAuthorizationURL", params)}
+}
+
+func (_c *MockHelixClient_GetAuthorizationURL_Call) Run(run func(params *helix.AuthorizationURLParams)) *MockHelixClient_GetAuthorizationURL_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*helix.AuthorizationURLParams))
+	})
+	return _c
+}
+
+func (_c *MockHelixClient_GetAuthorizationURL_Call) Return(_a0 string) *MockHelixClient_GetAuthorizationURL_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockHelixClient_GetAuthorizationURL_Call) RunAndReturn(run func(*helix.AuthorizationURLParams) string) *MockHelixClient_GetAuthorizationURL_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetEventSubSubscriptions provides a mock function with given fields: params
 func (_m *MockHelixClient) GetEventSubSubscriptions(params *helix.EventSubSubscriptionsParams) (*helix.EventSubSubscriptionsResponse, error) {
 	ret := _m.Called(params)
@@ -132,6 +294,64 @@ func (_c *MockHelixClient_GetEventSubSubscriptions_Call) Return(_a0 *helix.Event
 }
 
 func (_c *MockHelixClient_GetEventSubSubscriptions_Call) RunAndReturn(run func(*helix.EventSubSubscriptionsParams) (*helix.EventSubSubscriptionsResponse, error)) *MockHelixClient_GetEventSubSubscriptions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetModerators provides a mock function with given fields: params
+func (_m *MockHelixClient) GetModerators(params *helix.GetModeratorsParams) (*helix.ModeratorsResponse, error) {
+	ret := _m.Called(params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetModerators")
+	}
+
+	var r0 *helix.ModeratorsResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*helix.GetModeratorsParams) (*helix.ModeratorsResponse, error)); ok {
+		return rf(params)
+	}
+	if rf, ok := ret.Get(0).(func(*helix.GetModeratorsParams) *helix.ModeratorsResponse); ok {
+		r0 = rf(params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*helix.ModeratorsResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*helix.GetModeratorsParams) error); ok {
+		r1 = rf(params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockHelixClient_GetModerators_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetModerators'
+type MockHelixClient_GetModerators_Call struct {
+	*mock.Call
+}
+
+// GetModerators is a helper method to define mock.On call
+//   - params *helix.GetModeratorsParams
+func (_e *MockHelixClient_Expecter) GetModerators(params interface{}) *MockHelixClient_GetModerators_Call {
+	return &MockHelixClient_GetModerators_Call{Call: _e.mock.On("GetModerators", params)}
+}
+
+func (_c *MockHelixClient_GetModerators_Call) Run(run func(params *helix.GetModeratorsParams)) *MockHelixClient_GetModerators_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*helix.GetModeratorsParams))
+	})
+	return _c
+}
+
+func (_c *MockHelixClient_GetModerators_Call) Return(_a0 *helix.ModeratorsResponse, _a1 error) *MockHelixClient_GetModerators_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockHelixClient_GetModerators_Call) RunAndReturn(run func(*helix.GetModeratorsParams) (*helix.ModeratorsResponse, error)) *MockHelixClient_GetModerators_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -310,6 +530,180 @@ func (_c *MockHelixClient_RequestAppAccessToken_Call) RunAndReturn(run func([]st
 	return _c
 }
 
+// RequestUserAccessToken provides a mock function with given fields: code
+func (_m *MockHelixClient) RequestUserAccessToken(code string) (*helix.UserAccessTokenResponse, error) {
+	ret := _m.Called(code)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RequestUserAccessToken")
+	}
+
+	var r0 *helix.UserAccessTokenResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (*helix.UserAccessTokenResponse, error)); ok {
+		return rf(code)
+	}
+	if rf, ok := ret.Get(0).(func(string) *helix.UserAccessTokenResponse); ok {
+		r0 = rf(code)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*helix.UserAccessTokenResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(code)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockHelixClient_RequestUserAccessToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RequestUserAccessToken'
+type MockHelixClient_RequestUserAccessToken_Call struct {
+	*mock.Call
+}
+
+// RequestUserAccessToken is a helper method to define mock.On call
+//   - code string
+func (_e *MockHelixClient_Expecter) RequestUserAccessToken(code interface{}) *MockHelixClient_RequestUserAccessToken_Call {
+	return &MockHelixClient_RequestUserAccessToken_Call{Call: _e.mock.On("RequestUserAccessToken", code)}
+}
+
+func (_c *MockHelixClient_RequestUserAccessToken_Call) Run(run func(code string)) *MockHelixClient_RequestUserAccessToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *MockHelixClient_RequestUserAccessToken_Call) Return(_a0 *helix.UserAccessTokenResponse, _a1 error) *MockHelixClient_RequestUserAccessToken_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockHelixClient_RequestUserAccessToken_Call) RunAndReturn(run func(string) (*helix.UserAccessTokenResponse, error)) *MockHelixClient_RequestUserAccessToken_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SendChatAnnouncement provides a mock function with given fields: params
+func (_m *MockHelixClient) SendChatAnnouncement(params *helix.SendChatAnnouncementParams) (*helix.SendChatAnnouncementResponse, error) {
+	ret := _m.Called(params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendChatAnnouncement")
+	}
+
+	var r0 *helix.SendChatAnnouncementResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*helix.SendChatAnnouncementParams) (*helix.SendChatAnnouncementResponse, error)); ok {
+		return rf(params)
+	}
+	if rf, ok := ret.Get(0).(func(*helix.SendChatAnnouncementParams) *helix.SendChatAnnouncementResponse); ok {
+		r0 = rf(params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*helix.SendChatAnnouncementResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*helix.SendChatAnnouncementParams) error); ok {
+		r1 = rf(params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockHelixClient_SendChatAnnouncement_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendChatAnnouncement'
+type MockHelixClient_SendChatAnnouncement_Call struct {
+	*mock.Call
+}
+
+// SendChatAnnouncement is a helper method to define mock.On call
+//   - params *helix.SendChatAnnouncementParams
+func (_e *MockHelixClient_Expecter) SendChatAnnouncement(params interface{}) *MockHelixClient_SendChatAnnouncement_Call {
+	return &MockHelixClient_SendChatAnnouncement_Call{Call: _e.mock.On("SendChatAnnouncement", params)}
+}
+
+func (_c *MockHelixClient_SendChatAnnouncement_Call) Run(run func(params *helix.SendChatAnnouncementParams)) *MockHelixClient_SendChatAnnouncement_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*helix.SendChatAnnouncementParams))
+	})
+	return _c
+}
+
+func (_c *MockHelixClient_SendChatAnnouncement_Call) Return(_a0 *helix.SendChatAnnouncementResponse, _a1 error) *MockHelixClient_SendChatAnnouncement_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockHelixClient_SendChatAnnouncement_Call) RunAndReturn(run func(*helix.SendChatAnnouncementParams) (*helix.SendChatAnnouncementResponse, error)) *MockHelixClient_SendChatAnnouncement_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SendChatMessage provides a mock function with given fields: params
+func (_m *MockHelixClient) SendChatMessage(params *helix.SendChatMessageParams) (*helix.ChatMessageResponse, error) {
+	ret := _m.Called(params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendChatMessage")
+	}
+
+	var r0 *helix.ChatMessageResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*helix.SendChatMessageParams) (*helix.ChatMessageResponse, error)); ok {
+		return rf(params)
+	}
+	if rf, ok := ret.Get(0).(func(*helix.SendChatMessageParams) *helix.ChatMessageResponse); ok {
+		r0 = rf(params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*helix.ChatMessageResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*helix.SendChatMessageParams) error); ok {
+		r1 = rf(params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockHelixClient_SendChatMessage_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendChatMessage'
+type MockHelixClient_SendChatMessage_Call struct {
+	*mock.Call
+}
+
+// SendChatMessage is a helper method to define mock.On call
+//   - params *helix.SendChatMessageParams
+func (_e *MockHelixClient_Expecter) SendChatMessage(params interface{}) *MockHelixClient_SendChatMessage_Call {
+	return &MockHelixClient_SendChatMessage_Call{Call: _e.mock.On("SendChatMessage", params)}
+}
+
+func (_c *MockHelixClient_SendChatMessage_Call) Run(run func(params *helix.SendChatMessageParams)) *MockHelixClient_SendChatMessage_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*helix.SendChatMessageParams))
+	})
+	return _c
+}
+
+func (_c *MockHelixClient_SendChatMessage_Call) Return(_a0 *helix.ChatMessageResponse, _a1 error) *MockHelixClient_SendChatMessage_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockHelixClient_SendChatMessage_Call) RunAndReturn(run func(*helix.SendChatMessageParams) (*helix.ChatMessageResponse, error)) *MockHelixClient_SendChatMessage_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SetAppAccessToken provides a mock function with given fields: token
 func (_m *MockHelixClient) SetAppAccessToken(token string) {
 	_m.Called(token)
@@ -339,6 +733,39 @@ func (_c *MockHelixClient_SetAppAccessToken_Call) Return() *MockHelixClient_SetA
 }
 
 func (_c *MockHelixClient_SetAppAccessToken_Call) RunAndReturn(run func(string)) *MockHelixClient_SetAppAccessToken_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SetRefreshToken provides a mock function with given fields: token
+func (_m *MockHelixClient) SetRefreshToken(token string) {
+	_m.Called(token)
+}
+
+// MockHelixClient_SetRefreshToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SetRefreshToken'
+type MockHelixClient_SetRefreshToken_Call struct {
+	*mock.Call
+}
+
+// SetRefreshToken is a helper method to define mock.On call
+//   - token string
+func (_e *MockHelixClient_Expecter) SetRefreshToken(token interface{}) *MockHelixClient_SetRefreshToken_Call {
+	return &MockHelixClient_SetRefreshToken_Call{Call: _e.mock.On("SetRefreshToken", token)}
+}
+
+func (_c *MockHelixClient_SetRefreshToken_Call) Run(run func(token string)) *MockHelixClient_SetRefreshToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *MockHelixClient_SetRefreshToken_Call) Return() *MockHelixClient_SetRefreshToken_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockHelixClient_SetRefreshToken_Call) RunAndReturn(run func(string)) *MockHelixClient_SetRefreshToken_Call {
 	_c.Call.Return(run)
 	return _c
 }

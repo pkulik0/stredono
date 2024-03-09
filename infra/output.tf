@@ -3,6 +3,22 @@ output "backend_project_id" {
   depends_on = [google_project.default]
 }
 
+locals {
+  functions_url = "https://${var.gcf_location}-${google_project.default.project_id}.cloudfunctions.net"
+}
+
+output "backend_functions_url" {
+  value = local.functions_url
+}
+
+output "frontend_functions_url" {
+  value = local.functions_url
+}
+
+output "backend_encryption_key" {
+  value = google_kms_crypto_key.token_key.id
+}
+
 output "backend_project_number" {
   value      = google_project.default.number
   depends_on = [google_project.default]
@@ -36,7 +52,6 @@ output "frontend_firebase_webapp_config" {
     appId             = data.google_firebase_web_app_config.default.web_app_id,
     measurementId     = data.google_firebase_web_app_config.default.measurement_id
   }
-  description = "Firebase web app configuration in JSON format."
 }
 
 output "backend_firebase_database_url" {

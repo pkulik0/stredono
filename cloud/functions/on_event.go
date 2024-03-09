@@ -9,27 +9,13 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-type MessagePublishedData struct {
-	Message PubSubMessage
-}
-
-type PubSubMessage struct {
-	Data        []byte            `json:"data"`
-	Attributes  map[string]string `json:"attributes"`
-	MessageId   string            `json:"messageId"`
-	PublishTime string            `json:"publishTime"`
-	OrderingKey string            `json:"orderingKey"`
-}
-
 func OnEventEntrypoint(ctx context.Context, e event.Event) error {
-	var msg MessagePublishedData
+	var msg EventMessageData
 	if err := e.DataAs(&msg); err != nil {
 		return fmt.Errorf("failed to convert data | %v", err)
 	}
 
-	log.Printf("Received message: %v", msg)
-
-	var eventData *pb.Event
+	eventData := &pb.Event{}
 	if err := proto.Unmarshal(msg.Message.Data, eventData); err != nil {
 		return fmt.Errorf("failed to unmarshal data | %v", err)
 	}
@@ -39,6 +25,8 @@ func OnEventEntrypoint(ctx context.Context, e event.Event) error {
 	switch eventData.Payload.(type) {
 	case *pb.Event_Tip:
 		log.Printf("Received tip: %v", eventData.GetTip())
+	case *pb.Event_Follow:
+		log.Printf("Received follow: %v", eventData.GetFollow())
 	case *pb.Event_Cheer:
 		log.Printf("Received review: %v", eventData.GetCheer())
 	case *pb.Event_Sub:

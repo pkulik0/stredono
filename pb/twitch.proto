@@ -6,10 +6,14 @@ option go_package="github.com/pkulik0/stredono/cloud/pb";
 
 import 'pb/enums.proto';
 
+message TokenEntry {
+  string Uid = 1;
+  bytes EncryptedToken = 2;
+}
+
 message Token {
   string AccessToken = 1;
   string RefreshToken = 2;
-  string ProviderUid = 3;
 }
 
 message TwitchReward {

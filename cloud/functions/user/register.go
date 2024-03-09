@@ -8,13 +8,12 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/pkulik0/stredono/cloud/pb"
 	"github.com/pkulik0/stredono/cloud/platform"
-	"github.com/pkulik0/stredono/cloud/platform/modules"
 	"github.com/pkulik0/stredono/cloud/platform/providers"
 	log "github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/proto"
 	"io"
 	"net/http"
 	"regexp"
-	"strings"
 )
 
 func RegisterEntrypoint(w http.ResponseWriter, r *http.Request) {
@@ -22,6 +21,7 @@ func RegisterEntrypoint(w http.ResponseWriter, r *http.Request) {
 		DocDb:         true,
 		Auth:          true,
 		SecretManager: true,
+		KeyManager:    true,
 	})
 	if err != nil {
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
@@ -114,14 +114,14 @@ func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 }
 
 func handleOauthRegistration(ctx *providers.Context, claims *userClaims, user *pb.User) error {
-	helixClient, err := providers.GetHelixAppClient(ctx)
+	client, err := providers.GetHelixClient(ctx)
 	if err != nil {
 		log.Printf("Failed to get helix client | %v", err)
 		return fmt.Errorf("failed to get helix client | %v", err)
 	}
-	helixClient.SetUserAccessToken(claims.OauthAccessToken)
+	client.SetUserAccessToken(claims.OauthAccessToken)
 
-	users, err := helixClient.GetUsers(&helix.UsersParams{})
+	users, err := client.GetUsers(&helix.UsersParams{})
 	if err != nil {
 		log.Printf("Failed to get users | %v", err)
 		return err
@@ -129,7 +129,6 @@ func handleOauthRegistration(ctx *providers.Context, claims *userClaims, user *p
 	if len(users.Data.Users) == 0 {
 		return fmt.Errorf("no twitch user returned from api")
 	}
-
 	twitchUser := users.Data.Users[0]
 
 	user.DisplayName = twitchUser.DisplayName
@@ -140,28 +139,76 @@ func handleOauthRegistration(ctx *providers.Context, claims *userClaims, user *p
 	if !ok {
 		return errorContextValue
 	}
+	keyManager, ok := ctx.GetKeyManager()
+	if !ok {
+		return errorContextValue
+	}
 
-	path := fmt.Sprintf("%s-tokens", strings.Split(claims.SignInMethod, ".")[1])
-	_, err = db.Collection(path).Doc(claims.Uid).Set(ctx.Ctx, &pb.Token{
+	token := &pb.Token{
 		AccessToken:  claims.OauthAccessToken,
 		RefreshToken: claims.OauthRefreshToken,
-		ProviderUid:  twitchUser.ID,
-	}, modules.DbOpts{})
+	}
+	tokenBytes, err := proto.Marshal(token)
 	if err != nil {
 		return err
 	}
 
+	encryptedToken, err := keyManager.Encrypt(ctx.Ctx, platform.EncryptionKey, tokenBytes)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Collection("twitch-tokens").Doc(twitchUser.ID).Create(ctx.Ctx, &pb.TokenEntry{
+		Uid:            user.Uid,
+		EncryptedToken: encryptedToken,
+	})
+	if err != nil {
+		// TODO: handle conflicts?
+		return err
+	}
+
+	if twitchUser.ID == platform.TwitchUid {
+		return nil
+	}
+
+	modsRes, err := client.GetModerators(&helix.GetModeratorsParams{
+		BroadcasterID: twitchUser.ID,
+		UserIDs:       []string{platform.TwitchUid},
+	})
+	if err != nil {
+		log.Printf("Failed to get moderators | %v", err)
+		return err
+	}
+	if len(modsRes.Data.Moderators) > 0 {
+		log.Printf("Bot account (%s) is already a moderator of %s", platform.TwitchUid, twitchUser.ID)
+		return nil
+	}
+
+	addRes, err := client.AddChannelModerator(&helix.AddChannelModeratorParams{
+		BroadcasterID: twitchUser.ID,
+		UserID:        platform.TwitchUid,
+	})
+	if err != nil {
+		log.Printf("Failed to add channel moderator | %v \n %v", err, addRes)
+		return err
+	}
+	if addRes.StatusCode != http.StatusNoContent {
+		log.Printf("Failed to add channel moderator | %v", addRes)
+		return fmt.Errorf("failed to add channel moderator %v", addRes.StatusCode)
+	}
+
+	log.Printf("Added bot account (%s) as a moderator of %s", platform.TwitchUid, twitchUser.ID)
 	return nil
 }
 
 func getGoogleSigningKeys() (map[string]string, error) {
-	googleKeys, err := http.Get(googleKeysUrl)
+	res, err := http.Get(googleKeysUrl)
 	if err != nil {
 		return nil, err
 	}
 
 	var keys map[string]string
-	if err = json.NewDecoder(googleKeys.Body).Decode(&keys); err != nil {
+	if err = json.NewDecoder(res.Body).Decode(&keys); err != nil {
 		return nil, err
 	}
 	return keys, nil

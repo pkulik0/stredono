@@ -7,6 +7,49 @@ import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialM
 import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
 
 /**
+ * @generated from message stredono.TokenEntry
+ */
+export class TokenEntry extends Message<TokenEntry> {
+  /**
+   * @generated from field: string Uid = 1;
+   */
+  Uid = "";
+
+  /**
+   * @generated from field: bytes EncryptedToken = 2;
+   */
+  EncryptedToken = new Uint8Array(0);
+
+  constructor(data?: PartialMessage<TokenEntry>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.TokenEntry";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "Uid", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "EncryptedToken", kind: "scalar", T: 12 /* ScalarType.BYTES */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TokenEntry {
+    return new TokenEntry().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TokenEntry {
+    return new TokenEntry().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TokenEntry {
+    return new TokenEntry().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: TokenEntry | PlainMessage<TokenEntry> | undefined, b: TokenEntry | PlainMessage<TokenEntry> | undefined): boolean {
+    return proto3.util.equals(TokenEntry, a, b);
+  }
+}
+
+/**
  * @generated from message stredono.Token
  */
 export class Token extends Message<Token> {
@@ -20,11 +63,6 @@ export class Token extends Message<Token> {
    */
   RefreshToken = "";
 
-  /**
-   * @generated from field: string ProviderUid = 3;
-   */
-  ProviderUid = "";
-
   constructor(data?: PartialMessage<Token>) {
     super();
     proto3.util.initPartial(data, this);
@@ -35,7 +73,6 @@ export class Token extends Message<Token> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "AccessToken", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "RefreshToken", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "ProviderUid", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Token {

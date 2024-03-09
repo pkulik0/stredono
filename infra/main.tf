@@ -106,7 +106,19 @@ resource "google_kms_crypto_key" "default" {
   rotation_period = "86400s"
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
+  }
+
+  depends_on = [google_kms_key_ring.default]
+}
+
+
+resource "google_kms_crypto_key" "token_key" {
+  name     = "${google_project.default.project_id}-token-key"
+  key_ring = google_kms_key_ring.default.id
+
+  lifecycle {
+    prevent_destroy = true
   }
 
   depends_on = [google_kms_key_ring.default]
