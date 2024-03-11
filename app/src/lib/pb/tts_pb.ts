@@ -5,26 +5,7 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
-
-/**
- * @generated from enum stredono.Tier
- */
-export enum Tier {
-  /**
-   * @generated from enum value: BASIC = 0;
-   */
-  BASIC = 0,
-
-  /**
-   * @generated from enum value: PLUS = 1;
-   */
-  PLUS = 1,
-}
-// Retrieve enum metadata with: proto3.getEnumType(Tier)
-proto3.util.setEnumType(Tier, "stredono.Tier", [
-  { no: 0, name: "BASIC" },
-  { no: 1, name: "PLUS" },
-]);
+import { Tier } from "./enums_pb.js";
 
 /**
  * @generated from enum stredono.Gender
@@ -330,55 +311,6 @@ export class TTSProvider extends Message<TTSProvider> {
 
   static equals(a: TTSProvider | PlainMessage<TTSProvider> | undefined, b: TTSProvider | PlainMessage<TTSProvider> | undefined): boolean {
     return proto3.util.equals(TTSProvider, a, b);
-  }
-}
-
-/**
- * @generated from message stredono.TTSSettings
- */
-export class TTSSettings extends Message<TTSSettings> {
-  /**
-   * @generated from field: string BasicId = 1;
-   */
-  BasicId = "";
-
-  /**
-   * @generated from field: string PlusId = 2;
-   */
-  PlusId = "";
-
-  /**
-   * @generated from field: stredono.Tier Tier = 3;
-   */
-  Tier = Tier.BASIC;
-
-  constructor(data?: PartialMessage<TTSSettings>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "stredono.TTSSettings";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "BasicId", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "PlusId", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "Tier", kind: "enum", T: proto3.getEnumType(Tier) },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TTSSettings {
-    return new TTSSettings().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TTSSettings {
-    return new TTSSettings().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TTSSettings {
-    return new TTSSettings().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: TTSSettings | PlainMessage<TTSSettings> | undefined, b: TTSSettings | PlainMessage<TTSSettings> | undefined): boolean {
-    return proto3.util.equals(TTSSettings, a, b);
   }
 }
 

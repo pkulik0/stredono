@@ -75,3 +75,23 @@ proto3.util.setEnumType(Frequency, "stredono.Frequency", [
   { no: 6, name: "EVERY_HOUR" },
 ]);
 
+/**
+ * @generated from enum stredono.Tier
+ */
+export enum Tier {
+  /**
+   * @generated from enum value: BASIC = 0;
+   */
+  BASIC = 0,
+
+  /**
+   * @generated from enum value: PLUS = 1;
+   */
+  PLUS = 1,
+}
+// Retrieve enum metadata with: proto3.getEnumType(Tier)
+proto3.util.setEnumType(Tier, "stredono.Tier", [
+  { no: 0, name: "BASIC" },
+  { no: 1, name: "PLUS" },
+]);
+

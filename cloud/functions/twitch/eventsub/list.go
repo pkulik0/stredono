@@ -1,4 +1,4 @@
-package twitch
+package eventsub
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func EventsubListEntrypoint(w http.ResponseWriter, r *http.Request) {
+func ListEntrypoint(w http.ResponseWriter, r *http.Request) {
 	ctx, err := providers.NewContext(r, &providers.Config{
 		SecretManager: true,
 	})
@@ -18,10 +18,10 @@ func EventsubListEntrypoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventsubList(ctx, w, r)
+	list(ctx, w, r)
 }
 
-func eventsubList(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
+func list(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
 	helixClient, err := providers.GetHelixAppClient(ctx)
 	if err != nil {
 		log.Printf("Failed to get Helix client | %v", err)

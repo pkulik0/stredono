@@ -1,4 +1,4 @@
-package twitch
+package eventsub
 
 import (
 	"fmt"
@@ -32,7 +32,7 @@ func createEventsubSubscription(client modules.HelixClient, eventType string, ve
 	return nil
 }
 
-func EventsubInitEntrypoint(w http.ResponseWriter, r *http.Request) {
+func InitEntrypoint(w http.ResponseWriter, r *http.Request) {
 	ctx, err := providers.NewContext(r, &providers.Config{
 		SecretManager: true,
 	})
@@ -41,34 +41,16 @@ func EventsubInitEntrypoint(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventsubInit(ctx, w, r)
+	initEventsub(ctx, w, r)
 }
 
-func getHelixTransport(ctx *providers.Context) (*helix.EventSubTransport, error) {
-	secretManager, ok := ctx.GetSecretManager()
-	if !ok {
-		return nil, platform.ErrorMissingContextValue
-	}
-
-	webhookSecret, err := secretManager.GetSecret(ctx.Ctx, "twitch-eventsub-secret", "latest")
-	if err != nil {
-		return nil, err
-	}
-
-	return &helix.EventSubTransport{
-		Method:   "webhook",
-		Callback: platform.FunctionsUrl + "/TwitchWebhook",
-		Secret:   string(webhookSecret),
-	}, nil
-}
-
-func handleEventsubInit(ctx *providers.Context) error {
+func handleInit(ctx *providers.Context) error {
 	helixClient, err := providers.GetHelixAppClient(ctx)
 	if err != nil {
 		return err
 	}
 
-	transport, err := getHelixTransport(ctx)
+	transport, err := providers.GetHelixTransport(ctx)
 	if err != nil {
 		return err
 	}
@@ -86,8 +68,8 @@ func handleEventsubInit(ctx *providers.Context) error {
 	return nil
 }
 
-func eventsubInit(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
-	if err := handleEventsubInit(ctx); err != nil {
+func initEventsub(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
+	if err := handleInit(ctx); err != nil {
 		log.Printf("Failed to initialize eventsub | %v", err)
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
 		return

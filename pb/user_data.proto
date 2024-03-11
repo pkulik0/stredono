@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package stredono;
+
+option go_package="github.com/pkulik0/stredono/cloud/pb";
+
+import 'pb/media_request.proto';
+import 'pb/tts_settings.proto';
+import 'pb/tip_settings.proto';
+
+message UserData {
+  TipSettings Tip = 1;
+  TTSSettings TTS = 2;
+  MediaRequest Media = 3;
+  map<string, string> Commands = 4;
+}

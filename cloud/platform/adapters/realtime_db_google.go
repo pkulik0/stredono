@@ -33,3 +33,25 @@ func (r *FirebaseRealtimeDbRefAdapter) Delete(ctx context.Context) error {
 func (r *FirebaseRealtimeDbRefAdapter) Child(path string) modules.Ref {
 	return &FirebaseRealtimeDbRefAdapter{Ref: r.Ref.Child(path)}
 }
+
+func (r *FirebaseRealtimeDbRefAdapter) Push(ctx context.Context, v interface{}) (modules.Ref, error) {
+	ref, err := r.Ref.Push(ctx, v)
+	if err != nil {
+		return nil, err
+	}
+	return &FirebaseRealtimeDbRefAdapter{Ref: ref}, nil
+}
+
+type FirebaseRealtimeDbTransactionNodeAdapter struct {
+	Node db.TransactionNode
+}
+
+func (n *FirebaseRealtimeDbTransactionNodeAdapter) Unmarshal(v interface{}) error {
+	return n.Node.Unmarshal(v)
+}
+
+func (r *FirebaseRealtimeDbRefAdapter) Transaction(ctx context.Context, f func(modules.TransactionNode) (interface{}, error)) error {
+	return r.Ref.Transaction(ctx, func(node db.TransactionNode) (interface{}, error) {
+		return f(&FirebaseRealtimeDbTransactionNodeAdapter{Node: node})
+	})
+}

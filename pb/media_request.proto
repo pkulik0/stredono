@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package stredono;
+
+option go_package="github.com/pkulik0/stredono/cloud/pb";
+
+import 'pb/chat_role.proto';
+
+message MediaRequest {
+  bool IsEnabled = 1;
+  bool IsPlaying = 2;
+  MediaRequestSettings Settings = 3;
+
+  repeated QueueItem Queue = 4;
+  int32 CurrentQueueIndex = 5;
+
+  bool RequireApproval = 6;
+
+  message QueueItem {
+    string URL = 1;
+    string RequesterID = 2;
+    string RequesterName = 3;
+    string RequesterProvider = 4;
+    int64 Timestamp = 5;
+    bool IsApproved = 6;
+    int32 Progress = 7;
+  }
+}
+
+message MediaRequestSettings {
+  Role MinRole = 1;
+  int32 MinViews = 2;
+  int32 MinLikes = 3;
+  bool RequireApproval = 4;
+}

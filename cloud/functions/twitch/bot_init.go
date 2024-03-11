@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func BotInitEntrypoint(w http.ResponseWriter, r *http.Request) {
+func InitEntrypoint(w http.ResponseWriter, r *http.Request) {
 	ctx, err := providers.NewContext(r, &providers.Config{
 		SecretManager: true,
 	})

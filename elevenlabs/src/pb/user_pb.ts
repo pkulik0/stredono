@@ -5,34 +5,6 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3 } from "@bufbuild/protobuf";
-import { Currency } from "./enums_pb.js";
-import { TTSSettings } from "./tts_pb.js";
-
-/**
- * @generated from enum stredono.AuthLevel
- */
-export enum AuthLevel {
-  /**
-   * @generated from enum value: NONE = 0;
-   */
-  NONE = 0,
-
-  /**
-   * @generated from enum value: EMAIL = 1;
-   */
-  EMAIL = 1,
-
-  /**
-   * @generated from enum value: OIDC = 2;
-   */
-  OIDC = 2,
-}
-// Retrieve enum metadata with: proto3.getEnumType(AuthLevel)
-proto3.util.setEnumType(AuthLevel, "stredono.AuthLevel", [
-  { no: 0, name: "NONE" },
-  { no: 1, name: "EMAIL" },
-  { no: 2, name: "OIDC" },
-]);
 
 /**
  * @generated from message stredono.User
@@ -68,26 +40,6 @@ export class User extends Message<User> {
    */
   Url = "";
 
-  /**
-   * @generated from field: stredono.AuthLevel MinAuthLevel = 7;
-   */
-  MinAuthLevel = AuthLevel.NONE;
-
-  /**
-   * @generated from field: double MinAmount = 8;
-   */
-  MinAmount = 0;
-
-  /**
-   * @generated from field: stredono.Currency Currency = 9;
-   */
-  Currency = Currency.UNKNOWN;
-
-  /**
-   * @generated from field: stredono.TTSSettings TtsSettings = 10;
-   */
-  TtsSettings?: TTSSettings;
-
   constructor(data?: PartialMessage<User>) {
     super();
     proto3.util.initPartial(data, this);
@@ -102,10 +54,6 @@ export class User extends Message<User> {
     { no: 4, name: "Description", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 5, name: "PictureUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 6, name: "Url", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 7, name: "MinAuthLevel", kind: "enum", T: proto3.getEnumType(AuthLevel) },
-    { no: 8, name: "MinAmount", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 9, name: "Currency", kind: "enum", T: proto3.getEnumType(Currency) },
-    { no: 10, name: "TtsSettings", kind: "message", T: TTSSettings },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): User {

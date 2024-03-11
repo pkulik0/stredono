@@ -47,6 +47,10 @@ func (c *Context) GetDocDb() (db modules.DocDb, ok bool) {
 	return c.DocDb, c.DocDb != nil
 }
 
+func (c *Context) GetRealtimeDb() (db modules.RealtimeDb, ok bool) {
+	return c.RealtimeDb, c.RealtimeDb != nil
+}
+
 func (c *Context) GetAuth() (auth modules.Auth, ok bool) {
 	return c.Auth, c.Auth != nil
 }
@@ -165,6 +169,24 @@ func GetHelixClient(ctx *Context) (modules.HelixClient, error) {
 	}
 
 	return client, nil
+}
+
+func GetHelixTransport(ctx *Context) (*helix.EventSubTransport, error) {
+	secretManager, ok := ctx.GetSecretManager()
+	if !ok {
+		return nil, platform.ErrorMissingContextValue
+	}
+
+	webhookSecret, err := secretManager.GetSecret(ctx.Ctx, "twitch-eventsub-secret", "latest")
+	if err != nil {
+		return nil, err
+	}
+
+	return &helix.EventSubTransport{
+		Method:   "webhook",
+		Callback: platform.FunctionsUrl + "/TwitchWebhook",
+		Secret:   string(webhookSecret),
+	}, nil
 }
 
 func NewContextEvent(ctx context.Context, config *Config) (*Context, error) {

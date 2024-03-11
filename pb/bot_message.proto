@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package stredono;
+
+option go_package="github.com/pkulik0/stredono/cloud/pb";
+
+message BotMessage {
+  string ChatID = 1;
+  string Message = 2;
+
+  oneof Data {
+    NormalData Normal = 3;
+    AnnouncementData Announcement = 4;
+  }
+
+  message NormalData {
+    string ReplyMessageID = 1;
+  }
+
+  message AnnouncementData {
+    AnnouncementColor Color = 1;
+
+    enum AnnouncementColor {
+      PRIMARY = 0;
+      BLUE = 1;
+      GREEN = 2;
+      ORANGE = 3;
+      PURPLE = 4;
+    }
+  }
+}

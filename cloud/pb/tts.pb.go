@@ -20,52 +20,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Tier int32
-
-const (
-	Tier_BASIC Tier = 0
-	Tier_PLUS  Tier = 1
-)
-
-// Enum value maps for Tier.
-var (
-	Tier_name = map[int32]string{
-		0: "BASIC",
-		1: "PLUS",
-	}
-	Tier_value = map[string]int32{
-		"BASIC": 0,
-		"PLUS":  1,
-	}
-)
-
-func (x Tier) Enum() *Tier {
-	p := new(Tier)
-	*p = x
-	return p
-}
-
-func (x Tier) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Tier) Descriptor() protoreflect.EnumDescriptor {
-	return file_pb_tts_proto_enumTypes[0].Descriptor()
-}
-
-func (Tier) Type() protoreflect.EnumType {
-	return &file_pb_tts_proto_enumTypes[0]
-}
-
-func (x Tier) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Tier.Descriptor instead.
-func (Tier) EnumDescriptor() ([]byte, []int) {
-	return file_pb_tts_proto_rawDescGZIP(), []int{0}
-}
-
 type Gender int32
 
 const (
@@ -99,11 +53,11 @@ func (x Gender) String() string {
 }
 
 func (Gender) Descriptor() protoreflect.EnumDescriptor {
-	return file_pb_tts_proto_enumTypes[1].Descriptor()
+	return file_pb_tts_proto_enumTypes[0].Descriptor()
 }
 
 func (Gender) Type() protoreflect.EnumType {
-	return &file_pb_tts_proto_enumTypes[1]
+	return &file_pb_tts_proto_enumTypes[0]
 }
 
 func (x Gender) Number() protoreflect.EnumNumber {
@@ -112,7 +66,7 @@ func (x Gender) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Gender.Descriptor instead.
 func (Gender) EnumDescriptor() ([]byte, []int) {
-	return file_pb_tts_proto_rawDescGZIP(), []int{1}
+	return file_pb_tts_proto_rawDescGZIP(), []int{0}
 }
 
 type SpeechRequest struct {
@@ -478,69 +432,6 @@ func (x *TTSProvider) GetLanguages() []string {
 	return nil
 }
 
-type TTSSettings struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	BasicId string `protobuf:"bytes,1,opt,name=BasicId,proto3" json:"BasicId,omitempty"`
-	PlusId  string `protobuf:"bytes,2,opt,name=PlusId,proto3" json:"PlusId,omitempty"`
-	Tier    Tier   `protobuf:"varint,3,opt,name=Tier,proto3,enum=stredono.Tier" json:"Tier,omitempty"`
-}
-
-func (x *TTSSettings) Reset() {
-	*x = TTSSettings{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_pb_tts_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *TTSSettings) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TTSSettings) ProtoMessage() {}
-
-func (x *TTSSettings) ProtoReflect() protoreflect.Message {
-	mi := &file_pb_tts_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TTSSettings.ProtoReflect.Descriptor instead.
-func (*TTSSettings) Descriptor() ([]byte, []int) {
-	return file_pb_tts_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *TTSSettings) GetBasicId() string {
-	if x != nil {
-		return x.BasicId
-	}
-	return ""
-}
-
-func (x *TTSSettings) GetPlusId() string {
-	if x != nil {
-		return x.PlusId
-	}
-	return ""
-}
-
-func (x *TTSSettings) GetTier() Tier {
-	if x != nil {
-		return x.Tier
-	}
-	return Tier_BASIC
-}
-
 var File_pb_tts_proto protoreflect.FileDescriptor
 
 var file_pb_tts_proto_rawDesc = []byte{
@@ -590,21 +481,13 @@ var file_pb_tts_proto_rawDesc = []byte{
 	0x0b, 0x32, 0x0f, 0x2e, 0x73, 0x74, 0x72, 0x65, 0x64, 0x6f, 0x6e, 0x6f, 0x2e, 0x56, 0x6f, 0x69,
 	0x63, 0x65, 0x52, 0x06, 0x56, 0x6f, 0x69, 0x63, 0x65, 0x73, 0x12, 0x1c, 0x0a, 0x09, 0x4c, 0x61,
 	0x6e, 0x67, 0x75, 0x61, 0x67, 0x65, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09, 0x52, 0x09, 0x4c,
-	0x61, 0x6e, 0x67, 0x75, 0x61, 0x67, 0x65, 0x73, 0x22, 0x63, 0x0a, 0x0b, 0x54, 0x54, 0x53, 0x53,
-	0x65, 0x74, 0x74, 0x69, 0x6e, 0x67, 0x73, 0x12, 0x18, 0x0a, 0x07, 0x42, 0x61, 0x73, 0x69, 0x63,
-	0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x42, 0x61, 0x73, 0x69, 0x63, 0x49,
-	0x64, 0x12, 0x16, 0x0a, 0x06, 0x50, 0x6c, 0x75, 0x73, 0x49, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28,
-	0x09, 0x52, 0x06, 0x50, 0x6c, 0x75, 0x73, 0x49, 0x64, 0x12, 0x22, 0x0a, 0x04, 0x54, 0x69, 0x65,
-	0x72, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x0e, 0x2e, 0x73, 0x74, 0x72, 0x65, 0x64, 0x6f,
-	0x6e, 0x6f, 0x2e, 0x54, 0x69, 0x65, 0x72, 0x52, 0x04, 0x54, 0x69, 0x65, 0x72, 0x2a, 0x1b, 0x0a,
-	0x04, 0x54, 0x69, 0x65, 0x72, 0x12, 0x09, 0x0a, 0x05, 0x42, 0x41, 0x53, 0x49, 0x43, 0x10, 0x00,
-	0x12, 0x08, 0x0a, 0x04, 0x50, 0x4c, 0x55, 0x53, 0x10, 0x01, 0x2a, 0x31, 0x0a, 0x06, 0x47, 0x65,
-	0x6e, 0x64, 0x65, 0x72, 0x12, 0x11, 0x0a, 0x0d, 0x4e, 0x4f, 0x54, 0x5f, 0x53, 0x50, 0x45, 0x43,
-	0x49, 0x46, 0x49, 0x45, 0x44, 0x10, 0x00, 0x12, 0x08, 0x0a, 0x04, 0x4d, 0x41, 0x4c, 0x45, 0x10,
-	0x01, 0x12, 0x0a, 0x0a, 0x06, 0x46, 0x45, 0x4d, 0x41, 0x4c, 0x45, 0x10, 0x02, 0x42, 0x26, 0x5a,
-	0x24, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x70, 0x6b, 0x75, 0x6c,
-	0x69, 0x6b, 0x30, 0x2f, 0x73, 0x74, 0x72, 0x65, 0x64, 0x6f, 0x6e, 0x6f, 0x2f, 0x63, 0x6c, 0x6f,
-	0x75, 0x64, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x61, 0x6e, 0x67, 0x75, 0x61, 0x67, 0x65, 0x73, 0x2a, 0x31, 0x0a, 0x06, 0x47, 0x65, 0x6e, 0x64,
+	0x65, 0x72, 0x12, 0x11, 0x0a, 0x0d, 0x4e, 0x4f, 0x54, 0x5f, 0x53, 0x50, 0x45, 0x43, 0x49, 0x46,
+	0x49, 0x45, 0x44, 0x10, 0x00, 0x12, 0x08, 0x0a, 0x04, 0x4d, 0x41, 0x4c, 0x45, 0x10, 0x01, 0x12,
+	0x0a, 0x0a, 0x06, 0x46, 0x45, 0x4d, 0x41, 0x4c, 0x45, 0x10, 0x02, 0x42, 0x26, 0x5a, 0x24, 0x67,
+	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x70, 0x6b, 0x75, 0x6c, 0x69, 0x6b,
+	0x30, 0x2f, 0x73, 0x74, 0x72, 0x65, 0x64, 0x6f, 0x6e, 0x6f, 0x2f, 0x63, 0x6c, 0x6f, 0x75, 0x64,
+	0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -619,29 +502,27 @@ func file_pb_tts_proto_rawDescGZIP() []byte {
 	return file_pb_tts_proto_rawDescData
 }
 
-var file_pb_tts_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_pb_tts_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_pb_tts_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_pb_tts_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_pb_tts_proto_goTypes = []interface{}{
-	(Tier)(0),             // 0: stredono.Tier
-	(Gender)(0),           // 1: stredono.Gender
-	(*SpeechRequest)(nil), // 2: stredono.SpeechRequest
-	(*Voice)(nil),         // 3: stredono.Voice
-	(*Voices)(nil),        // 4: stredono.Voices
-	(*TTSKey)(nil),        // 5: stredono.TTSKey
-	(*TTSProvider)(nil),   // 6: stredono.TTSProvider
-	(*TTSSettings)(nil),   // 7: stredono.TTSSettings
+	(Gender)(0),           // 0: stredono.Gender
+	(*SpeechRequest)(nil), // 1: stredono.SpeechRequest
+	(*Voice)(nil),         // 2: stredono.Voice
+	(*Voices)(nil),        // 3: stredono.Voices
+	(*TTSKey)(nil),        // 4: stredono.TTSKey
+	(*TTSProvider)(nil),   // 5: stredono.TTSProvider
+	(Tier)(0),             // 6: stredono.Tier
 }
 var file_pb_tts_proto_depIdxs = []int32{
-	1, // 0: stredono.Voice.Gender:type_name -> stredono.Gender
-	0, // 1: stredono.Voice.Tier:type_name -> stredono.Tier
-	3, // 2: stredono.Voices.Voices:type_name -> stredono.Voice
-	3, // 3: stredono.TTSProvider.Voices:type_name -> stredono.Voice
-	0, // 4: stredono.TTSSettings.Tier:type_name -> stredono.Tier
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	0, // 0: stredono.Voice.Gender:type_name -> stredono.Gender
+	6, // 1: stredono.Voice.Tier:type_name -> stredono.Tier
+	2, // 2: stredono.Voices.Voices:type_name -> stredono.Voice
+	2, // 3: stredono.TTSProvider.Voices:type_name -> stredono.Voice
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_pb_tts_proto_init() }
@@ -711,26 +592,14 @@ func file_pb_tts_proto_init() {
 				return nil
 			}
 		}
-		file_pb_tts_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*TTSSettings); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_pb_tts_proto_rawDesc,
-			NumEnums:      2,
-			NumMessages:   6,
+			NumEnums:      1,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

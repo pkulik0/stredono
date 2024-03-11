@@ -21,11 +21,3 @@ resource "google_pubsub_topic" "events" {
 
   depends_on = [google_project_service.default, google_pubsub_schema.events]
 }
-
-resource "google_pubsub_topic" "twitch_eventsub" {
-  provider = google-beta
-  project  = google_project.default.project_id
-  name     = "twitch-eventsub"
-
-  depends_on = [google_project_service.default]
-}

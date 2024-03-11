@@ -20,7 +20,7 @@ require (
 	google.golang.org/protobuf v1.33.0
 )
 
-replace github.com/nicklaw5/helix/v2 v2.28.0 => github.com/pkulik0/helix/v2 v2.0.0-20240309010326-205804f14809
+replace github.com/nicklaw5/helix/v2 v2.28.0 => github.com/pkulik0/helix/v2 v2.0.0-20240309163527-8c01266367db
 
 require (
 	cloud.google.com/go v0.112.1 // indirect

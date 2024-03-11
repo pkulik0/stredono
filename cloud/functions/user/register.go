@@ -22,6 +22,7 @@ func RegisterEntrypoint(w http.ResponseWriter, r *http.Request) {
 		Auth:          true,
 		SecretManager: true,
 		KeyManager:    true,
+		RealtimeDb:    true,
 	})
 	if err != nil {
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
@@ -76,19 +77,11 @@ func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 	log.Println("handleRegistration", claims)
 
 	user := &pb.User{
-		Username:     "",
-		DisplayName:  "",
-		Uid:          claims.Uid,
-		Url:          "",
-		Description:  "",
-		MinAmount:    1,
-		MinAuthLevel: pb.AuthLevel_NONE,
-		Currency:     pb.Currency_PLN,
-		TtsSettings: &pb.TTSSettings{
-			BasicId: "pl-PL-Wavenet-C", // TODO: Change to something better, based on locale
-			PlusId:  "onwK4e9ZLuTAKqWW03F9",
-			Tier:    pb.Tier_PLUS,
-		},
+		Username:    "",
+		DisplayName: "",
+		Uid:         claims.Uid,
+		Url:         "",
+		Description: "",
 	}
 
 	switch claims.SignInMethod {
@@ -114,6 +107,15 @@ func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 }
 
 func handleOauthRegistration(ctx *providers.Context, claims *userClaims, user *pb.User) error {
+	keyManager, ok := ctx.GetKeyManager()
+	if !ok {
+		return errorContextValue
+	}
+	rtdb, ok := ctx.GetRealtimeDb()
+	if !ok {
+		return errorContextValue
+	}
+
 	client, err := providers.GetHelixClient(ctx)
 	if err != nil {
 		log.Printf("Failed to get helix client | %v", err)
@@ -135,15 +137,6 @@ func handleOauthRegistration(ctx *providers.Context, claims *userClaims, user *p
 	user.PictureUrl = twitchUser.ProfileImageURL
 	user.Description = twitchUser.Description
 
-	db, ok := ctx.GetDocDb()
-	if !ok {
-		return errorContextValue
-	}
-	keyManager, ok := ctx.GetKeyManager()
-	if !ok {
-		return errorContextValue
-	}
-
 	token := &pb.Token{
 		AccessToken:  claims.OauthAccessToken,
 		RefreshToken: claims.OauthRefreshToken,
@@ -158,12 +151,10 @@ func handleOauthRegistration(ctx *providers.Context, claims *userClaims, user *p
 		return err
 	}
 
-	_, err = db.Collection("twitch-tokens").Doc(twitchUser.ID).Create(ctx.Ctx, &pb.TokenEntry{
+	if err := rtdb.NewRef("Users").Child(platform.ProviderTwitch).Child(twitchUser.ID).Set(ctx.Ctx, &pb.TokenEntry{
 		Uid:            user.Uid,
 		EncryptedToken: encryptedToken,
-	})
-	if err != nil {
-		// TODO: handle conflicts?
+	}); err != nil {
 		return err
 	}
 

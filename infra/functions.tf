@@ -85,8 +85,8 @@ resource "google_cloudfunctions2_function" "user_register" {
 
   service_config {
     min_instance_count               = 0
-    max_instance_count               = 1
-    available_memory                 = "256M"
+    max_instance_count               = 10
+    available_memory                 = "128Mi"
     max_instance_request_concurrency = 1
     timeout_seconds                  = 60
     ingress_settings                 = "ALLOW_ALL"
@@ -129,8 +129,8 @@ resource "google_cloudfunctions2_function" "user_edit" {
 
   service_config {
     min_instance_count               = 0
-    max_instance_count               = 1
-    available_memory                 = "256M"
+    max_instance_count               = 10
+    available_memory                 = "128Mi"
     max_instance_request_concurrency = 1
     timeout_seconds                  = 60
     ingress_settings                 = "ALLOW_ALL"
@@ -173,8 +173,8 @@ resource "google_cloudfunctions2_function" "tip_send" {
 
   service_config {
     min_instance_count               = 0
-    max_instance_count               = 1
-    available_memory                 = "256M"
+    max_instance_count               = 10
+    available_memory                 = "128Mi"
     max_instance_request_concurrency = 1
     timeout_seconds                  = 60
     ingress_settings                 = "ALLOW_ALL"
@@ -217,8 +217,8 @@ resource "google_cloudfunctions2_function" "tip_confirm" {
 
   service_config {
     min_instance_count               = 0
-    max_instance_count               = 1
-    available_memory                 = "256M"
+    max_instance_count               = 10
+    available_memory                 = "128Mi"
     max_instance_request_concurrency = 1
     timeout_seconds                  = 60
     ingress_settings                 = "ALLOW_ALL"
@@ -260,16 +260,20 @@ resource "google_cloudfunctions2_function" "twitch_webhook" {
   }
 
   service_config {
-    min_instance_count               = 0
-    max_instance_count               = 3
-    available_memory                 = "256M"
+    min_instance_count               = 1
+    max_instance_count               = 10
+    available_memory                 = "128Mi"
     max_instance_request_concurrency = 1
     timeout_seconds                  = 60
     ingress_settings                 = "ALLOW_ALL"
     service_account_email            = google_service_account.account.email
   }
 
-  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_pubsub_topic.twitch_eventsub, google_cloudfunctions2_function.user_register]
+  depends_on = [
+    google_storage_bucket_object.functions_source,
+    google_service_account.account,
+    google_pubsub_topic.events,
+    google_cloudfunctions2_function.user_register]
 }
 
 resource "google_cloud_run_service_iam_member" "twitch_webhook_invoker" {
@@ -305,8 +309,8 @@ resource "google_cloudfunctions2_function" "alert_add" {
 
   service_config {
     min_instance_count               = 0
-    max_instance_count               = 1
-    available_memory                 = "256M"
+    max_instance_count               = 10
+    available_memory                 = "128Mi"
     max_instance_request_concurrency = 1
     timeout_seconds                  = 60
     ingress_settings                 = "ALLOW_ALL"
@@ -349,8 +353,8 @@ resource "google_cloudfunctions2_function" "on_event" {
 
   service_config {
     min_instance_count               = 0
-    max_instance_count               = 1
-    available_memory                 = "256M"
+    max_instance_count               = 10
+    available_memory                 = "128Mi"
     max_instance_request_concurrency = 1
     timeout_seconds                  = 60
     ingress_settings                 = "ALLOW_INTERNAL_ONLY"
@@ -365,42 +369,4 @@ resource "google_cloudfunctions2_function" "on_event" {
   }
 
   depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_pubsub_topic.events, google_cloudfunctions2_function.alert_add]
-}
-
-resource "google_cloudfunctions2_function" "twitch_on_event" {
-  provider = google-beta
-  project  = google_project.default.project_id
-
-  name     = "TwitchOnEvent"
-  location = var.gcf_location
-
-  build_config {
-    runtime     = "go121"
-    entry_point = "TwitchOnEvent"
-    source {
-      storage_source {
-        bucket = google_storage_bucket.fn_bucket.name
-        object = google_storage_bucket_object.functions_source.name
-      }
-    }
-  }
-
-  service_config {
-    min_instance_count               = 0
-    max_instance_count               = 3
-    available_memory                 = "256M"
-    max_instance_request_concurrency = 1
-    timeout_seconds                  = 60
-    ingress_settings                 = "ALLOW_INTERNAL_ONLY"
-    service_account_email            = google_service_account.account.email
-  }
-
-  event_trigger {
-    event_type            = "google.cloud.pubsub.topic.v1.messagePublished"
-    pubsub_topic          = google_pubsub_topic.twitch_eventsub.id
-    retry_policy          = "RETRY_POLICY_DO_NOT_RETRY"
-    service_account_email = google_service_account.account.email
-  }
-
-  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_pubsub_topic.twitch_eventsub, google_cloudfunctions2_function.tip_confirm]
 }

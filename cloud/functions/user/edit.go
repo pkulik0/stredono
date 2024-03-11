@@ -34,20 +34,8 @@ func validateUser(user *pb.User, uid string) error {
 		return errors.New("invalid display name")
 	}
 
-	if user.MinAmount < 0 {
-		return errors.New("invalid minimum amount")
-	}
-
 	if len(user.Description) > 1000 {
 		return errors.New("description too long")
-	}
-
-	if user.MinAuthLevel < pb.AuthLevel_NONE || user.MinAuthLevel > pb.AuthLevel_OIDC {
-		return errors.New("invalid minimum auth level")
-	}
-
-	if user.Currency <= pb.Currency_UNKNOWN || user.Currency > pb.Currency_PLN {
-		return errors.New("invalid currency")
 	}
 
 	matched, err = regexp.Match(storageUrlRegex, []byte(user.PictureUrl))

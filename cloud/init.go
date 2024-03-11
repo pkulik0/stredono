@@ -7,14 +7,16 @@ import (
 	"github.com/pkulik0/stredono/cloud/functions/tips"
 	"github.com/pkulik0/stredono/cloud/functions/tts"
 	"github.com/pkulik0/stredono/cloud/functions/twitch"
+	"github.com/pkulik0/stredono/cloud/functions/twitch/eventsub"
 	"github.com/pkulik0/stredono/cloud/functions/user"
 	"github.com/pkulik0/stredono/cloud/platform"
 	log "github.com/sirupsen/logrus"
 	"os"
+	"strings"
 )
 
 func setupEmulators() error {
-	if os.Getenv("IS_LOCAL") != "true" {
+	if strings.ToLower(os.Getenv("IS_LOCAL")) != "true" {
 		return nil
 	}
 
@@ -49,8 +51,6 @@ func init() {
 
 	cloudfunc.CloudEvent("OnEvent", functions.OnEventEntrypoint)
 
-	cloudfunc.CloudEvent("TwitchOnEvent", twitch.OnEventEntrypoint)
-
 	// HTTP
 
 	cloudfunc.HTTP("UserRegister", platform.CorsMiddleware(user.RegisterEntrypoint))
@@ -65,7 +65,8 @@ func init() {
 	cloudfunc.HTTP("TipConfirm", platform.CorsMiddleware(tips.ConfirmEntrypoint))
 
 	cloudfunc.HTTP("TwitchWebhook", platform.CorsMiddleware(twitch.WebhookEntrypoint))
-	cloudfunc.HTTP("TwitchEventsubInit", platform.CorsMiddleware(twitch.EventsubInitEntrypoint))
-	cloudfunc.HTTP("TwitchEventsubList", platform.CorsMiddleware(twitch.EventsubListEntrypoint))
-	cloudfunc.HTTP("TwitchBotInit", platform.CorsMiddleware(twitch.BotInitEntrypoint))
+	cloudfunc.HTTP("TwitchEventsubInit", platform.CorsMiddleware(eventsub.InitEntrypoint))
+	cloudfunc.HTTP("TwitchEventsubList", platform.CorsMiddleware(eventsub.ListEntrypoint))
+
+	cloudfunc.HTTP("ChatBotInit", platform.CorsMiddleware(twitch.InitEntrypoint))
 }

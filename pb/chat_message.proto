@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package stredono;
+
+option go_package="github.com/pkulik0/stredono/cloud/pb";
+
+import 'pb/chat_role.proto';
+
+message ChatMessage {
+  string ID = 1;
+  string ChatID = 2;
+  string ChatName = 3;
+  string SenderID = 4;
+  string SenderName = 5;
+  Role SenderRole = 6;
+  bool SenderIsSubscriber = 7;
+  string Message = 8;
+  int64 Timestamp = 9;
+}

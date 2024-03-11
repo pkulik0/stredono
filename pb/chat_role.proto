@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package stredono;
+
+option go_package="github.com/pkulik0/stredono/cloud/pb";
+
+enum Role {
+  NORMAL = 0;
+  VIP = 1;
+  MODERATOR = 2;
+  OWNER = 3;
+}

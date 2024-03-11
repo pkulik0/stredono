@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package stredono;
+
+option go_package="github.com/pkulik0/stredono/cloud/pb";
+
+import 'pb/enums.proto';
+
+message TTSSettings {
+  string VoiceIdBasic = 1;
+  string VoiceIdPlus = 2;
+  Tier Tier = 3;
+
+  // string = EventType name (more stable than int32 I guess)
+  map<string, EventSettings> EventSettings = 4;
+}
+
+message EventSettings {
+  int32 MinimumValue = 1;
+  bool EnableTTS = 2;
+  optional int32 MinimumForTTS = 3;
+}

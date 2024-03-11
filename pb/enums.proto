@@ -18,3 +18,8 @@ enum Frequency {
   EVERY_HALF_HOUR = 5;
   EVERY_HOUR = 6;
 }
+
+enum Tier {
+  BASIC = 0;
+  PLUS = 1;
+}

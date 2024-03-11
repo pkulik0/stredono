@@ -15,16 +15,5 @@ message User {
 
   string PictureUrl = 5;
   string Url = 6;
-
-  AuthLevel MinAuthLevel = 7;
-  double MinAmount = 8;
-  Currency Currency = 9;
-
-  TTSSettings TtsSettings = 10;
 }
 
-enum AuthLevel {
-  NONE = 0;
-  EMAIL = 1;
-  OIDC = 2;
-}
