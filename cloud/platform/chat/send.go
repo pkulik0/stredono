@@ -13,7 +13,7 @@ import (
 
 func Send(ctx *providers.Context, msg *pb.BotMessage, provider string) error {
 	switch provider {
-	case "twitch":
+	case platform.ProviderTwitch:
 		if err := sendTwitch(ctx, msg); err != nil {
 			log.Printf("Failed to handle chat message | %v", err)
 			return err

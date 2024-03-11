@@ -20,7 +20,7 @@ type EventPubSubMessage struct {
 	OrderingKey string            `json:"orderingKey"`
 }
 
-func PublishProto(ctx *providers.Context, message proto.Message, topicName, provider string) (string, error) {
+func PublishProto(ctx *providers.Context, message proto.Message, topicName string) (string, error) {
 	pubsubClient, ok := ctx.GetPubSub()
 	if !ok {
 		return "", platform.ErrorMissingContextValue
@@ -36,9 +36,6 @@ func PublishProto(ctx *providers.Context, message proto.Message, topicName, prov
 
 	msgId, err := topic.Publish(ctx.Ctx, &modules.PubSubMessage{
 		Data: data,
-		Attributes: map[string]string{
-			"provider": provider,
-		},
 	})
 	if err != nil {
 		return "", fmt.Errorf("failed to publish message | %v", err)

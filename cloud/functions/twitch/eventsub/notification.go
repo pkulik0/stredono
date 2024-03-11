@@ -17,13 +17,13 @@ type Notification struct {
 	Subscription helix.EventSubSubscription `json:"subscription"`
 	Event        interface{}                `json:"event"`
 	Challenge    string                     `json:"challenge"`
-	Id           string
+	ID           string
 	Timestamp    time.Time
 	Type         string
 }
 
 func (e *Notification) Fill(headers http.Header) error {
-	e.Id = headers.Get(eventsubMessageHeaderId)
+	e.ID = headers.Get(eventsubMessageHeaderId)
 	e.Type = headers.Get(eventsubMessageHeaderType)
 
 	timeStr := headers.Get(eventsubMessageHeaderTimestamp)

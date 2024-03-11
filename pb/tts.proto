@@ -6,14 +6,6 @@ option go_package="github.com/pkulik0/stredono/cloud/pb";
 
 import 'pb/enums.proto';
 
-message SpeechRequest {
-  string Id = 1;
-  string Uid = 2;
-  string Text = 3;
-  string VoiceIdBasic = 4;
-  string VoiceIdPlus = 5;
-}
-
 message Voice {
   string Id = 1;
   string Name = 2;

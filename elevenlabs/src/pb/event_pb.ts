@@ -4,7 +4,7 @@
 // @ts-nocheck
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
-import { Message, proto3 } from "@bufbuild/protobuf";
+import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
 
 /**
  * @generated from enum stredono.SubTier
@@ -71,6 +71,11 @@ export enum EventType {
    * @generated from enum value: RAID = 5;
    */
   RAID = 5,
+
+  /**
+   * @generated from enum value: CHAT_TTS = 6;
+   */
+  CHAT_TTS = 6,
 }
 // Retrieve enum metadata with: proto3.getEnumType(EventType)
 proto3.util.setEnumType(EventType, "stredono.EventType", [
@@ -80,6 +85,7 @@ proto3.util.setEnumType(EventType, "stredono.EventType", [
   { no: 3, name: "SUB" },
   { no: 4, name: "SUB_GIFT" },
   { no: 5, name: "RAID" },
+  { no: 6, name: "CHAT_TTS" },
 ]);
 
 /**
@@ -87,71 +93,59 @@ proto3.util.setEnumType(EventType, "stredono.EventType", [
  */
 export class Event extends Message<Event> {
   /**
-   * @generated from field: string Id = 1;
+   * @generated from field: string ID = 1;
    */
-  Id = "";
+  ID = "";
 
   /**
-   * @generated from field: string Channel = 2;
+   * @generated from field: stredono.EventType Type = 2;
    */
-  Channel = "";
+  Type = EventType.TIP;
 
   /**
-   * @generated from field: string Username = 3;
+   * @generated from field: string Uid = 3;
    */
-  Username = "";
+  Uid = "";
 
   /**
-   * @generated from field: string TTSUrl = 4;
+   * @generated from field: string ProviderID = 4;
+   */
+  ProviderID = "";
+
+  /**
+   * @generated from field: string SenderID = 5;
+   */
+  SenderID = "";
+
+  /**
+   * @generated from field: string SenderName = 6;
+   */
+  SenderName = "";
+
+  /**
+   * @generated from field: string Provider = 7;
+   */
+  Provider = "";
+
+  /**
+   * @generated from field: string TTSUrl = 8;
    */
   TTSUrl = "";
 
   /**
-   * @generated from oneof stredono.Event.Payload
+   * @generated from field: bool IsApproved = 9;
    */
-  Payload: {
-    /**
-     * @generated from field: stredono.Event.TipPayload Tip = 5;
-     */
-    value: Event_TipPayload;
-    case: "Tip";
-  } | {
-    /**
-     * @generated from field: stredono.Event.FollowPayload Follow = 6;
-     */
-    value: Event_FollowPayload;
-    case: "Follow";
-  } | {
-    /**
-     * @generated from field: stredono.Event.CheerPayload Cheer = 7;
-     */
-    value: Event_CheerPayload;
-    case: "Cheer";
-  } | {
-    /**
-     * @generated from field: stredono.Event.SubPayload Sub = 8;
-     */
-    value: Event_SubPayload;
-    case: "Sub";
-  } | {
-    /**
-     * @generated from field: stredono.Event.SubGiftPayload SubGift = 9;
-     */
-    value: Event_SubGiftPayload;
-    case: "SubGift";
-  } | {
-    /**
-     * @generated from field: stredono.Event.RaidPayload Raid = 10;
-     */
-    value: Event_RaidPayload;
-    case: "Raid";
-  } | {
-    /**
-     * @generated from field: stredono.Event.ChatMessagePayload ChatMessage = 11;
-     */
-    value: Event_ChatMessagePayload;
-    case: "ChatMessage";
-  } | { case: undefined; value?: undefined } = { case: undefined };
+  IsApproved = false;
+
+  /**
+   * @generated from field: int64 Timestamp = 10;
+   */
+  Timestamp = protoInt64.zero;
+
+  /**
+   * @generated from field: map<string, string> Data = 11;
+   */
+  Data: { [key: string]: string } = {};
 
   constructor(data?: PartialMessage<Event>) {
     super();
@@ -161,17 +155,17 @@ export class Event extends Message<Event> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "stredono.Event";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "Id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "Channel", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "Username", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "TTSUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "Tip", kind: "message", T: Event_TipPayload, oneof: "Payload" },
-    { no: 6, name: "Follow", kind: "message", T: Event_FollowPayload, oneof: "Payload" },
-    { no: 7, name: "Cheer", kind: "message", T: Event_CheerPayload, oneof: "Payload" },
-    { no: 8, name: "Sub", kind: "message", T: Event_SubPayload, oneof: "Payload" },
-    { no: 9, name: "SubGift", kind: "message", T: Event_SubGiftPayload, oneof: "Payload" },
-    { no: 10, name: "Raid", kind: "message", T: Event_RaidPayload, oneof: "Payload" },
-    { no: 11, name: "ChatMessage", kind: "message", T: Event_ChatMessagePayload, oneof: "Payload" },
+    { no: 1, name: "ID", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "Type", kind: "enum", T: proto3.getEnumType(EventType) },
+    { no: 3, name: "Uid", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "ProviderID", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "SenderID", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "SenderName", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "Provider", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 8, name: "TTSUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 9, name: "IsApproved", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 10, name: "Timestamp", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 11, name: "Data", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Event {
@@ -188,295 +182,6 @@ export class Event extends Message<Event> {
 
   static equals(a: Event | PlainMessage<Event> | undefined, b: Event | PlainMessage<Event> | undefined): boolean {
     return proto3.util.equals(Event, a, b);
-  }
-}
-
-/**
- * @generated from message stredono.Event.FollowPayload
- */
-export class Event_FollowPayload extends Message<Event_FollowPayload> {
-  constructor(data?: PartialMessage<Event_FollowPayload>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "stredono.Event.FollowPayload";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Event_FollowPayload {
-    return new Event_FollowPayload().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Event_FollowPayload {
-    return new Event_FollowPayload().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Event_FollowPayload {
-    return new Event_FollowPayload().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: Event_FollowPayload | PlainMessage<Event_FollowPayload> | undefined, b: Event_FollowPayload | PlainMessage<Event_FollowPayload> | undefined): boolean {
-    return proto3.util.equals(Event_FollowPayload, a, b);
-  }
-}
-
-/**
- * @generated from message stredono.Event.SubGiftPayload
- */
-export class Event_SubGiftPayload extends Message<Event_SubGiftPayload> {
-  /**
-   * @generated from field: stredono.SubTier Tier = 1;
-   */
-  Tier = SubTier.TIER_UNKNOWN;
-
-  /**
-   * @generated from field: int32 Count = 2;
-   */
-  Count = 0;
-
-  /**
-   * @generated from field: int32 Total = 3;
-   */
-  Total = 0;
-
-  constructor(data?: PartialMessage<Event_SubGiftPayload>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "stredono.Event.SubGiftPayload";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "Tier", kind: "enum", T: proto3.getEnumType(SubTier) },
-    { no: 2, name: "Count", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
-    { no: 3, name: "Total", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Event_SubGiftPayload {
-    return new Event_SubGiftPayload().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Event_SubGiftPayload {
-    return new Event_SubGiftPayload().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Event_SubGiftPayload {
-    return new Event_SubGiftPayload().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: Event_SubGiftPayload | PlainMessage<Event_SubGiftPayload> | undefined, b: Event_SubGiftPayload | PlainMessage<Event_SubGiftPayload> | undefined): boolean {
-    return proto3.util.equals(Event_SubGiftPayload, a, b);
-  }
-}
-
-/**
- * @generated from message stredono.Event.SubPayload
- */
-export class Event_SubPayload extends Message<Event_SubPayload> {
-  /**
-   * @generated from field: string Message = 1;
-   */
-  Message = "";
-
-  /**
-   * @generated from field: stredono.SubTier Tier = 2;
-   */
-  Tier = SubTier.TIER_UNKNOWN;
-
-  constructor(data?: PartialMessage<Event_SubPayload>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "stredono.Event.SubPayload";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "Message", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "Tier", kind: "enum", T: proto3.getEnumType(SubTier) },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Event_SubPayload {
-    return new Event_SubPayload().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Event_SubPayload {
-    return new Event_SubPayload().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Event_SubPayload {
-    return new Event_SubPayload().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: Event_SubPayload | PlainMessage<Event_SubPayload> | undefined, b: Event_SubPayload | PlainMessage<Event_SubPayload> | undefined): boolean {
-    return proto3.util.equals(Event_SubPayload, a, b);
-  }
-}
-
-/**
- * @generated from message stredono.Event.RaidPayload
- */
-export class Event_RaidPayload extends Message<Event_RaidPayload> {
-  /**
-   * @generated from field: int32 Viewers = 1;
-   */
-  Viewers = 0;
-
-  constructor(data?: PartialMessage<Event_RaidPayload>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "stredono.Event.RaidPayload";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "Viewers", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Event_RaidPayload {
-    return new Event_RaidPayload().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Event_RaidPayload {
-    return new Event_RaidPayload().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Event_RaidPayload {
-    return new Event_RaidPayload().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: Event_RaidPayload | PlainMessage<Event_RaidPayload> | undefined, b: Event_RaidPayload | PlainMessage<Event_RaidPayload> | undefined): boolean {
-    return proto3.util.equals(Event_RaidPayload, a, b);
-  }
-}
-
-/**
- * @generated from message stredono.Event.TipPayload
- */
-export class Event_TipPayload extends Message<Event_TipPayload> {
-  /**
-   * @generated from field: string Message = 1;
-   */
-  Message = "";
-
-  /**
-   * @generated from field: double Amount = 2;
-   */
-  Amount = 0;
-
-  /**
-   * @generated from field: string Currency = 3;
-   */
-  Currency = "";
-
-  constructor(data?: PartialMessage<Event_TipPayload>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "stredono.Event.TipPayload";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "Message", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "Amount", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 3, name: "Currency", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Event_TipPayload {
-    return new Event_TipPayload().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Event_TipPayload {
-    return new Event_TipPayload().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Event_TipPayload {
-    return new Event_TipPayload().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: Event_TipPayload | PlainMessage<Event_TipPayload> | undefined, b: Event_TipPayload | PlainMessage<Event_TipPayload> | undefined): boolean {
-    return proto3.util.equals(Event_TipPayload, a, b);
-  }
-}
-
-/**
- * @generated from message stredono.Event.CheerPayload
- */
-export class Event_CheerPayload extends Message<Event_CheerPayload> {
-  /**
-   * @generated from field: string Message = 1;
-   */
-  Message = "";
-
-  /**
-   * @generated from field: int32 Amount = 2;
-   */
-  Amount = 0;
-
-  constructor(data?: PartialMessage<Event_CheerPayload>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "stredono.Event.CheerPayload";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "Message", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "Amount", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Event_CheerPayload {
-    return new Event_CheerPayload().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Event_CheerPayload {
-    return new Event_CheerPayload().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Event_CheerPayload {
-    return new Event_CheerPayload().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: Event_CheerPayload | PlainMessage<Event_CheerPayload> | undefined, b: Event_CheerPayload | PlainMessage<Event_CheerPayload> | undefined): boolean {
-    return proto3.util.equals(Event_CheerPayload, a, b);
-  }
-}
-
-/**
- * @generated from message stredono.Event.ChatMessagePayload
- */
-export class Event_ChatMessagePayload extends Message<Event_ChatMessagePayload> {
-  /**
-   * @generated from field: string Message = 1;
-   */
-  Message = "";
-
-  constructor(data?: PartialMessage<Event_ChatMessagePayload>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "stredono.Event.ChatMessagePayload";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "Message", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Event_ChatMessagePayload {
-    return new Event_ChatMessagePayload().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Event_ChatMessagePayload {
-    return new Event_ChatMessagePayload().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Event_ChatMessagePayload {
-    return new Event_ChatMessagePayload().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: Event_ChatMessagePayload | PlainMessage<Event_ChatMessagePayload> | undefined, b: Event_ChatMessagePayload | PlainMessage<Event_ChatMessagePayload> | undefined): boolean {
-    return proto3.util.equals(Event_ChatMessagePayload, a, b);
   }
 }
 

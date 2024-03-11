@@ -15,25 +15,31 @@ export enum Role {
   NORMAL = 0,
 
   /**
-   * @generated from enum value: VIP = 1;
+   * @generated from enum value: SUBSCRIBER = 1;
    */
-  VIP = 1,
+  SUBSCRIBER = 1,
 
   /**
-   * @generated from enum value: MODERATOR = 2;
+   * @generated from enum value: VIP = 2;
    */
-  MODERATOR = 2,
+  VIP = 2,
 
   /**
-   * @generated from enum value: OWNER = 3;
+   * @generated from enum value: MODERATOR = 3;
    */
-  OWNER = 3,
+  MODERATOR = 3,
+
+  /**
+   * @generated from enum value: OWNER = 4;
+   */
+  OWNER = 4,
 }
 // Retrieve enum metadata with: proto3.getEnumType(Role)
 proto3.util.setEnumType(Role, "stredono.Role", [
   { no: 0, name: "NORMAL" },
-  { no: 1, name: "VIP" },
-  { no: 2, name: "MODERATOR" },
-  { no: 3, name: "OWNER" },
+  { no: 1, name: "SUBSCRIBER" },
+  { no: 2, name: "VIP" },
+  { no: 3, name: "MODERATOR" },
+  { no: 4, name: "OWNER" },
 ]);
 

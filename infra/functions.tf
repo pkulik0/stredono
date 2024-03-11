@@ -317,7 +317,7 @@ resource "google_cloudfunctions2_function" "alert_add" {
     service_account_email            = google_service_account.account.email
   }
 
-  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_cloudfunctions2_function.user_edit]
+  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_cloudfunctions2_function.user_register]
 }
 
 resource "google_cloud_run_service_iam_member" "alert_add_invoker" {
@@ -368,5 +368,5 @@ resource "google_cloudfunctions2_function" "on_event" {
     service_account_email = google_service_account.account.email
   }
 
-  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_pubsub_topic.events, google_cloudfunctions2_function.alert_add]
+  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_pubsub_topic.events, google_cloudfunctions2_function.tip_confirm]
 }

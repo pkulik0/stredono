@@ -58,7 +58,6 @@ func init() {
 
 	cloudfunc.HTTP("AlertAdd", platform.CorsMiddleware(alerts.AddEntrypoint))
 
-	cloudfunc.HTTP("SpeechGenerate", platform.CorsMiddleware(tts.GenerateEntrypoint))
 	cloudfunc.HTTP("SpeechUpdate", platform.CorsMiddleware(tts.UpdateEntrypoint))
 
 	cloudfunc.HTTP("TipSend", platform.CorsMiddleware(tips.SendEntrypoint))

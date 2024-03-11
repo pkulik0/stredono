@@ -8,6 +8,57 @@ import { Message, proto3 } from "@bufbuild/protobuf";
 import { Tier } from "./enums_pb.js";
 
 /**
+ * @generated from message stredono.EventsSettings
+ */
+export class EventsSettings extends Message<EventsSettings> {
+  /**
+   * @generated from field: stredono.TTSSettings TTS = 1;
+   */
+  TTS?: TTSSettings;
+
+  /**
+   * string = EventType name (more stable than int32 I guess)
+   *
+   * @generated from field: map<string, stredono.EventSettings> Event = 2;
+   */
+  Event: { [key: string]: EventSettings } = {};
+
+  /**
+   * @generated from field: bool RequireApproval = 3;
+   */
+  RequireApproval = false;
+
+  constructor(data?: PartialMessage<EventsSettings>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.EventsSettings";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "TTS", kind: "message", T: TTSSettings },
+    { no: 2, name: "Event", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "message", T: EventSettings} },
+    { no: 3, name: "RequireApproval", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): EventsSettings {
+    return new EventsSettings().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): EventsSettings {
+    return new EventsSettings().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): EventsSettings {
+    return new EventsSettings().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: EventsSettings | PlainMessage<EventsSettings> | undefined, b: EventsSettings | PlainMessage<EventsSettings> | undefined): boolean {
+    return proto3.util.equals(EventsSettings, a, b);
+  }
+}
+
+/**
  * @generated from message stredono.TTSSettings
  */
 export class TTSSettings extends Message<TTSSettings> {
@@ -26,13 +77,6 @@ export class TTSSettings extends Message<TTSSettings> {
    */
   Tier = Tier.BASIC;
 
-  /**
-   * string = EventType name (more stable than int32 I guess)
-   *
-   * @generated from field: map<string, stredono.EventSettings> EventSettings = 4;
-   */
-  EventSettings: { [key: string]: EventSettings } = {};
-
   constructor(data?: PartialMessage<TTSSettings>) {
     super();
     proto3.util.initPartial(data, this);
@@ -44,7 +88,6 @@ export class TTSSettings extends Message<TTSSettings> {
     { no: 1, name: "VoiceIdBasic", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "VoiceIdPlus", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "Tier", kind: "enum", T: proto3.getEnumType(Tier) },
-    { no: 4, name: "EventSettings", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "message", T: EventSettings} },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TTSSettings {
@@ -83,6 +126,11 @@ export class EventSettings extends Message<EventSettings> {
    */
   MinimumForTTS?: number;
 
+  /**
+   * @generated from field: string MessageTemplate = 4;
+   */
+  MessageTemplate = "";
+
   constructor(data?: PartialMessage<EventSettings>) {
     super();
     proto3.util.initPartial(data, this);
@@ -94,6 +142,7 @@ export class EventSettings extends Message<EventSettings> {
     { no: 1, name: "MinimumValue", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
     { no: 2, name: "EnableTTS", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
     { no: 3, name: "MinimumForTTS", kind: "scalar", T: 5 /* ScalarType.INT32 */, opt: true },
+    { no: 4, name: "MessageTemplate", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): EventSettings {

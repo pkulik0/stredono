@@ -5,31 +5,26 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3 } from "@bufbuild/protobuf";
-import { TipSettings } from "./tip_settings_pb.js";
-import { TTSSettings } from "./tts_settings_pb.js";
 import { MediaRequest } from "./media_request_pb.js";
+import { TipSettings } from "./tip_settings_pb.js";
+import { EventsSettings } from "./tts_settings_pb.js";
 
 /**
  * @generated from message stredono.UserData
  */
 export class UserData extends Message<UserData> {
   /**
-   * @generated from field: stredono.TipSettings Tip = 1;
+   * @generated from field: stredono.UserData.UserSettings Settings = 1;
    */
-  Tip?: TipSettings;
+  Settings?: UserData_UserSettings;
 
   /**
-   * @generated from field: stredono.TTSSettings TTS = 2;
-   */
-  TTS?: TTSSettings;
-
-  /**
-   * @generated from field: stredono.MediaRequest Media = 3;
+   * @generated from field: stredono.MediaRequest Media = 2;
    */
   Media?: MediaRequest;
 
   /**
-   * @generated from field: map<string, string> Commands = 4;
+   * @generated from field: map<string, string> Commands = 3;
    */
   Commands: { [key: string]: string } = {};
 
@@ -41,10 +36,9 @@ export class UserData extends Message<UserData> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "stredono.UserData";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "Tip", kind: "message", T: TipSettings },
-    { no: 2, name: "TTS", kind: "message", T: TTSSettings },
-    { no: 3, name: "Media", kind: "message", T: MediaRequest },
-    { no: 4, name: "Commands", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
+    { no: 1, name: "Settings", kind: "message", T: UserData_UserSettings },
+    { no: 2, name: "Media", kind: "message", T: MediaRequest },
+    { no: 3, name: "Commands", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UserData {
@@ -61,6 +55,49 @@ export class UserData extends Message<UserData> {
 
   static equals(a: UserData | PlainMessage<UserData> | undefined, b: UserData | PlainMessage<UserData> | undefined): boolean {
     return proto3.util.equals(UserData, a, b);
+  }
+}
+
+/**
+ * @generated from message stredono.UserData.UserSettings
+ */
+export class UserData_UserSettings extends Message<UserData_UserSettings> {
+  /**
+   * @generated from field: stredono.TipSettings Tips = 1;
+   */
+  Tips?: TipSettings;
+
+  /**
+   * @generated from field: stredono.EventsSettings Events = 2;
+   */
+  Events?: EventsSettings;
+
+  constructor(data?: PartialMessage<UserData_UserSettings>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.UserData.UserSettings";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "Tips", kind: "message", T: TipSettings },
+    { no: 2, name: "Events", kind: "message", T: EventsSettings },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UserData_UserSettings {
+    return new UserData_UserSettings().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): UserData_UserSettings {
+    return new UserData_UserSettings().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): UserData_UserSettings {
+    return new UserData_UserSettings().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: UserData_UserSettings | PlainMessage<UserData_UserSettings> | undefined, b: UserData_UserSettings | PlainMessage<UserData_UserSettings> | undefined): boolean {
+    return proto3.util.equals(UserData_UserSettings, a, b);
   }
 }
 

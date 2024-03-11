@@ -18,57 +18,23 @@ enum EventType {
   SUB = 3;
   SUB_GIFT = 4;
   RAID = 5;
+  CHAT_TTS = 6;
 }
 
 message Event {
-  string Id = 1;
+  string ID = 1;
+  EventType Type = 2;
 
-  string Channel = 2;
-  string Username = 3;
+  string Uid = 3;
+  string ProviderID = 4;
+  string SenderID = 5;
+  string SenderName = 6;
+  string Provider = 7;
 
-  string TTSUrl = 4;
+  string TTSUrl = 8;
 
-  oneof Payload {
-    TipPayload Tip = 5;
-    FollowPayload Follow = 6;
-    CheerPayload Cheer = 7;
-    SubPayload Sub = 8;
-    SubGiftPayload SubGift = 9;
-    RaidPayload Raid = 10;
-    ChatMessagePayload ChatMessage = 11;
-  }
+  bool IsApproved = 9;
+  int64 Timestamp = 10;
 
-  message FollowPayload {
-
-  }
-
-  message SubGiftPayload {
-    SubTier Tier = 1;
-    int32 Count = 2;
-    int32 Total = 3;
-  }
-
-  message SubPayload {
-    string Message = 1;
-    SubTier Tier = 2;
-  }
-
-  message RaidPayload {
-    int32 Viewers = 1;
-  }
-
-  message TipPayload {
-    string Message = 1;
-    double Amount = 2;
-    string Currency = 3;
-  }
-
-  message CheerPayload {
-    string Message = 1;
-    int32 Amount = 2;
-  }
-
-  message ChatMessagePayload {
-    string Message = 1;
-  }
+  map<string, string> Data = 11;
 }

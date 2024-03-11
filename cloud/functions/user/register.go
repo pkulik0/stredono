@@ -74,7 +74,14 @@ func (c *userClaims) Valid() error {
 }
 
 func handleRegistration(ctx *providers.Context, claims *userClaims) error {
-	log.Println("handleRegistration", claims)
+	db, ok := ctx.GetDocDb()
+	if !ok {
+		return errorContextValue
+	}
+	rtdb, ok := ctx.GetRealtimeDb()
+	if !ok {
+		return errorContextValue
+	}
 
 	user := &pb.User{
 		Username:    "",
@@ -97,13 +104,58 @@ func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 		return errorInvalidMethod
 	}
 
-	db, ok := ctx.GetDocDb()
-	if !ok {
-		return errorContextValue
+	if _, err := db.Collection("users").Doc(user.Uid).Create(ctx.Ctx, user); err != nil {
+		return err
 	}
 
-	_, err := db.Collection("users").Doc(user.Uid).Create(ctx.Ctx, user)
-	return err
+	eventSettings := make(map[string]*pb.EventSettings)
+	for _, eventType := range pb.EventType_value {
+		eventSettings[pb.EventType(eventType).String()] = &pb.EventSettings{
+			MinimumValue: 0,
+			EnableTTS:    true,
+		}
+	}
+	eventSettings[pb.EventType_TIP.String()].MessageTemplate = "{user} donated {value} {currency}!"
+	eventSettings[pb.EventType_CHEER.String()].MessageTemplate = "{user} cheered {value} bits!"
+	eventSettings[pb.EventType_FOLLOW.String()].MessageTemplate = "{user} followed!"
+	eventSettings[pb.EventType_SUB.String()].MessageTemplate = "{user} subscribed!"
+	eventSettings[pb.EventType_SUB_GIFT.String()].MessageTemplate = "{user} gifted {value} subs!"
+	eventSettings[pb.EventType_RAID.String()].MessageTemplate = "{user} raided with {value} viewers!"
+	eventSettings[pb.EventType_CHAT_TTS.String()].MessageTemplate = "{user} said:"
+
+	if err := rtdb.NewRef("Data").Child(user.Uid).Set(ctx.Ctx, &pb.UserData{
+		Settings: &pb.UserData_UserSettings{
+			Tips: &pb.TipSettings{
+				MinAmount:    5,
+				MinAuthLevel: pb.AuthLevel_NONE,
+				Currency:     pb.Currency_PLN,
+			},
+			Events: &pb.EventsSettings{
+				TTS: &pb.TTSSettings{
+					Tier:         pb.Tier_PLUS,
+					VoiceIdPlus:  "onwK4e9ZLuTAKqWW03F9",
+					VoiceIdBasic: "pl-PL-Wavenet-C",
+				},
+				Event:           eventSettings,
+				RequireApproval: false,
+			},
+		},
+		Media: &pb.MediaRequest{
+			IsEnabled: true,
+			Settings: &pb.MediaRequestSettings{
+				MinRole:         pb.Role_NORMAL,
+				MinViews:        100,
+				MinLikes:        10,
+				RequireApproval: false,
+			},
+			Queue: make([]*pb.MediaRequest_QueueItem, 0),
+		},
+		Commands: make(map[string]string),
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func handleOauthRegistration(ctx *providers.Context, claims *userClaims, user *pb.User) error {

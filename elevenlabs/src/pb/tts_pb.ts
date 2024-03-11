@@ -34,67 +34,6 @@ proto3.util.setEnumType(Gender, "stredono.Gender", [
 ]);
 
 /**
- * @generated from message stredono.SpeechRequest
- */
-export class SpeechRequest extends Message<SpeechRequest> {
-  /**
-   * @generated from field: string Id = 1;
-   */
-  Id = "";
-
-  /**
-   * @generated from field: string Uid = 2;
-   */
-  Uid = "";
-
-  /**
-   * @generated from field: string Text = 3;
-   */
-  Text = "";
-
-  /**
-   * @generated from field: string VoiceIdBasic = 4;
-   */
-  VoiceIdBasic = "";
-
-  /**
-   * @generated from field: string VoiceIdPlus = 5;
-   */
-  VoiceIdPlus = "";
-
-  constructor(data?: PartialMessage<SpeechRequest>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "stredono.SpeechRequest";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "Id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 2, name: "Uid", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "Text", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "VoiceIdBasic", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "VoiceIdPlus", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SpeechRequest {
-    return new SpeechRequest().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SpeechRequest {
-    return new SpeechRequest().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SpeechRequest {
-    return new SpeechRequest().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: SpeechRequest | PlainMessage<SpeechRequest> | undefined, b: SpeechRequest | PlainMessage<SpeechRequest> | undefined): boolean {
-    return proto3.util.equals(SpeechRequest, a, b);
-  }
-}
-
-/**
  * @generated from message stredono.Voice
  */
 export class Voice extends Message<Voice> {

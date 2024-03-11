@@ -41,15 +41,18 @@ func onChannelCheer(ctx *providers.Context, notification *eventsub.Notification)
 	log.Printf("Received cheer: %v", eventData)
 
 	msgId, err := functions.PublishProto(ctx, &pb.Event{
-		Channel:  eventData.BroadcasterUserID,
-		Username: eventData.UserName,
-		Payload: &pb.Event_Cheer{
-			Cheer: &pb.Event_CheerPayload{
-				Message: eventData.Message,
-				Amount:  int32(eventData.Bits),
-			},
+		ID:         notification.ID,
+		Type:       pb.EventType_CHEER,
+		Provider:   platform.ProviderTwitch,
+		ProviderID: eventData.BroadcasterUserID,
+		SenderName: eventData.UserName,
+		SenderID:   eventData.UserID,
+		Timestamp:  notification.Timestamp.Unix(),
+		Data: map[string]string{
+			"Value":   fmt.Sprintf("%d", eventData.Bits),
+			"Message": eventData.Message,
 		},
-	}, "events", platform.ProviderTwitch)
+	}, "events")
 	if err != nil {
 		return err
 	}
@@ -66,12 +69,15 @@ func onChannelFollow(ctx *providers.Context, notification *eventsub.Notification
 	log.Printf("Received follow: %v", eventData)
 
 	msgId, err := functions.PublishProto(ctx, &pb.Event{
-		Channel:  eventData.BroadcasterUserID,
-		Username: eventData.UserName,
-		Payload: &pb.Event_Follow{
-			Follow: &pb.Event_FollowPayload{},
-		},
-	}, "events", platform.ProviderTwitch)
+		ID:         notification.ID,
+		Type:       pb.EventType_FOLLOW,
+		Provider:   platform.ProviderTwitch,
+		ProviderID: eventData.BroadcasterUserID,
+		SenderName: eventData.UserName,
+		SenderID:   eventData.UserID,
+		Timestamp:  notification.Timestamp.Unix(),
+		Data:       make(map[string]string),
+	}, "events")
 	if err != nil {
 		return err
 	}
@@ -148,14 +154,17 @@ func onChannelRaid(ctx *providers.Context, notification *eventsub.Notification) 
 	log.Printf("Received raid: %v", eventData)
 
 	msgId, err := functions.PublishProto(ctx, &pb.Event{
-		Channel:  eventData.ToBroadcasterUserID,
-		Username: eventData.FromBroadcasterUserName,
-		Payload: &pb.Event_Raid{
-			Raid: &pb.Event_RaidPayload{
-				Viewers: int32(eventData.Viewers),
-			},
+		ID:         notification.ID,
+		Type:       pb.EventType_RAID,
+		Provider:   platform.ProviderTwitch,
+		ProviderID: eventData.ToBroadcasterUserID,
+		SenderName: eventData.FromBroadcasterUserName,
+		SenderID:   eventData.FromBroadcasterUserID,
+		Timestamp:  notification.Timestamp.Unix(),
+		Data: map[string]string{
+			"Value": fmt.Sprintf("%d", eventData.Viewers),
 		},
-	}, "events", platform.ProviderTwitch)
+	}, "events")
 	if err != nil {
 		return err
 	}
@@ -185,15 +194,18 @@ func onChannelSubscription(ctx *providers.Context, notification *eventsub.Notifi
 	log.Printf("Received sub: %v", eventData)
 
 	msgId, err := functions.PublishProto(ctx, &pb.Event{
-		Channel:  eventData.BroadcasterUserID,
-		Username: eventData.UserName,
-		Payload: &pb.Event_Sub{
-			Sub: &pb.Event_SubPayload{
-				Message: "",
-				Tier:    subTierToEnum(eventData.Tier),
-			},
+		ID:         notification.ID,
+		Type:       pb.EventType_SUB,
+		Provider:   platform.ProviderTwitch,
+		ProviderID: eventData.BroadcasterUserID,
+		SenderName: eventData.UserName,
+		SenderID:   eventData.UserID,
+		Timestamp:  notification.Timestamp.Unix(),
+		Data: map[string]string{
+			"Message": "",
+			"Tier":    subTierToEnum(eventData.Tier).String(),
 		},
-	}, "events", platform.ProviderTwitch)
+	}, "events")
 	if err != nil {
 		return err
 	}
@@ -210,16 +222,19 @@ func onChannelSubscriptionGift(ctx *providers.Context, notification *eventsub.No
 	log.Printf("Received sub gift: %v", eventData)
 
 	msgId, err := functions.PublishProto(ctx, &pb.Event{
-		Channel:  eventData.BroadcasterUserID,
-		Username: eventData.UserName,
-		Payload: &pb.Event_SubGift{
-			SubGift: &pb.Event_SubGiftPayload{
-				Tier:  subTierToEnum(eventData.Tier),
-				Count: int32(eventData.Total),
-				Total: int32(eventData.CumulativeTotal),
-			},
+		ID:         notification.ID,
+		Type:       pb.EventType_SUB_GIFT,
+		Provider:   platform.ProviderTwitch,
+		ProviderID: eventData.BroadcasterUserID,
+		SenderName: eventData.UserName,
+		SenderID:   eventData.UserID,
+		Timestamp:  notification.Timestamp.Unix(),
+		Data: map[string]string{
+			"Value": fmt.Sprintf("%d", eventData.Total),
+			"Tier":  subTierToEnum(eventData.Tier).String(),
+			"Total": fmt.Sprintf("%d", eventData.CumulativeTotal),
 		},
-	}, "events", platform.ProviderTwitch)
+	}, "events")
 	if err != nil {
 		return err
 	}
@@ -236,15 +251,18 @@ func onChannelSubscriptionMessage(ctx *providers.Context, notification *eventsub
 	log.Printf("Received sub message: %v", eventData)
 
 	msgId, err := functions.PublishProto(ctx, &pb.Event{
-		Channel:  eventData.BroadcasterUserID,
-		Username: eventData.UserName,
-		Payload: &pb.Event_Sub{
-			Sub: &pb.Event_SubPayload{
-				Message: eventData.Message.Text,
-				Tier:    subTierToEnum(eventData.Tier),
-			},
+		ID:         notification.ID,
+		Type:       pb.EventType_SUB,
+		Provider:   platform.ProviderTwitch,
+		ProviderID: eventData.BroadcasterUserID,
+		SenderName: eventData.UserName,
+		SenderID:   eventData.UserID,
+		Timestamp:  notification.Timestamp.Unix(),
+		Data: map[string]string{
+			"Message": eventData.Message.Text,
+			"Tier":    subTierToEnum(eventData.Tier).String(),
 		},
-	}, "events", platform.ProviderTwitch)
+	}, "events")
 	if err != nil {
 		return err
 	}
