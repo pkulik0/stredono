@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/pkulik0/stredono/cloud/pb"
 	"github.com/pkulik0/stredono/cloud/platform"
+	log "github.com/sirupsen/logrus"
 )
 
 func ProviderIdToUid(ctx *Context, provider string, ID string) (string, error) {
@@ -43,8 +44,16 @@ func GenerateSpeech(ctx *Context, req *pb.TTSRequest) (string, error) {
 		return "", platform.ErrorMissingContextValue
 	}
 
-	audioData, err := ttsPlus.GenerateSpeech(ctx.Ctx, req.Settings.VoiceIdPlus, req.Text)
-	if err != nil {
+	var audioData []byte
+	if req.Settings.Tier == pb.Tier_PLUS {
+		audioData, err = ttsPlus.GenerateSpeech(ctx.Ctx, req.Settings.VoiceIdPlus, req.Text)
+		if err != nil {
+			log.Printf("Failed to generate speech with TTS+ | %v", err)
+		}
+	}
+
+	// Means Tier != Plus or failed to generate speech with TTS+
+	if audioData == nil {
 		audioData, err = ttsBasic.GenerateSpeech(ctx.Ctx, req.Settings.VoiceIdBasic, req.Text)
 		if err != nil {
 			return "", err

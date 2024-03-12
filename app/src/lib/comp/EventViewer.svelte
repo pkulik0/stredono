@@ -4,18 +4,28 @@
 	import { type Alert, Alignment, AnimationType, Position, Speed } from '$lib/pb/alert_pb';
 	import { Event, EventType } from '$lib/pb/event_pb';
 	import 'animate.css';
+	import { onMount } from 'svelte';
 	import {fade} from 'svelte/transition';
+	import { confirmEvent } from '../../routes/overlay/events/listener';
+	import { keyStore } from '../../routes/overlay/stores';
+
+	export let isTest: boolean = false;
+	export let minimumDuration: number = 5000;
 
 	export let alerts: Alert[];
 
-	export let visible: boolean = true;
-	export let event: Event|undefined;
-	export let isTest: boolean = false;
-	export let minimumDuration: number = 5;
+	export let events: Event[];
 
-	export let onShown: (event: Event) => void;
+	let event: Event|undefined;
 
-	$: eventAlert = event ? eventToAlert(event, alerts, isTest) : undefined;
+	$: if(events[0] && !event) {
+		setTimeout(() => {
+			event = events[0];
+		}, 1000)
+	}
+
+
+	$: eventAlert = event ? eventToAlert(event, alerts) : undefined;
 
 	$: eventTypeName = event ? JSON.parse(JSON.stringify(EventType))[event.Type] : '';
 
@@ -84,48 +94,50 @@
 		}
 	})();
 
-	let durationTotal = 0;
+	let soundAudioElement: HTMLAudioElement = new Audio("")
+	let ttsAudioElement: HTMLAudioElement = new Audio("")
+
+	$: soundAudioElement.src = eventAlert?.SoundUrl ?? ""
+	$: ttsAudioElement.src = event?.TTSUrl ?? ""
+
+	$: if(eventAlert?.SoundUrl === "") {
+		ttsAudioElement.play().catch((e) => {
+			finish()
+		})
+	}
+
+	let totalDuration = 0;
+	let timeout: any;
+
 	const finish = () => {
-		if (event) {
-			const neededForMinimum = Math.max(minimumDuration - durationTotal, 0)
-			console.log('neededForMinimum', neededForMinimum)
-			setTimeout(() => onShown(event!), neededForMinimum * 1000)
-		}
+		if(timeout || isTest) return;
+
+		timeout = setTimeout(async () => {
+			await confirmEvent($keyStore, event.ID)
+			event = undefined
+			timeout = undefined
+		}, Math.max(minimumDuration - totalDuration, 0))
 	}
 
+	onMount(() => {
+		soundAudioElement.autoplay = true
 
-	$: audioUrl = eventAlert?.SoundUrl
-	$: audioElement = new Audio(audioUrl)
-	$: if(audioElement) {
-		audioElement.autoplay = true;
-		audioElement.onended = () => {
-			durationTotal += audioElement.duration
-			if(ttsUrl !== "") {
-				ttsAudioElement.play()
-			} else {
+		soundAudioElement.onended = () => {
+			totalDuration += soundAudioElement.duration * 1000
+			ttsAudioElement.play().catch((e) => {
 				finish()
-			}
+			})
 		}
-	}
-	$: ttsUrl = event?.TTSUrl
-	$: ttsAudioElement = new Audio(ttsUrl)
-	$: ttsAudioElement.onended = () => {
-		durationTotal += ttsAudioElement.duration
-		finish()
-	}
-
-	$: if (audioUrl === "") {
-		if(ttsUrl !== "") {
-			ttsAudioElement.play()
-		} else {
+		ttsAudioElement.onended = () => {
+			totalDuration += ttsAudioElement.duration * 1000
 			finish()
 		}
-	}
+	})
 
 </script>
 
 {#if eventAlert && event}
-	<div transition:fade class="z-75 fixed inset-0 pointer-events-none mt-20 flex flex-col items-center animate__animated animate__jackInTheBox {!visible ? 'hidden' : ''}">
+	<div transition:fade class="z-75 fixed inset-0 pointer-events-none mt-20 flex flex-col items-center animate__animated animate__jackInTheBox">
 		<div class="flex items-center  {alignmentClass} {containerClass} {animationClass}" style="color: {eventAlert.TextColor}">
 			{#if eventAlert.GifUrl}
 				<img src={eventAlert.GifUrl} alt="" class="rounded-xl shadow-2xl {imgClass} max-w-sm max-h-64" />

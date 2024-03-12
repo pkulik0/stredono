@@ -1,12 +1,12 @@
 <script lang="ts">
     import { saveAlert } from '$lib/alerts';
+    import EventViewer from '$lib/comp/EventViewer.svelte';
     import GifPicker from '$lib/comp/GifPicker.svelte';
     import SoundPicker from '$lib/comp/SoundPicker.svelte';
     import { settingsStore } from '$lib/events_settings';
     import { Alert, Alignment, AnimationType, Position, Speed } from '$lib/pb/alert_pb';
     import { Currency } from '$lib/pb/enums_pb';
     import { Event, EventType } from '$lib/pb/event_pb';
-    import { userStore } from '$lib/user';
     import { pbEnumToItems } from '$lib/util';
     import {
         Button,
@@ -35,7 +35,6 @@
     import { locale, t } from 'svelte-i18n';
     import { sineIn } from 'svelte/easing';
     import { fade } from 'svelte/transition';
-    import AlertViewer from '$lib/comp/AlertViewer.svelte';
 
     export let hidden = true;
     export let eventType: EventType;
@@ -225,6 +224,6 @@
 <GifPicker bind:url={alert.GifUrl} searchTerm={$t("default_gif_search_term")} bind:open={gifPickerOpen} />
 <SoundPicker bind:url={alert.SoundUrl} bind:open={soundPickerOpen} />
 
-{#if !hidden}
-    <AlertViewer isTest alerts={[alert]} event={exampleEvent} visible={!soundPickerOpen && !gifPickerOpen} {onShown}/>
+{#if !hidden && (!soundPickerOpen && !gifPickerOpen)}
+    <EventViewer alerts={[alert]} events={[exampleEvent]} isTest/>
 {/if}

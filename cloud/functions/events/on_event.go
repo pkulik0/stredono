@@ -168,7 +168,7 @@ func handleEvent(ctx *providers.Context, event *pb.Event) error {
 		return err
 	}
 
-	text := fmt.Sprintf("%s %s", header, event.Data["Message"])
+	text := fmt.Sprintf("%s. %s", header, event.Data["Message"])
 	if err := handleTTS(ctx, event, eventSettings, eventsSettings.TTS, text, event.Uid); err != nil {
 		log.Errorf("Failed to handle TTS | %v", err)
 		// Don't return so even if TTS fails, the event is still shown without TTS

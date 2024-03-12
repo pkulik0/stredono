@@ -21,11 +21,7 @@ export const saveAlert = async (alert: Alert) => {
 	}
 }
 
-export const eventToAlert = (event: Event, alerts: Alert[], isTest: boolean): Alert|undefined => {
-	if(isTest) {
-		return alerts[0];
-	}
-
+export const eventToAlert = (event: Event, alerts: Alert[]): Alert|undefined => {
 	for(const alert of alerts) {
 		if(alert.EventType !== event.Type) continue;
 
@@ -37,5 +33,6 @@ export const eventToAlert = (event: Event, alerts: Alert[], isTest: boolean): Al
 
 		return alert;
 	}
-	return undefined;
+
+	return alerts[0];
 }
