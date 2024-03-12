@@ -11,9 +11,3 @@ message TipSettings {
   AuthLevel MinAuthLevel = 2;
   Currency Currency = 3;
 }
-
-enum AuthLevel {
-  NONE = 0;
-  EMAIL = 1;
-  OIDC = 2;
-}

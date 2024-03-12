@@ -8,24 +8,23 @@ import 'pb/enums.proto';
 import 'pb/event.proto';
 
 message Alert {
-  string Id = 1;
+  string ID = 1;
   EventType EventType = 2;
-  string Message = 3;
 
-  double Min = 4;
-  optional double Max = 5;
+  double Min = 3;
+  optional double Max = 4;
 
-  string GifUrl = 6;
-  string SoundUrl = 7;
+  string GifUrl = 5;
+  string SoundUrl = 6;
 
-  AnimationType Animation = 8;
-  Speed AnimationSpeed = 9;
+  AnimationType Animation = 7;
+  Speed AnimationSpeed = 8;
 
-  string TextColor = 10;
-  string AccentColor = 11;
+  string TextColor = 9;
+  string AccentColor = 10;
 
-  Alignment Alignment = 12;
-  Position TextPosition = 13;
+  Alignment Alignment = 11;
+  Position TextPosition = 12;
 }
 
 message UsersAlerts {

@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"github.com/pkulik0/stredono/cloud/pb"
 	"github.com/pkulik0/stredono/cloud/platform"
-	"github.com/pkulik0/stredono/cloud/platform/modules"
-	log "github.com/sirupsen/logrus"
-	"time"
 )
 
 func ProviderIdToUid(ctx *Context, provider string, ID string) (string, error) {
@@ -54,17 +51,24 @@ func GenerateSpeech(ctx *Context, req *pb.TTSRequest) (string, error) {
 		}
 	}
 
-	path := fmt.Sprintf("users/%s/tts/%s-%d.mp3", req.Uid, req.ID, time.Now().Unix())
+	path := fmt.Sprintf("users/%s/tts/%s.mp3", req.Uid, req.ID)
 	obj := bucket.Object(path)
 	wr := obj.NewWriter(ctx.Ctx)
-	defer func(wr modules.Writer) {
-		if err := wr.Close(); err != nil {
-			log.Errorf("failed to close writer | %s", err)
-		}
-	}(wr)
-
 	if _, err = wr.Write(audioData); err != nil {
 		return "", err
 	}
-	return path, nil
+	if err := wr.Close(); err != nil {
+		return "", err
+	}
+
+	if err := obj.SetPublicRead(ctx.Ctx); err != nil {
+		return "", err
+	}
+
+	attrs, err := obj.Attrs(ctx.Ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return attrs.MediaUrl, nil
 }

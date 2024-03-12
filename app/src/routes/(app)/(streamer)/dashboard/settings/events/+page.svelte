@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { AuthLevel } from '$lib/pb/user_pb';
+	import { AuthLevel } from '$lib/pb/enums_pb';
 	import { Accordion, Button, Checkbox, Heading, Label, Popover, Select } from 'flowbite-svelte';
 	import { InfoCircleOutline } from 'flowbite-svelte-icons';
 	import InputMin from './InputMin.svelte';

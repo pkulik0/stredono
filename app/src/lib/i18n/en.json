@@ -129,5 +129,6 @@
   "tada": "Tada",
   "jello": "Jello",
   "bounce": "Bounce",
-  "filter" : "Filter"
+  "filter" : "Filter",
+  "chat_tts": "Chat TTS"
 }

@@ -1,9 +1,10 @@
-package functions
+package events
 
 import (
 	"context"
 	"fmt"
 	"github.com/cloudevents/sdk-go/v2/event"
+	"github.com/pkulik0/stredono/cloud/functions"
 	"github.com/pkulik0/stredono/cloud/pb"
 	"github.com/pkulik0/stredono/cloud/platform"
 	"github.com/pkulik0/stredono/cloud/platform/providers"
@@ -14,7 +15,7 @@ import (
 )
 
 func OnEventEntrypoint(ctx context.Context, e event.Event) error {
-	var msg EventMessageData
+	var msg functions.EventMessageData
 	if err := e.DataAs(&msg); err != nil {
 		log.Printf("Failed to convert data | %v", err)
 		return fmt.Errorf("failed to convert data | %v", err)
@@ -134,21 +135,25 @@ func handleTTS(ctx *providers.Context, event *pb.Event, eventSettings *pb.EventS
 }
 
 func handleEvent(ctx *providers.Context, event *pb.Event) error {
+	if event.Uid == "" {
+		if event.Provider == "" || event.ProviderID == "" {
+			return fmt.Errorf("missing provider or provider id")
+		}
+
+		uid, err := providers.ProviderIdToUid(ctx, event.Provider, event.ProviderID)
+		if err != nil {
+			return err
+		}
+		event.Uid = uid
+	}
+
 	rtdb, ok := ctx.GetRealtimeDb()
 	if !ok {
 		return platform.ErrorMissingContextValue
 	}
 
-	uid, err := providers.ProviderIdToUid(ctx, event.Provider, event.ProviderID)
-	if err != nil {
-		return err
-	}
-
-	eventsSettings := &pb.EventsSettings{
-		TTS:   &pb.TTSSettings{},
-		Event: make(map[string]*pb.EventSettings),
-	}
-	eventsRef := rtdb.NewRef("Data").Child(uid).Child("Settings").Child("Events")
+	eventsSettings := &pb.EventsSettings{}
+	eventsRef := rtdb.NewRef("Data").Child(event.Uid).Child("Settings").Child("Events")
 	if err := eventsRef.Get(ctx.Ctx, &eventsSettings); err != nil {
 		return err
 	}
@@ -164,11 +169,13 @@ func handleEvent(ctx *providers.Context, event *pb.Event) error {
 	}
 
 	text := fmt.Sprintf("%s %s", header, event.Data["Message"])
-	if err := handleTTS(ctx, event, eventSettings, eventsSettings.TTS, text, uid); err != nil {
+	if err := handleTTS(ctx, event, eventSettings, eventsSettings.TTS, text, event.Uid); err != nil {
 		log.Errorf("Failed to handle TTS | %v", err)
 		// Don't return so even if TTS fails, the event is still shown without TTS
 		// TODO: report issue
 	}
+
+	event.IsApproved = !eventsSettings.RequireApproval || event.Type == pb.EventType_CHAT_TTS
 
 	return addEventToQueue(ctx, event)
 }
@@ -179,8 +186,7 @@ func addEventToQueue(ctx *providers.Context, event *pb.Event) error {
 		return platform.ErrorMissingContextValue
 	}
 
-	_, err := db.Collection("Events").Doc(event.ID).Create(ctx.Ctx, event)
-	if err != nil {
+	if _, err := db.Collection("Events").Add(ctx.Ctx, event); err != nil {
 		return err
 	}
 	return nil

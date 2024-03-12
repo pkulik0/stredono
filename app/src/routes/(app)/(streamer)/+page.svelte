@@ -19,5 +19,3 @@
         <LoginCard/>
     </div>
 </div>
-
-<ParticlesBackground/>

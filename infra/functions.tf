@@ -352,7 +352,7 @@ resource "google_cloudfunctions2_function" "on_event" {
   }
 
   service_config {
-    min_instance_count               = 0
+    min_instance_count               = 1
     max_instance_count               = 10
     available_memory                 = "128Mi"
     max_instance_request_concurrency = 1

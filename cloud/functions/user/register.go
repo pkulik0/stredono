@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/pkulik0/stredono/cloud/pb"
 	"github.com/pkulik0/stredono/cloud/platform"
@@ -14,6 +15,7 @@ import (
 	"io"
 	"net/http"
 	"regexp"
+	"strings"
 )
 
 func RegisterEntrypoint(w http.ResponseWriter, r *http.Request) {
@@ -123,8 +125,14 @@ func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 	eventSettings[pb.EventType_RAID.String()].MessageTemplate = "{user} raided with {value} viewers!"
 	eventSettings[pb.EventType_CHAT_TTS.String()].MessageTemplate = "{user} said:"
 
+	overlayUuid, err := uuid.NewUUID()
+	if err != nil {
+		return err
+	}
+	overlayKey := strings.ReplaceAll(overlayUuid.String(), "-", "")[:16]
+
 	if err := rtdb.NewRef("Data").Child(user.Uid).Set(ctx.Ctx, &pb.UserData{
-		Settings: &pb.UserData_UserSettings{
+		Settings: &pb.UserSettings{
 			Tips: &pb.TipSettings{
 				MinAmount:    5,
 				MinAuthLevel: pb.AuthLevel_NONE,
@@ -139,6 +147,7 @@ func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 				Event:           eventSettings,
 				RequireApproval: false,
 			},
+			Alerts: make([]*pb.Alert, 0),
 		},
 		Media: &pb.MediaRequest{
 			IsEnabled: true,
@@ -150,7 +159,8 @@ func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 			},
 			Queue: make([]*pb.MediaRequest_QueueItem, 0),
 		},
-		Commands: make(map[string]string),
+		Commands:   make(map[string]string),
+		OverlayKey: overlayKey,
 	}); err != nil {
 		return err
 	}

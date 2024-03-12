@@ -1,7 +1,6 @@
 import { isLocal } from '$lib/constants';
 import {getDownloadURL, getMetadata, getStorage, ref, uploadBytes, connectStorageEmulator} from "firebase/storage";
 import {auth, app} from "$lib/ext/firebase/firebase";
-import { v4 as uuidv4 } from 'uuid';
 
 export const storage = getStorage(app);
 if(isLocal) {

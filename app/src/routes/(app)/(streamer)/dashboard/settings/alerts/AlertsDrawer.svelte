@@ -2,6 +2,7 @@
     import { saveAlert } from '$lib/alerts';
     import GifPicker from '$lib/comp/GifPicker.svelte';
     import SoundPicker from '$lib/comp/SoundPicker.svelte';
+    import { settingsStore } from '$lib/events_settings';
     import { Alert, Alignment, AnimationType, Position, Speed } from '$lib/pb/alert_pb';
     import { Currency } from '$lib/pb/enums_pb';
     import { Event, EventType } from '$lib/pb/event_pb';
@@ -9,15 +10,18 @@
     import { pbEnumToItems } from '$lib/util';
     import {
         Button,
-        ButtonGroup, Checkbox,
+        ButtonGroup,
+        Checkbox,
         CloseButton,
         Drawer,
         Heading,
         Input,
         InputAddon,
-        Label, Radio, RadioButton, Range,
+        Label,
+        Radio,
+        RadioButton,
+        Range,
         Select,
-        Textarea
     } from 'flowbite-svelte';
     import {
         AlignCenterSolid,
@@ -28,49 +32,51 @@
         PlusSolid,
         VolumeUpSolid
     } from 'flowbite-svelte-icons';
-    import { onMount } from 'svelte';
-    import { t } from 'svelte-i18n';
+    import { locale, t } from 'svelte-i18n';
     import { sineIn } from 'svelte/easing';
-    import AlertViewer from './AlertViewer.svelte';
-    import {fade} from 'svelte/transition';
+    import { fade } from 'svelte/transition';
+    import AlertViewer from '$lib/comp/AlertViewer.svelte';
 
     export let hidden = true;
     export let eventType: EventType;
 
-    export let alert = new Alert();
+    export let alert = Alert.fromJson({
+        ID: "",
+        EventType: eventType,
+        Min: 0,
+        Max: 0,
+        TextColor: "#FFFFFF",
+        AccentColor: "#2381f8",
+        Animation: AnimationType.PULSE,
+        AnimationSpeed: Speed.MEDIUM,
+        Alignment: Alignment.JUSTIFY,
+        TextPosition: Position.BOTTOM,
+    })
+    $: if(alert.ID === "") {
+        alert.EventType = eventType;
+    }
+
     let startValue = "0";
     let endValue = "10";
     let hasMax = false;
-    $: if(alert.Id === "") {
-        alert.EventType = eventType;
-        alert.Min = Number.parseFloat(startValue)
-        alert.Max = Number.parseFloat(endValue)
-        alert.TextColor = "#FFFFFF";
-        alert.AccentColor = "#2381f8";
-        alert.Message = "[user] donated [value] [currency]";
-        alert.Animation = AnimationType.PULSE;
-        alert.AnimationSpeed = Speed.MEDIUM;
-        alert.Alignment = Alignment.JUSTIFY;
-        alert.TextPosition = Position.BOTTOM;
+    $: if(hasMax) {
+        alert.Max = Number.parseFloat(endValue);
+    } else {
+        alert.Max = undefined;
     }
 
     let exampleEvent = new Event();
     $: {
         exampleEvent.Type = eventType;
         exampleEvent.Data = {
-            "user": "John",
-            "value": "2137",
-            "currency": currencySymbol,
-            "message": "This is an example message. See which settings you like the most and adjust them to your needs."
+            "User": "John",
+            "Value": "2137",
+            "Currency": currencySymbol,
+            "Message": "This is an example message. See which settings you like the most and adjust them to your needs."
         }
     }
 
     const addNew = async () => {
-        if (!alert.GifUrl) {
-            console.error("GIF is missing");
-            return;
-        }
-
         try {
             await saveAlert(alert);
             hidden = true;
@@ -80,11 +86,14 @@
     }
 
     $: animations = pbEnumToItems(AnimationType);
+    $: if ($locale) {
+        animations = pbEnumToItems(AnimationType);
+    }
 
     let gifPickerOpen = false;
     let soundPickerOpen = false;
 
-    let currency: Currency|undefined = undefined;
+    $: currency = $settingsStore?.Tips?.Currency;
     let currencySymbol = "?";
     $: if(currency) {
         switch(currency) {
@@ -97,16 +106,6 @@
         }
     }
 
-    onMount(() => {
-        return userStore.subscribe((user) => {
-            if (!user) {
-                currency = undefined;
-                return;
-            }
-            currency = user.Currency;
-        });
-    })
-
     let transitionParams = {
         x: 300,
         duration: 200,
@@ -116,6 +115,9 @@
     let triggerClass = hasMax ? "" : "flex-row";
 
     const eventTypeNames = JSON.parse(JSON.stringify(EventType));
+
+    const onShown = (e: Event) => {
+    }
 </script>
 
 <Drawer activateClickOutside={false} transitionType="fly" {transitionParams} bind:hidden {divClass} placement="right" width="w-96">
@@ -131,7 +133,7 @@
         <Heading tag="h5">{$t("trigger")}</Heading>
 
         <div class="space-x-4 flex {triggerClass}">
-            <Label class="w-full">
+            <Label class={hasMax ? "w-1/2" : "w-full"}>
                 {$t("range_from")}
                 <ButtonGroup class="w-full">
                     <Input type="number" bind:value={startValue} />
@@ -140,10 +142,10 @@
             </Label>
 
             {#if hasMax}
-                <div transition:fade>
+                <div class="w-1/2" transition:fade>
                     <Label>
                         {$t("range_to")}
-                        <ButtonGroup>
+                        <ButtonGroup class="w-full">
                             <Input type="number" bind:value={endValue} />
                             <InputAddon>{currencySymbol}</InputAddon>
                         </ButtonGroup>
@@ -166,34 +168,6 @@
             {#if alert.SoundUrl} {$t("change")} {:else} {$t("pick_or_upload")} {/if}
             {$t("sound")}
         </Button>
-
-        <Heading tag="h5">{$t("message")}</Heading>
-
-        <Label>
-            {$t("template")}
-            <Textarea bind:value={alert.Message} />
-        </Label>
-
-        <div class="flex flex-row space-x-2 m-auto justify-center">
-            <RadioButton value={Alignment.START} bind:group={alert.Alignment}><BarsFromLeftSolid/></RadioButton>
-            <RadioButton value={Alignment.CENTER} bind:group={alert.Alignment}><AlignCenterSolid/></RadioButton>
-            <RadioButton value={Alignment.END} bind:group={alert.Alignment}><div class="transform rotate-180 scale-y-[-1]"><BarsFromLeftSolid/></div></RadioButton>
-            <RadioButton value={Alignment.JUSTIFY} bind:group={alert.Alignment}><BarsSolid/></RadioButton>
-        </div>
-
-        <Heading tag="h6">{$t("text_position")}</Heading>
-
-        <div class="flex flex-col items-center space-y-2">
-            <Radio value={Position.TOP} bind:group={alert.TextPosition}/>
-            <div class="flex flex-row space-x-2">
-                <Radio value={Position.LEFT} bind:group={alert.TextPosition}/>
-                <div class="bg-gray-600 w-16 h-16 rounded-md text-center text-white flex items-center justify-center font-medium">
-                    GIF
-                </div>
-                <Radio class="ms-1.5" value={Position.RIGHT} bind:group={alert.TextPosition}/>
-            </div>
-            <Radio value="{Position.BOTTOM}" bind:group={alert.TextPosition}/>
-        </div>
 
         <Heading tag="h5">{$t("appearance")}</Heading>
 
@@ -219,6 +193,27 @@
             </Label>
         </div>
 
+        <Heading tag="h6">{$t("text_position")}</Heading>
+
+        <div class="flex flex-row space-x-2 pb-2 m-auto justify-center">
+            <RadioButton value={Alignment.START} bind:group={alert.Alignment}><BarsFromLeftSolid/></RadioButton>
+            <RadioButton value={Alignment.CENTER} bind:group={alert.Alignment}><AlignCenterSolid/></RadioButton>
+            <RadioButton value={Alignment.END} bind:group={alert.Alignment}><div class="transform rotate-180 scale-y-[-1]"><BarsFromLeftSolid/></div></RadioButton>
+            <RadioButton value={Alignment.JUSTIFY} bind:group={alert.Alignment}><BarsSolid/></RadioButton>
+        </div>
+
+        <div class="flex flex-col items-center space-y-2 pb-2">
+            <Radio value={Position.TOP} bind:group={alert.TextPosition}/>
+            <div class="flex flex-row space-x-2">
+                <Radio value={Position.LEFT} bind:group={alert.TextPosition}/>
+                <div class="bg-gray-600 w-16 h-16 rounded-md text-center text-white flex items-center justify-center font-medium">
+                    GIF
+                </div>
+                <Radio class="ms-1.5" value={Position.RIGHT} bind:group={alert.TextPosition}/>
+            </div>
+            <Radio value="{Position.BOTTOM}" bind:group={alert.TextPosition}/>
+        </div>
+
         <Button on:click={addNew} class="w-full">
             <PlusSolid class="w-5 h-5 me-1" />
             {$t("save")}
@@ -231,5 +226,5 @@
 <SoundPicker bind:url={alert.SoundUrl} bind:open={soundPickerOpen} />
 
 {#if !hidden}
-    <AlertViewer alerts={[alert]} event={exampleEvent} visible={!soundPickerOpen && !gifPickerOpen}/>
+    <AlertViewer isTest alerts={[alert]} event={exampleEvent} visible={!soundPickerOpen && !gifPickerOpen} {onShown}/>
 {/if}

@@ -1,5 +1,6 @@
 import { db } from '$lib/ext/firebase/firebase';
-import { Tier, Voice, Voices } from '$lib/pb/tts_pb';
+import { Tier } from '$lib/pb/enums_pb';
+import { Voice, Voices } from '$lib/pb/tts_pb';
 import {getDoc, doc} from 'firebase/firestore';
 
 export const getVoices = async () => {

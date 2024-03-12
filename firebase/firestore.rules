@@ -22,6 +22,11 @@ service cloud.firestore {
             allow write: if false;
         }
 
+        match /Events/{eventID} {
+            allow read: if true;
+            allow write: if false;
+        }
+
         match /{anything=**} {
             allow read: if false
             allow write: if false;

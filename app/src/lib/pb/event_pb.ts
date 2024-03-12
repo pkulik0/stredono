@@ -147,6 +147,11 @@ export class Event extends Message<Event> {
    */
   Data: { [key: string]: string } = {};
 
+  /**
+   * @generated from field: bool WasShown = 12;
+   */
+  WasShown = false;
+
   constructor(data?: PartialMessage<Event>) {
     super();
     proto3.util.initPartial(data, this);
@@ -166,6 +171,7 @@ export class Event extends Message<Event> {
     { no: 9, name: "IsApproved", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
     { no: 10, name: "Timestamp", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
     { no: 11, name: "Data", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
+    { no: 12, name: "WasShown", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Event {

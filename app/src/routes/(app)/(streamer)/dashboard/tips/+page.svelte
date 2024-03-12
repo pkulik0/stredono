@@ -1,9 +1,9 @@
 <script lang="ts">
-    import {tipsStore, type TipsMap, fetchOldTips} from "$lib/tips";
-    import { auth } from '$lib/ext/firebase/firebase';
+    import {tipsStore, type TipsMap, fetchOldTips} from "../../../../../lib/tips";
+    import { auth } from '../../../../../lib/ext/firebase/firebase';
     import {Card, Checkbox, Hr, Input, Label, P, Pagination} from "flowbite-svelte";
     import {onMount} from "svelte";
-    import TipList from "$lib/comp/TipList.svelte";
+    import TipList from "../../../../../lib/comp/TipList.svelte";
     import {ChevronLeftOutline, ChevronRightOutline} from "flowbite-svelte-icons";
     import {page} from "$app/stores";
     import {goto} from "$app/navigation";

@@ -164,9 +164,9 @@ proto3.util.setEnumType(Speed, "stredono.Speed", [
  */
 export class Alert extends Message<Alert> {
   /**
-   * @generated from field: string Id = 1;
+   * @generated from field: string ID = 1;
    */
-  Id = "";
+  ID = "";
 
   /**
    * @generated from field: stredono.EventType EventType = 2;
@@ -174,57 +174,52 @@ export class Alert extends Message<Alert> {
   EventType = EventType.TIP;
 
   /**
-   * @generated from field: string Message = 3;
-   */
-  Message = "";
-
-  /**
-   * @generated from field: double Min = 4;
+   * @generated from field: double Min = 3;
    */
   Min = 0;
 
   /**
-   * @generated from field: optional double Max = 5;
+   * @generated from field: optional double Max = 4;
    */
   Max?: number;
 
   /**
-   * @generated from field: string GifUrl = 6;
+   * @generated from field: string GifUrl = 5;
    */
   GifUrl = "";
 
   /**
-   * @generated from field: string SoundUrl = 7;
+   * @generated from field: string SoundUrl = 6;
    */
   SoundUrl = "";
 
   /**
-   * @generated from field: stredono.AnimationType Animation = 8;
+   * @generated from field: stredono.AnimationType Animation = 7;
    */
   Animation = AnimationType.PULSE;
 
   /**
-   * @generated from field: stredono.Speed AnimationSpeed = 9;
+   * @generated from field: stredono.Speed AnimationSpeed = 8;
    */
   AnimationSpeed = Speed.OFF;
 
   /**
-   * @generated from field: string TextColor = 10;
+   * @generated from field: string TextColor = 9;
    */
   TextColor = "";
 
   /**
-   * @generated from field: string AccentColor = 11;
+   * @generated from field: string AccentColor = 10;
    */
   AccentColor = "";
 
   /**
-   * @generated from field: stredono.Alignment Alignment = 12;
+   * @generated from field: stredono.Alignment Alignment = 11;
    */
   Alignment = Alignment.START;
 
   /**
-   * @generated from field: stredono.Position TextPosition = 13;
+   * @generated from field: stredono.Position TextPosition = 12;
    */
   TextPosition = Position.TOP;
 
@@ -236,19 +231,18 @@ export class Alert extends Message<Alert> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "stredono.Alert";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "Id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "ID", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "EventType", kind: "enum", T: proto3.getEnumType(EventType) },
-    { no: 3, name: "Message", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "Min", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
-    { no: 5, name: "Max", kind: "scalar", T: 1 /* ScalarType.DOUBLE */, opt: true },
-    { no: 6, name: "GifUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 7, name: "SoundUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 8, name: "Animation", kind: "enum", T: proto3.getEnumType(AnimationType) },
-    { no: 9, name: "AnimationSpeed", kind: "enum", T: proto3.getEnumType(Speed) },
-    { no: 10, name: "TextColor", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 11, name: "AccentColor", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 12, name: "Alignment", kind: "enum", T: proto3.getEnumType(Alignment) },
-    { no: 13, name: "TextPosition", kind: "enum", T: proto3.getEnumType(Position) },
+    { no: 3, name: "Min", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
+    { no: 4, name: "Max", kind: "scalar", T: 1 /* ScalarType.DOUBLE */, opt: true },
+    { no: 5, name: "GifUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "SoundUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 7, name: "Animation", kind: "enum", T: proto3.getEnumType(AnimationType) },
+    { no: 8, name: "AnimationSpeed", kind: "enum", T: proto3.getEnumType(Speed) },
+    { no: 9, name: "TextColor", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 10, name: "AccentColor", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 11, name: "Alignment", kind: "enum", T: proto3.getEnumType(Alignment) },
+    { no: 12, name: "TextPosition", kind: "enum", T: proto3.getEnumType(Position) },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Alert {

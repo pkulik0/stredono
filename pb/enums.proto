@@ -23,3 +23,9 @@ enum Tier {
   BASIC = 0;
   PLUS = 1;
 }
+
+enum AuthLevel {
+  NONE = 0;
+  EMAIL = 1;
+  OIDC = 2;
+}

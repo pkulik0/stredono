@@ -23,6 +23,12 @@ type Document interface {
 	Create(ctx context.Context, data interface{}) (*WriteResult, error)
 	Set(ctx context.Context, data interface{}, opts DbOpts) (*WriteResult, error)
 	Get(ctx context.Context) (DocumentSnapshot, error)
+	Update(ctx context.Context, updates []Update) (*WriteResult, error)
+}
+
+type Update struct {
+	Path  string
+	Value interface{}
 }
 
 type DocumentSnapshot interface {

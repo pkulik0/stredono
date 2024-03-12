@@ -1,21 +1,30 @@
 <script lang="ts">
 	import { eventToAlert } from '$lib/alerts';
+	import { settingsStore } from '$lib/events_settings';
 	import { type Alert, Alignment, AnimationType, Position, Speed } from '$lib/pb/alert_pb';
-	import { Event } from '$lib/pb/event_pb';
+	import { Event, EventType } from '$lib/pb/event_pb';
 	import 'animate.css';
+	import {fade} from 'svelte/transition';
 
 	export let alerts: Alert[];
 
 	export let visible: boolean = true;
 	export let event: Event|undefined;
-	$: eventAlert = event ? eventToAlert(event, alerts) : undefined;
+	export let isTest: boolean = false;
+	export let minimumDuration: number = 5;
 
-	$: message = eventAlert ? eventAlert.Message : '';
+	export let onShown: (event: Event) => void;
+
+	$: eventAlert = event ? eventToAlert(event, alerts, isTest) : undefined;
+
+	$: eventTypeName = event ? JSON.parse(JSON.stringify(EventType))[event.Type] : '';
+
+	$: header = $settingsStore?.Events?.Event[eventTypeName]?.MessageTemplate ?? '';
 	$: if(event && eventAlert) {
-		Object.entries(event.Data).forEach(([key, value]) => {message = message.replace(`[${key}]`, `<span style="color: ${eventAlert.AccentColor};">${value}</span>`);});
+		Object.entries(event.Data).forEach(([key, value]) => {header = header.replace(`{${key.toLowerCase()}}`, `<span style="color: ${eventAlert.AccentColor};">${value}</span>`);});
+		header = header.replace("{user}", `<span style="color: ${eventAlert.AccentColor};">${event.SenderName}</span>`)
 	}
-	$: header = message.split('\n')[0];
-	$: content = event ? event.Data.message : '';
+	$: message = event ? event.Data.Message : '';
 
 	$: alignment = eventAlert ? eventAlert.Alignment : Alignment.CENTER;
 	$: alignmentClass = (() => {
@@ -27,7 +36,7 @@
 		}
 	})();
 
-	$: textPosition = eventAlert ? eventAlert.TextPosition : Position.TOP;
+	$: textPosition = eventAlert?.TextPosition ?? Position.TOP;
 	$: isVertical = textPosition === Position.TOP || textPosition === Position.BOTTOM;
 	$: imgClass = isVertical ? 'my-4' : 'mx-4';
 	$: containerClass = (() => {
@@ -75,45 +84,57 @@
 		}
 	})();
 
-	let timeout: any;
-	$: {
-		clearTimeout(timeout);
-		if(event) {
-			timeout = setTimeout(() => {
-				event = event;
-			}, 10000);
+	let durationTotal = 0;
+	const finish = () => {
+		if (event) {
+			const neededForMinimum = Math.max(minimumDuration - durationTotal, 0)
+			console.log('neededForMinimum', neededForMinimum)
+			setTimeout(() => onShown(event!), neededForMinimum * 1000)
 		}
 	}
 
-	let audioElement: HTMLAudioElement;
-	let audioTimeout: any;
-	let lastUrl = '';
-	$: {
-		if(eventAlert && eventAlert.SoundUrl) {
-			if(lastUrl !== eventAlert.SoundUrl) {
-				lastUrl = eventAlert.SoundUrl;
-				clearTimeout(audioTimeout);
-				audioTimeout = setTimeout(() => {
-					audioElement.play();
-				}, 200);
+
+	$: audioUrl = eventAlert?.SoundUrl
+	$: audioElement = new Audio(audioUrl)
+	$: if(audioElement) {
+		audioElement.autoplay = true;
+		audioElement.onended = () => {
+			durationTotal += audioElement.duration
+			if(ttsUrl !== "") {
+				ttsAudioElement.play()
+			} else {
+				finish()
 			}
+		}
+	}
+	$: ttsUrl = event?.TTSUrl
+	$: ttsAudioElement = new Audio(ttsUrl)
+	$: ttsAudioElement.onended = () => {
+		durationTotal += ttsAudioElement.duration
+		finish()
+	}
+
+	$: if (audioUrl === "") {
+		if(ttsUrl !== "") {
+			ttsAudioElement.play()
+		} else {
+			finish()
 		}
 	}
 
 </script>
 
 {#if eventAlert && event}
-	<div class="z-75 fixed inset-0 pointer-events-none mt-20 flex flex-col items-center animate__animated animate__jackInTheBox {!visible ? 'hidden' : ''}">
+	<div transition:fade class="z-75 fixed inset-0 pointer-events-none mt-20 flex flex-col items-center animate__animated animate__jackInTheBox {!visible ? 'hidden' : ''}">
 		<div class="flex items-center  {alignmentClass} {containerClass} {animationClass}" style="color: {eventAlert.TextColor}">
 			{#if eventAlert.GifUrl}
-				<img src={eventAlert.GifUrl} alt="" class="rounded-xl shadow-2xl {imgClass} max-w-sm" />
+				<img src={eventAlert.GifUrl} alt="" class="rounded-xl shadow-2xl {imgClass} max-w-sm max-h-64" />
 			{/if}
 
 			<div class="flex flex-col space-y-2 max-w-lg">
 				<h5 class="font-extrabold text-2xl pt-2 {alignment === Alignment.JUSTIFY ? 'text-center' : ''}">{@html header}</h5>
-				<p class="text-lg">{@html content}</p>
+				<p class="text-lg">{message}</p>
 			</div>
 		</div>
 	</div>
-	<audio src={eventAlert.SoundUrl} bind:this={audioElement} class="hidden" />
 {/if}

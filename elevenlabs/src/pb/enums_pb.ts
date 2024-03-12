@@ -95,3 +95,29 @@ proto3.util.setEnumType(Tier, "stredono.Tier", [
   { no: 1, name: "PLUS" },
 ]);
 
+/**
+ * @generated from enum stredono.AuthLevel
+ */
+export enum AuthLevel {
+  /**
+   * @generated from enum value: NONE = 0;
+   */
+  NONE = 0,
+
+  /**
+   * @generated from enum value: EMAIL = 1;
+   */
+  EMAIL = 1,
+
+  /**
+   * @generated from enum value: OIDC = 2;
+   */
+  OIDC = 2,
+}
+// Retrieve enum metadata with: proto3.getEnumType(AuthLevel)
+proto3.util.setEnumType(AuthLevel, "stredono.AuthLevel", [
+  { no: 0, name: "NONE" },
+  { no: 1, name: "EMAIL" },
+  { no: 2, name: "OIDC" },
+]);
+

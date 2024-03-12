@@ -11,7 +11,7 @@ const getUserLocale = () => {
 }
 
 const setupLocale = () => {
-	const languages = ['en', 'pl', 'es', 'fr', 'de'];
+	const languages = ['en', 'pl'];
 	languages.forEach(lang => {
 		register(lang, () => import(`$lib/i18n/${lang}.json`));
 	})

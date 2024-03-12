@@ -1,23 +1,18 @@
 <script lang="ts">
-	import type { Voice } from '$lib/pb/tts_pb';
-	import type { User } from '$lib/pb/user_pb';
-	import { getVoices } from '$lib/tts';
-	import { userStore } from '$lib/user';
+	import { settingsStore } from '../../../../../../lib/events_settings';
+	import { Tier } from '../../../../../../lib/pb/enums_pb';
+	import type { Voice } from '../../../../../../lib/pb/tts_pb';
+	import { getVoices } from '../../../../../../lib/tts';
 	import {
 		Alert,
 		Button,
 		Checkbox,
 		Heading,
-		Helper,
-		Hr,
-		ImagePlaceholder,
 		Label,
-		P,
 		Select,
-		TextPlaceholder
 	} from 'flowbite-svelte';
-	import { InfoCircleSolid, PlaySolid } from 'flowbite-svelte-icons';
-	import { onDestroy, onMount } from 'svelte';
+	import { InfoCircleSolid } from 'flowbite-svelte-icons';
+	import { onMount } from 'svelte';
 	import VoiceSelect from './VoiceSelect.svelte';
 	import { locale, t } from 'svelte-i18n';
 
@@ -43,18 +38,17 @@
 		voicesBasic = res.voicesBasic
 	}
 
-	$: {
-		if(!selectedBasic) selectedBasic = voicesBasic.get(selectedLanguage)?.find(v => v.Id === user?.VoiceBasic);
-		if(!selectedPlus) selectedPlus = voicesPlus.find(v => v.Id === user?.VoicePlus);
+	$: if($settingsStore) {
+		enablePlus = $settingsStore?.Events?.TTS?.Tier === Tier.PLUS;
 	}
 
-	let user: User|undefined;
+	$: {
+		if(!selectedBasic) selectedBasic = voicesBasic.get(selectedLanguage)?.find(v => v.Id === $settingsStore?.Events?.TTS?.VoiceIdBasic);
+		if(!selectedPlus) selectedPlus = voicesPlus.find(v => v.Id === $settingsStore?.Events?.TTS?.VoiceIdPlus);
+	}
+
 	onMount(() => {
 		fetchVoices()
-
-		return userStore.subscribe(u => {
-			user = u || undefined;
-		})
 	})
 </script>
 

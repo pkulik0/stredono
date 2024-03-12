@@ -37,4 +37,6 @@ message Event {
   int64 Timestamp = 10;
 
   map<string, string> Data = 11;
+
+  bool WasShown = 12;
 }

@@ -1,8 +1,6 @@
 package alerts
 
 import (
-	"context"
-	"errors"
 	"github.com/google/uuid"
 	"github.com/pkulik0/stredono/cloud/pb"
 	"github.com/pkulik0/stredono/cloud/platform"
@@ -12,13 +10,12 @@ import (
 	"google.golang.org/protobuf/proto"
 	"io"
 	"net/http"
-	"strings"
 )
 
 func AddEntrypoint(w http.ResponseWriter, r *http.Request) {
 	ctx, err := providers.NewContext(r, &providers.Config{
-		DocDb: true,
-		Auth:  true,
+		RealtimeDb: true,
+		Auth:       true,
 	})
 	if err != nil {
 		log.Error("failed to create context | ", err)
@@ -29,15 +26,16 @@ func AddEntrypoint(w http.ResponseWriter, r *http.Request) {
 	add(ctx, w, r)
 }
 
-func validateAlert(style *pb.Alert) error {
+func validateAlert(alert *pb.Alert) error {
 	// TODO: validation
+	log.Printf("Validating alert: %+v", alert)
 	return nil
 }
 
 func add(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
-	docDb, ok := ctx.GetDocDb()
+	rtdb, ok := ctx.GetRealtimeDb()
 	if !ok {
-		log.Error("failed to get docDb client")
+		log.Error("missing realtime db")
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
 		return
 	}
@@ -63,45 +61,29 @@ func add(ctx *providers.Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	alertsDoc := docDb.Collection("alerts").Doc(token.UserId())
-	err = docDb.RunTransaction(ctx.Ctx, func(ctx context.Context, tx modules.Transaction) error {
-		usersAlerts := &pb.UsersAlerts{}
-		log.Info("getting alerts doc: ", alertsDoc)
-		snap, err := tx.Get(alertsDoc)
-		if err != nil {
-			if !strings.Contains(err.Error(), "NotFound") {
-				return err
-			}
-			usersAlerts.Alerts = make([]*pb.Alert, 0)
-		} else {
-			if err := snap.DataTo(&usersAlerts); err != nil {
-				return err
-			}
+	if err := validateAlert(alert); err != nil {
+		log.Error("failed to validate alert | ", err)
+		http.Error(w, platform.BadRequestMessage, http.StatusBadRequest)
+		return
+	}
+
+	id, err := uuid.NewUUID()
+	if err != nil {
+		log.Error("failed to generate alert id | ", err)
+		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
+		return
+	}
+	alert.ID = id.String()
+
+	err = rtdb.NewRef("Data").Child(token.UserId()).Child("Settings").Child("Alerts").Transaction(ctx.Ctx, func(node modules.TransactionNode) (interface{}, error) {
+		var alerts []*pb.Alert
+		if err := node.Unmarshal(&alerts); err != nil {
+			return nil, err
 		}
 
-		if err := validateAlert(alert); err != nil {
-			return errors.New("invalid alert: " + err.Error())
-		}
-		alertUuid, err := uuid.NewUUID()
-		if err != nil {
-			return err
-		}
-		alert.Id = strings.ReplaceAll(alertUuid.String(), "-", "")[:8]
-
-		log.Info("adding alert: ", alert)
-		usersAlerts.Alerts = append(usersAlerts.Alerts, alert)
-		if err = tx.Set(alertsDoc, usersAlerts, modules.DbOpts{}); err != nil {
-			return err
-		}
-
-		return nil
+		return append(alerts, alert), nil
 	})
 	if err != nil {
-		if strings.Contains(err.Error(), "invalid alert") {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
 		log.Error("failed to run transaction | ", err)
 		http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
 		return

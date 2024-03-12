@@ -1,7 +1,6 @@
 <script lang="ts">
-    import { alertsStore, getAlertsListener } from '$lib/alerts';
+    import { settingsStore } from '../../../../../../lib/events_settings';
     import { EventType } from '$lib/pb/event_pb';
-    import { UsersAlerts } from '$lib/pb/alert_pb';
     import { pbEnumToItems } from '$lib/util';
     import {PlusSolid} from "flowbite-svelte-icons";
     import AlertCard from './AlertCard.svelte';
@@ -10,35 +9,18 @@
         Button, Heading,
         ImagePlaceholder, Label, P, Select
     } from 'flowbite-svelte';
-    import {onMount} from "svelte";
-    import {userStore} from "$lib/user";
-    import {t} from "svelte-i18n";
+    import { locale, t } from 'svelte-i18n';
 
-    let userAlerts: UsersAlerts|undefined|null;
+    $: alerts = $settingsStore?.Alerts;
+    $: filteredAlerts = alerts?.filter((alert) => alert.EventType === selectedType);
 
-    $: eventTypesItems = pbEnumToItems(EventType)
+    let eventTypesItems = pbEnumToItems(EventType);
+    $: if($locale) {
+        eventTypesItems = pbEnumToItems(EventType);
+    }
     let selectedType: EventType = EventType.TIP;
 
     let drawerHidden = true;
-
-    onMount(() => {
-        let listenerUnsub: (() => void)|undefined;
-        const userUnsub = userStore.subscribe(async (user) => {
-            if(!user) {
-                userAlerts = undefined;
-                return;
-            }
-            listenerUnsub = await getAlertsListener(user.Uid)
-        });
-        const alertsUnsub = alertsStore.subscribe((alertsData) => {
-            userAlerts = alertsData;
-        })
-        return () => {
-            if(listenerUnsub) listenerUnsub();
-            userUnsub();
-            alertsUnsub();
-        }
-    });
 </script>
 
 <Heading tag="h2">{$t("alerts")}</Heading>
@@ -55,14 +37,14 @@
         </Button>
     </div>
 
-    <div class="p-4">
-        {#if userAlerts !== undefined}
-            {#if userAlerts === null}
+    <div class="p-4 space-y-4">
+        {#if filteredAlerts !== undefined}
+            {#if filteredAlerts.length === 0}
                 <P class="text-center py-8">
                     {$t("no_alerts")}
                 </P>
             {:else}
-                {#each userAlerts.Alerts as alert}
+                {#each filteredAlerts as alert}
                     <AlertCard {alert}/>
                 {/each}
             {/if}

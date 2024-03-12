@@ -142,6 +142,19 @@ func (fd *FirestoreDocument) Create(ctx context.Context, data interface{}) (*mod
 	return &modules.WriteResult{Time: writeResult.UpdateTime}, nil
 }
 
+func (fd *FirestoreDocument) Update(ctx context.Context, updates []modules.Update) (*modules.WriteResult, error) {
+	var fsUpdates []firestore.Update
+	for _, u := range updates {
+		fsUpdates = append(fsUpdates, firestore.Update{Path: u.Path, Value: u.Value})
+	}
+
+	writeResult, err := fd.ref.Update(ctx, fsUpdates)
+	if err != nil {
+		return nil, err
+	}
+	return &modules.WriteResult{Time: writeResult.UpdateTime}, nil
+}
+
 type FirestoreDocumentSnapshot struct {
 	snapshot *firestore.DocumentSnapshot
 }

@@ -2,8 +2,8 @@ import { isLocal } from '$lib/constants';
 import {initializeApp} from "firebase/app";
 import {getAuth, connectAuthEmulator} from "firebase/auth";
 import {initializeFirestore, persistentLocalCache, CACHE_SIZE_UNLIMITED, connectFirestoreEmulator, persistentMultipleTabManager} from "firebase/firestore";
-import {getMessaging} from "firebase/messaging";
 import {initializeAppCheck, ReCaptchaEnterpriseProvider} from "firebase/app-check";
+import {getDatabase, connectDatabaseEmulator} from "firebase/database";
 import TerraformOutput from "../../terraform_output.json";
 
 export const app = initializeApp(TerraformOutput.FirebaseWebappConfig);
@@ -29,4 +29,8 @@ if(isLocal) {
     console.log("Firestore emulator connected");
 }
 
-export const messaging = getMessaging(app);
+export const rtdb = getDatabase(app);
+if(isLocal) {
+    connectDatabaseEmulator(rtdb, 'localhost', 30503);
+    console.log("RTDB emulator connected");
+}

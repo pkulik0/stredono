@@ -26,7 +26,7 @@ export const saveUser = async (user: User) => {
     const token = await authUser.getIdToken();
 
     try {
-        await axios.post("terraformOutput.FunctionUrls.UserEdit", user.toBinary(), {
+        await axios.post(terraformOutput.FunctionsUrl + "/UserEdit", user.toBinary(), {
             headers: {
                 'Content-Type': 'application/octet-stream',
                 'Authorization': 'Bearer ' + token

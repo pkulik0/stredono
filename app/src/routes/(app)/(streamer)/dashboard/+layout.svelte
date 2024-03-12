@@ -27,5 +27,3 @@
         <slot />
     </div>
 </div>
-
-<ParticlesBackground intensity={50}/>

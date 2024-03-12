@@ -20,55 +20,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type AuthLevel int32
-
-const (
-	AuthLevel_NONE  AuthLevel = 0
-	AuthLevel_EMAIL AuthLevel = 1
-	AuthLevel_OIDC  AuthLevel = 2
-)
-
-// Enum value maps for AuthLevel.
-var (
-	AuthLevel_name = map[int32]string{
-		0: "NONE",
-		1: "EMAIL",
-		2: "OIDC",
-	}
-	AuthLevel_value = map[string]int32{
-		"NONE":  0,
-		"EMAIL": 1,
-		"OIDC":  2,
-	}
-)
-
-func (x AuthLevel) Enum() *AuthLevel {
-	p := new(AuthLevel)
-	*p = x
-	return p
-}
-
-func (x AuthLevel) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (AuthLevel) Descriptor() protoreflect.EnumDescriptor {
-	return file_pb_tip_settings_proto_enumTypes[0].Descriptor()
-}
-
-func (AuthLevel) Type() protoreflect.EnumType {
-	return &file_pb_tip_settings_proto_enumTypes[0]
-}
-
-func (x AuthLevel) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use AuthLevel.Descriptor instead.
-func (AuthLevel) EnumDescriptor() ([]byte, []int) {
-	return file_pb_tip_settings_proto_rawDescGZIP(), []int{0}
-}
-
 type TipSettings struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -147,13 +98,10 @@ var file_pb_tip_settings_proto_rawDesc = []byte{
 	0x75, 0x74, 0x68, 0x4c, 0x65, 0x76, 0x65, 0x6c, 0x12, 0x2e, 0x0a, 0x08, 0x43, 0x75, 0x72, 0x72,
 	0x65, 0x6e, 0x63, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x12, 0x2e, 0x73, 0x74, 0x72,
 	0x65, 0x64, 0x6f, 0x6e, 0x6f, 0x2e, 0x43, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x63, 0x79, 0x52, 0x08,
-	0x43, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x63, 0x79, 0x2a, 0x2a, 0x0a, 0x09, 0x41, 0x75, 0x74, 0x68,
-	0x4c, 0x65, 0x76, 0x65, 0x6c, 0x12, 0x08, 0x0a, 0x04, 0x4e, 0x4f, 0x4e, 0x45, 0x10, 0x00, 0x12,
-	0x09, 0x0a, 0x05, 0x45, 0x4d, 0x41, 0x49, 0x4c, 0x10, 0x01, 0x12, 0x08, 0x0a, 0x04, 0x4f, 0x49,
-	0x44, 0x43, 0x10, 0x02, 0x42, 0x26, 0x5a, 0x24, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63,
-	0x6f, 0x6d, 0x2f, 0x70, 0x6b, 0x75, 0x6c, 0x69, 0x6b, 0x30, 0x2f, 0x73, 0x74, 0x72, 0x65, 0x64,
-	0x6f, 0x6e, 0x6f, 0x2f, 0x63, 0x6c, 0x6f, 0x75, 0x64, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x43, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x63, 0x79, 0x42, 0x26, 0x5a, 0x24, 0x67, 0x69, 0x74, 0x68,
+	0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x70, 0x6b, 0x75, 0x6c, 0x69, 0x6b, 0x30, 0x2f, 0x73,
+	0x74, 0x72, 0x65, 0x64, 0x6f, 0x6e, 0x6f, 0x2f, 0x63, 0x6c, 0x6f, 0x75, 0x64, 0x2f, 0x70, 0x62,
+	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -168,15 +116,14 @@ func file_pb_tip_settings_proto_rawDescGZIP() []byte {
 	return file_pb_tip_settings_proto_rawDescData
 }
 
-var file_pb_tip_settings_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_pb_tip_settings_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_pb_tip_settings_proto_goTypes = []interface{}{
-	(AuthLevel)(0),      // 0: stredono.AuthLevel
-	(*TipSettings)(nil), // 1: stredono.TipSettings
+	(*TipSettings)(nil), // 0: stredono.TipSettings
+	(AuthLevel)(0),      // 1: stredono.AuthLevel
 	(Currency)(0),       // 2: stredono.Currency
 }
 var file_pb_tip_settings_proto_depIdxs = []int32{
-	0, // 0: stredono.TipSettings.MinAuthLevel:type_name -> stredono.AuthLevel
+	1, // 0: stredono.TipSettings.MinAuthLevel:type_name -> stredono.AuthLevel
 	2, // 1: stredono.TipSettings.Currency:type_name -> stredono.Currency
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
@@ -210,14 +157,13 @@ func file_pb_tip_settings_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_pb_tip_settings_proto_rawDesc,
-			NumEnums:      1,
+			NumEnums:      0,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_pb_tip_settings_proto_goTypes,
 		DependencyIndexes: file_pb_tip_settings_proto_depIdxs,
-		EnumInfos:         file_pb_tip_settings_proto_enumTypes,
 		MessageInfos:      file_pb_tip_settings_proto_msgTypes,
 	}.Build()
 	File_pb_tip_settings_proto = out.File
