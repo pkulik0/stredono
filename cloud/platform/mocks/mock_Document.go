@@ -244,6 +244,65 @@ func (_c *MockDocument_Set_Call) RunAndReturn(run func(context.Context, interfac
 	return _c
 }
 
+// Update provides a mock function with given fields: ctx, updates
+func (_m *MockDocument) Update(ctx context.Context, updates []modules.Update) (*modules.WriteResult, error) {
+	ret := _m.Called(ctx, updates)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Update")
+	}
+
+	var r0 *modules.WriteResult
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, []modules.Update) (*modules.WriteResult, error)); ok {
+		return rf(ctx, updates)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, []modules.Update) *modules.WriteResult); ok {
+		r0 = rf(ctx, updates)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*modules.WriteResult)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, []modules.Update) error); ok {
+		r1 = rf(ctx, updates)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockDocument_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
+type MockDocument_Update_Call struct {
+	*mock.Call
+}
+
+// Update is a helper method to define mock.On call
+//   - ctx context.Context
+//   - updates []modules.Update
+func (_e *MockDocument_Expecter) Update(ctx interface{}, updates interface{}) *MockDocument_Update_Call {
+	return &MockDocument_Update_Call{Call: _e.mock.On("Update", ctx, updates)}
+}
+
+func (_c *MockDocument_Update_Call) Run(run func(ctx context.Context, updates []modules.Update)) *MockDocument_Update_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].([]modules.Update))
+	})
+	return _c
+}
+
+func (_c *MockDocument_Update_Call) Return(_a0 *modules.WriteResult, _a1 error) *MockDocument_Update_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockDocument_Update_Call) RunAndReturn(run func(context.Context, []modules.Update) (*modules.WriteResult, error)) *MockDocument_Update_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockDocument creates a new instance of MockDocument. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockDocument(t interface {

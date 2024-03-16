@@ -10,21 +10,21 @@
 	import { keyStore } from '../../routes/overlay/stores';
 
 	export let isTest: boolean = false;
-	export let minimumDuration: number = 5000;
-
 	export let alerts: Alert[];
-
 	export let events: Event[];
 
+	$: minimumDuration = ($settingsStore?.Events?.MinDisplayTime ?? 5) * 1000;
 	let event: Event|undefined;
 
-	$: if(events[0] && !event) {
-		console.log("Setting event")
-		setTimeout(() => {
-			event = events[0];
-		}, 1000)
+	let eventTimeout: any;
+	$: if($settingsStore?.Events?.IsPaused !== true) {
+		if(events[0] && !event) {
+			clearTimeout(eventTimeout);
+			eventTimeout = setTimeout(() => {
+				event = events[0];
+			}, 1000)
+		}
 	}
-
 
 	$: eventAlert = event ? eventToAlert(event, alerts) : undefined;
 
@@ -39,10 +39,6 @@
 			case EventType.CHAT_TTS: return $settingsStore?.Events?.ChatTTS?.Template;
 		}
 	})() ?? "";
-	const fillInHeader = (header: string, event: Event) => {
-		Object.entries(event.Data).forEach(([key, value]) => {header = header.replace(`{${key.toLowerCase()}}`, `<span style="color: ${eventAlert.AccentColor};">${value}</span>`);});
-		header = header.replace("{user}", `<span style="color: ${eventAlert.AccentColor};">${event.SenderName}</span>`)
-	}
 
 	$: if(event && eventAlert) {
 		Object.entries(event.Data).forEach(([key, value]) => {header = header.replace(`{${key.toLowerCase()}}`, `<span style="color: ${eventAlert.AccentColor};">${value}</span>`);});
@@ -121,17 +117,19 @@
 	}
 
 	let totalDuration = 0;
-	let timeout: any;
+	let finishTimeout: any;
+	const finish = async () => {
+		if(finishTimeout || isTest) return;
+		if(!event) return;
 
-	const finish = () => {
-		if(timeout || isTest) return;
+		await confirmEvent($keyStore, event.ID)
 
-		timeout = setTimeout(async () => {
-			if(!event) return;
-			await confirmEvent($keyStore, event.ID)
+		const waitTime = Math.max(minimumDuration - totalDuration, 0);
+		finishTimeout = setTimeout(() => {
 			event = undefined
-			timeout = undefined
-		}, Math.max(minimumDuration - totalDuration, 0))
+			finishTimeout = undefined;
+			totalDuration = 0;
+		}, waitTime)
 	}
 
 	onMount(() => {
@@ -148,6 +146,9 @@
 			finish()
 		}
 	})
+
+	$: soundAudioElement.volume = $settingsStore?.Events?.IsMuted ? 0 : 1
+	$: ttsAudioElement.volume = $settingsStore?.Events?.IsMuted ? 0 : 1
 
 </script>
 

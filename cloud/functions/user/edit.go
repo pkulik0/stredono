@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"fmt"
 	"github.com/pkulik0/stredono/cloud/pb"
 	"github.com/pkulik0/stredono/cloud/platform"
 	"github.com/pkulik0/stredono/cloud/platform/modules"
@@ -15,6 +16,7 @@ import (
 
 const urlRegex = "^https://[a-zA-Z0-9-]+(.[a-zA-Z0-9-]+)+(/[a-zA-Z0-9-./?%&=]*)?$"
 const storageUrlRegex = "^https://[a-z]*storage.googleapis.com/[a-zA-Z0-9-]+(.[a-zA-Z0-9-]+)+(/[a-zA-Z0-9-./?%&=]*)?$"
+const twitchCdnUrl = "^https://static-cdn.jtvnw.net/.+"
 
 func validateUser(user *pb.User, uid string) error {
 	if user == nil {
@@ -24,14 +26,14 @@ func validateUser(user *pb.User, uid string) error {
 		return errors.New("uid does not match")
 	}
 
-	matched, err := regexp.Match(`^[a-zA-Z0-9_]{4,32}$`, []byte(user.Username))
+	matched, err := regexp.Match(`^[a-zA-Z0-9_]{4,20}$`, []byte(user.Username))
 	if err != nil || !matched {
-		return errors.New("invalid username")
+		return fmt.Errorf("invalid username | %s", user.Username)
 	}
 
-	matched, err = regexp.Match(`^[a-zA-Z0-9_]{4,64}$`, []byte(user.DisplayName))
+	matched, err = regexp.Match(`^[a-zA-Z0-9_]{4,32}$`, []byte(user.DisplayName))
 	if err != nil || !matched {
-		return errors.New("invalid display name")
+		return fmt.Errorf("invalid display name | %s", user.DisplayName)
 	}
 
 	if len(user.Description) > 1000 {
@@ -40,12 +42,15 @@ func validateUser(user *pb.User, uid string) error {
 
 	matched, err = regexp.Match(storageUrlRegex, []byte(user.PictureUrl))
 	if len(user.PictureUrl) > 0 && (err != nil || !matched) {
-		return errors.New("invalid picture url")
+		matched, err = regexp.Match(twitchCdnUrl, []byte(user.PictureUrl))
+		if err != nil || !matched {
+			return fmt.Errorf("invalid picture url | %s", user.PictureUrl)
+		}
 	}
 
 	matched, err = regexp.Match(urlRegex, []byte(user.Url))
 	if len(user.Url) > 0 && (err != nil || !matched) {
-		return errors.New("invalid url")
+		return fmt.Errorf("invalid url | %s", user.Url)
 	}
 
 	return nil

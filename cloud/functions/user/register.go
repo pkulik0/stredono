@@ -124,6 +124,7 @@ func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 			},
 			Events: &pb.EventsSettings{
 				RequireApproval: false,
+				MinDisplayTime:  10,
 				Tip: &pb.TipSettings{
 					Template:  "{user} tipped {value} {currency}",
 					MinAmount: 1,

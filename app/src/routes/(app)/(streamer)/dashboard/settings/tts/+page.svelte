@@ -5,12 +5,12 @@
 	import { getVoices } from '$lib/tts';
 	import { userStore } from '$lib/user';
 	import {
-		Alert,
+		Alert, Badge,
 		Button,
 		Checkbox,
-		Heading,
+		Heading, Hr,
 		Label,
-		Select,
+		Select
 	} from 'flowbite-svelte';
 	import { InfoCircleSolid } from 'flowbite-svelte-icons';
 	import { onMount } from 'svelte';
@@ -63,7 +63,10 @@
 		</div>
 
 		<div class="space-y-6 flex flex-col">
-			<Heading tag="h4">{$t("plus")}</Heading>
+			<Heading tag="h4">
+				{$t("plus")}
+				<Badge>{$t("beta")}</Badge>
+			</Heading>
 
 			<Alert class="!items-start" color="gray">
 			<span slot="icon">

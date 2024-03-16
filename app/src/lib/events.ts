@@ -8,7 +8,7 @@ import {Event} from "$lib/pb/event_pb";
 export const eventsStore: Writable<Event[]> = writable([]);
 
 export const getEventsDashboardListener = (uid: string) => {
-	const q = query(collection(db, "Events"),
+	const q = query(collection(db, "events"),
 		where("Uid", "==", uid),
 		orderBy("Timestamp", "desc"),
 		limit(50)

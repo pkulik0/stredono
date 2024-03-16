@@ -140,6 +140,7 @@ func onEvent(ctx *providers.Context, event *pb.Event) error {
 		if !settings.ChatTTS.IsEnabled {
 			return nil
 		}
+		text = settings.ChatTTS.Template
 	default:
 		return fmt.Errorf("unknown event type: %v", event.Type)
 	}
@@ -166,7 +167,7 @@ func onEvent(ctx *providers.Context, event *pb.Event) error {
 		return platform.ErrorMissingContextValue
 	}
 
-	if _, err := db.Collection("Events").Add(ctx.Ctx, event); err != nil {
+	if _, err := db.Collection("events").Add(ctx.Ctx, event); err != nil {
 		return err
 	}
 

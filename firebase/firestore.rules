@@ -22,7 +22,7 @@ service cloud.firestore {
             allow write: if false;
         }
 
-        match /Events/{eventID} {
+        match /events/{eventID} {
             allow read: if true;
             allow write: if false;
         }

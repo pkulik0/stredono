@@ -51,6 +51,7 @@
   "min_months": "Minimum Months",
   "min_amount": "Minimum Amount",
   "min_gifts": "Minimum Gifts",
+  "min_display_time": "Minimum Display Time (seconds)",
   "diff_min_tts": "Use a different minimum for reading out loud",
   "frequency": "Frequency",
   "disabled": "Disabled",
@@ -155,5 +156,12 @@
   "general": "General",
   "details": "Details",
   "require_approval": "Require Approval",
-  "require_approval_help": "If enabled, all events (besides Chat TTS by mods) will require approval before being displayed on stream."
+  "require_approval_help": "If enabled, all events (besides Chat TTS by mods) will require approval before being displayed on stream.",
+  "choose_a_username": "Choose your username",
+  "username": "Username",
+  "requirements": "Requirements",
+  "requirements_length": "Must be between 3 and 20 characters.",
+  "requirements_characters": "Can only contain letters, numbers, and underscores.",
+  "requirements_unique": "Must be unique.",
+  "beta": "Beta"
 }

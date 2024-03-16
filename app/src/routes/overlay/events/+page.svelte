@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import { keyStore, uidStore } from '../stores';
-	import { confirmEvent, eventsStore, getEventsListener } from './listener';
+	import { confirmEvent, eventsStore, getEventsOverlayListener } from './listener';
 	import {Event} from "$lib/pb/event_pb";
 
 	let events: Event[] = [];
@@ -17,7 +17,7 @@
 
 		return uidStore.subscribe(uid => {
 			if(uid) {
-				eventsUnsub = getEventsListener(uid);
+				eventsUnsub = getEventsOverlayListener(uid);
 			} else if(eventsUnsub) {
 				eventsUnsub();
 			}

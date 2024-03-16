@@ -26,6 +26,11 @@ export class EventsSettings extends Message<EventsSettings> {
   IsPaused = false;
 
   /**
+   * @generated from field: int32 MinDisplayTime = 4;
+   */
+  MinDisplayTime = 0;
+
+  /**
    * @generated from field: stredono.TipSettings Tip = 10;
    */
   Tip?: TipSettings;
@@ -71,6 +76,7 @@ export class EventsSettings extends Message<EventsSettings> {
     { no: 1, name: "RequireApproval", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
     { no: 2, name: "IsMuted", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
     { no: 3, name: "IsPaused", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 4, name: "MinDisplayTime", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
     { no: 10, name: "Tip", kind: "message", T: TipSettings },
     { no: 11, name: "Cheer", kind: "message", T: CheerSettings },
     { no: 12, name: "Sub", kind: "message", T: SubSettings },

@@ -51,6 +51,7 @@
   "min_months": "Minimalna liczba miesięcy",
   "min_amount": "Minimalna liczba",
   "min_gifts": "Minimalna liczba podarowanych subskrypcji",
+  "min_display_time": "Minimalny czas wyświetlania (sekundy)",
   "diff_min_tts": "Użyj innego minimum dla czytania na głos",
   "frequency": "Częstotliwość",
   "disabled": "Wyłączone",
@@ -156,5 +157,8 @@
   "general": "Ogólne",
   "details": "Szczegóły",
   "require_approval": "Wymagaj zatwierdzenia",
-  "require_approval_help": "Jeśli włączone, wszystkie eventy (oprócz czytania na głos wiadomosści moderacji) będą wymagały zatwierdzenia przed wyświetleniem na streamie."
+  "require_approval_help": "Jeśli włączone, wszystkie eventy (oprócz czytania na głos wiadomosści moderacji) będą wymagały zatwierdzenia przed wyświetleniem na streamie.",
+  "choose_a_username": "Wybierz nazwę użytkownika",
+  "username": "Nazwa użytkownika",
+  "beta": "Beta"
 }

@@ -1,8 +1,10 @@
 <script lang="ts">
+    import { eventsStore } from '$lib/events';
     import { settingsStore } from '$lib/settings';
-    import { set } from 'firebase/database';
+    import { Heading } from 'flowbite-svelte';
+    import { t } from 'svelte-i18n';
     import EventButtons from './EventButtons.svelte';
-    import LatestCard from "./LatestCard.svelte";
+    import EventList from './EventList.svelte';
 
 </script>
 
@@ -11,7 +13,9 @@
         <EventButtons bind:muted={$settingsStore.Events.IsMuted} bind:paused={$settingsStore.Events.IsPaused}/>
     {/if}
 
-    <div class="flex justify-center space-x-2">
-        <LatestCard/>
+    <div class="flex flex-col py-6 justify-center space-x-2">
+        <Heading tag="h5">{$t("latest_events")}</Heading>
+
+        <EventList events={$eventsStore}/>
     </div>
 </div>

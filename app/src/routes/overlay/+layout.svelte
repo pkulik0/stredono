@@ -3,6 +3,7 @@
 	import { rtdb } from '$lib/ext/firebase/firebase';
 	import { onMount } from 'svelte';
 	import { ref, get } from "firebase/database";
+	import { setupOnlineStatus } from './status';
 	import { keyStore, uidStore } from './stores';
 
 	onMount(async () => {
@@ -14,6 +15,7 @@
 			return
 		}
 		keyStore.set(key)
+		setupOnlineStatus(key)
 
 		const snapshot = await get(ref(rtdb, `Users/Overlay/${key}`))
 		if(!snapshot.exists()) {

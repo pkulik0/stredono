@@ -11,6 +11,7 @@ message EventsSettings {
   bool RequireApproval = 1;
   bool IsMuted = 2;
   bool IsPaused = 3;
+  int32 MinDisplayTime = 4;
 
   TipSettings Tip = 10;
   CheerSettings Cheer = 11;

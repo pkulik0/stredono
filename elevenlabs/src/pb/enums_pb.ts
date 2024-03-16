@@ -26,56 +26,6 @@ proto3.util.setEnumType(Currency, "stredono.Currency", [
 ]);
 
 /**
- * @generated from enum stredono.Frequency
- */
-export enum Frequency {
-  /**
-   * @generated from enum value: NEVER = 0;
-   */
-  NEVER = 0,
-
-  /**
-   * @generated from enum value: ALWAYS = 1;
-   */
-  ALWAYS = 1,
-
-  /**
-   * @generated from enum value: EVERY_MINUTE = 2;
-   */
-  EVERY_MINUTE = 2,
-
-  /**
-   * @generated from enum value: EVERY_FIVE_MINUTES = 3;
-   */
-  EVERY_FIVE_MINUTES = 3,
-
-  /**
-   * @generated from enum value: EVERY_QUARTER_HOUR = 4;
-   */
-  EVERY_QUARTER_HOUR = 4,
-
-  /**
-   * @generated from enum value: EVERY_HALF_HOUR = 5;
-   */
-  EVERY_HALF_HOUR = 5,
-
-  /**
-   * @generated from enum value: EVERY_HOUR = 6;
-   */
-  EVERY_HOUR = 6,
-}
-// Retrieve enum metadata with: proto3.getEnumType(Frequency)
-proto3.util.setEnumType(Frequency, "stredono.Frequency", [
-  { no: 0, name: "NEVER" },
-  { no: 1, name: "ALWAYS" },
-  { no: 2, name: "EVERY_MINUTE" },
-  { no: 3, name: "EVERY_FIVE_MINUTES" },
-  { no: 4, name: "EVERY_QUARTER_HOUR" },
-  { no: 5, name: "EVERY_HALF_HOUR" },
-  { no: 6, name: "EVERY_HOUR" },
-]);
-
-/**
  * @generated from enum stredono.Tier
  */
 export enum Tier {

@@ -1,15 +1,15 @@
 import { terraformOutput } from '$lib/constants';
-import { getSettingsListener } from '$lib/settings';
-import { db } from '$lib/ext/firebase/firebase';
+import { db, rtdb } from '$lib/ext/firebase/firebase';
 import axios from 'axios';
+import { ref, onDisconnect, push, child, set } from 'firebase/database';
 import { collection, onSnapshot, query, where, limit, orderBy } from 'firebase/firestore';
 import { writable, type Writable } from 'svelte/store';
 import { Event } from '$lib/pb/event_pb';
 
 export const eventsStore: Writable<Event[]> = writable([]);
 
-export const getEventsListener = (uid: string) => {
-	const q = query(collection(db, "Events"),
+export const getEventsOverlayListener = (uid: string) => {
+	const q = query(collection(db, "events"),
 		where("Uid", "==" , uid),
 		where("IsApproved", "==", true),
 		where("WasShown", "==", false),

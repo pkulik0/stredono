@@ -134,7 +134,7 @@ func changeState(ctx *providers.Context, w http.ResponseWriter, r *http.Request)
 			dur := time.Duration(timeMin) * time.Minute
 			rerunTimestamp := time.Now().Add(-dur).Unix()
 
-			q := db.Collection("Events").Where("Uid", "==", uid).Where("WasShown", "==", true).Where("Timestamp", ">", rerunTimestamp)
+			q := db.Collection("events").Where("Uid", "==", uid).Where("WasShown", "==", true).Where("Timestamp", ">", rerunTimestamp)
 			err = db.RunTransaction(ctx.Ctx, func(ctx context.Context, tx modules.Transaction) error {
 				iter := tx.Documents(q)
 				defer iter.Stop()
@@ -186,7 +186,7 @@ func changeState(ctx *providers.Context, w http.ResponseWriter, r *http.Request)
 	}
 
 	hasUserErr := false
-	q := db.Collection("Events").Where("ID", "==", eventId).Where("Uid", "==", uid).Limit(1)
+	q := db.Collection("events").Where("ID", "==", eventId).Where("Uid", "==", uid).Limit(1)
 	err := db.RunTransaction(ctx.Ctx, func(ctx context.Context, tx modules.Transaction) error {
 		snap, err := tx.Documents(q).Next()
 		if err != nil {

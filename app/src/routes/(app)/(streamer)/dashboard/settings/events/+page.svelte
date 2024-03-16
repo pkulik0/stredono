@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { saveSettings, settingsStore } from '$lib/settings';
 	import { userStore } from '$lib/user';
-	import { Accordion, Button, Checkbox, Heading, Popover } from 'flowbite-svelte';
+	import { Accordion, Button, Checkbox, Heading, Input, Label, Popover } from 'flowbite-svelte';
 	import { InfoCircleOutline } from 'flowbite-svelte-icons';
 	import { t } from 'svelte-i18n';
 	import ChatTTSSettings from './ChatTTSSettings.svelte';
 	import CheerSettings from './CheerSettings.svelte';
 	import FollowSettings from './FollowSettings.svelte';
+	import GeneralSettings from './GeneralSettings.svelte';
 	import RaidSettings from './RaidSettings.svelte';
 	import SubGiftSettings from './SubGiftSettings.svelte';
 	import SubSettings from './SubSettings.svelte';
@@ -24,17 +25,7 @@
 	<Heading tag="h2">{$t("events")}</Heading>
 	<div class="space-y-4 w-full p-4">
 		<div class="space-y-4 px-4">
-			<div class="py-4">
-				<Checkbox bind:checked={$settingsStore.Events.RequireApproval}>
-					{$t("require_approval")}
-					<InfoCircleOutline class="w-4 h-4 ms-1" />
-					<Popover>
-						<div class="p-4 w-80">
-							{$t("require_approval_help")}
-						</div>
-					</Popover>
-				</Checkbox>
-			</div>
+			<GeneralSettings bind:requireApproval={$settingsStore.Events.RequireApproval} bind:minDisplayTime={$settingsStore.Events.MinDisplayTime} />
 
 			<Accordion class="w-full">
 				<TipSettings bind:template={$settingsStore.Events.Tip.Template} bind:minimum={$settingsStore.Events.Tip.MinAmount} />

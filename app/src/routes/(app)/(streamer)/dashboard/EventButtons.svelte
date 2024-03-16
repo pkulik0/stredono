@@ -7,11 +7,12 @@
 		PlaySolid, RefreshOutline,
 		VolumeDownSolid, VolumeUpSolid
 	} from 'flowbite-svelte-icons';
-	import LatestCard from "./LatestCard.svelte";
 	import {t} from "svelte-i18n";
 
 	export let muted: boolean;
 	export let paused: boolean;
+
+	let isDropdownOpen = false;
 </script>
 
 <div class="flex space-x-4">
@@ -43,12 +44,12 @@
 		<RefreshOutline class="w-6 h-6 me-2"/>
 		{$t("rerun")}
 	</Button>
-	<Dropdown>
-		<DropdownItem on:click={() => changeEventState(Action.Rerun, "", 1)} >{$t("last_min")}</DropdownItem>
-		<DropdownItem on:click={() => changeEventState(Action.Rerun, "", 3)} >{$t("last_3_min")}</DropdownItem>
-		<DropdownItem on:click={() => changeEventState(Action.Rerun, "", 5)} >{$t("last_5_min")}</DropdownItem>
-		<DropdownItem on:click={() => changeEventState(Action.Rerun, "", 15)} >{$t("last_15_min")}</DropdownItem>
-		<DropdownItem on:click={() => changeEventState(Action.Rerun, "", 30)} >{$t("last_30_min")}</DropdownItem>
-		<DropdownItem on:click={() => changeEventState(Action.Rerun, "", 60)} >{$t("last_hour")}</DropdownItem>
+	<Dropdown bind:open={isDropdownOpen}>
+		<DropdownItem on:click={() => { changeEventState(Action.Rerun, "", 1); isDropdownOpen = false }} >{$t("last_min")}</DropdownItem>
+		<DropdownItem on:click={() => { changeEventState(Action.Rerun, "", 3); isDropdownOpen = false }} >{$t("last_3_min")}</DropdownItem>
+		<DropdownItem on:click={() => { changeEventState(Action.Rerun, "", 5); isDropdownOpen = false }} >{$t("last_5_min")}</DropdownItem>
+		<DropdownItem on:click={() => { changeEventState(Action.Rerun, "", 15); isDropdownOpen = false }} >{$t("last_15_min")}</DropdownItem>
+		<DropdownItem on:click={() => { changeEventState(Action.Rerun, "", 30); isDropdownOpen = false }} >{$t("last_30_min")}</DropdownItem>
+		<DropdownItem on:click={() => { changeEventState(Action.Rerun, "", 60); isDropdownOpen = false }} >{$t("last_hour")}</DropdownItem>
 	</Dropdown>
 </div>
