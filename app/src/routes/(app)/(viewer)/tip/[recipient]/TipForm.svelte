@@ -3,7 +3,7 @@
     import { Currency } from '$lib/pb/enums_pb';
     import { Alert, Button, ButtonGroup, Hr, Input, InputAddon, Label, P, Textarea } from 'flowbite-svelte';
     import {ExclamationCircleSolid} from "flowbite-svelte-icons";
-    import {emailStore, senderStore} from "$lib/stores";
+    import {emailStore, senderStore} from "./stores";
     import {slide} from "svelte/transition";
     import {t} from "svelte-i18n";
 

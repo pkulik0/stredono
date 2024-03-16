@@ -44,9 +44,19 @@ func GenerateSpeech(ctx *Context, req *pb.TTSRequest) (string, error) {
 		return "", platform.ErrorMissingContextValue
 	}
 
+	rtdb, ok := ctx.GetRealtimeDb()
+	if !ok {
+		return "", platform.ErrorMissingContextValue
+	}
+
+	settings := &pb.TTSSettings{}
+	if err := rtdb.NewRef("Data").Child(req.Uid).Child("Settings").Child("TTS").Get(ctx.Ctx, &settings); err != nil {
+		return "", err
+	}
+
 	var audioData []byte
-	if req.Settings.Tier == pb.Tier_PLUS {
-		audioData, err = ttsPlus.GenerateSpeech(ctx.Ctx, req.Settings.VoiceIdPlus, req.Text)
+	if settings.UsePlus {
+		audioData, err = ttsPlus.GenerateSpeech(ctx.Ctx, settings.VoiceIdPlus, req.Text)
 		if err != nil {
 			log.Printf("Failed to generate speech with TTS+ | %v", err)
 		}
@@ -54,7 +64,7 @@ func GenerateSpeech(ctx *Context, req *pb.TTSRequest) (string, error) {
 
 	// Means Tier != Plus or failed to generate speech with TTS+
 	if audioData == nil {
-		audioData, err = ttsBasic.GenerateSpeech(ctx.Ctx, req.Settings.VoiceIdBasic, req.Text)
+		audioData, err = ttsBasic.GenerateSpeech(ctx.Ctx, settings.VoiceIdBasic, req.Text)
 		if err != nil {
 			return "", err
 		}

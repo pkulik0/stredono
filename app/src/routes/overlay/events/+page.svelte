@@ -1,6 +1,6 @@
 <script lang="ts">
 	import EventViewer from '$lib/comp/EventViewer.svelte';
-	import { settingsStore } from '$lib/events_settings';
+	import { settingsStore } from '$lib/settings';
 	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import { keyStore, uidStore } from '../stores';

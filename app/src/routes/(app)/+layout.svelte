@@ -11,4 +11,4 @@
 
 <slot/>
 
-<ParticlesBackground/>
+<ParticlesBackground intensity={75}/>

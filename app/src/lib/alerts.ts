@@ -1,24 +1,27 @@
+import { saveSettings, settingsStore } from '$lib/settings';
 import { auth, db } from '$lib/ext/firebase/firebase';
 import { type Alert, UsersAlerts } from '$lib/pb/alert_pb';
 import { Event } from '$lib/pb/event_pb';
 import { terraformOutput } from '$lib/constants';
 import axios from 'axios';
+import { get } from 'svelte/store';
+import {v4 as uuid} from 'uuid';
 
 export const saveAlert = async (alert: Alert) => {
 	const user = auth.currentUser;
 	if (!user) throw new Error('User not logged in');
 
-	try {
-		const res = await axios.post(terraformOutput.FunctionsUrl + "/AlertAdd", alert.toBinary(), {
-			headers: {
-				'Content-Type': 'application/octet-stream',
-				'Authorization': 'Bearer ' + await user.getIdToken()
-			}
-		});
-		console.log(res.data);
-	} catch (e) {
-		console.error(e);
+	let settings = get(settingsStore);
+	if (!settings) {
+		throw new Error("Settings not found");
 	}
+
+	if(alert.ID === "") {
+		alert.ID = uuid().replace(/-/g, '');
+		settings.Alerts.push(alert);
+	}
+
+	await saveSettings(user.uid)
 }
 
 export const eventToAlert = (event: Event, alerts: Alert[]): Alert|undefined => {

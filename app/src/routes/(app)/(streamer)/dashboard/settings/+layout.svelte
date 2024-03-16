@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';
-    import { getSettingsListener, settingsStore } from '$lib/events_settings';
+    import { getSettingsListener, settingsStore } from '$lib/settings';
     import { auth } from '$lib/ext/firebase/firebase';
     import { userStore } from '$lib/user';
     import { onMount } from 'svelte';
@@ -19,18 +19,6 @@
     }
 
     onMount(() => {
-        let settingsUnsub: (() => void) | undefined;
-        const userUnsub = userStore.subscribe(u => {
-            if(!u) {
-                if(settingsUnsub) {
-                    settingsUnsub();
-                    settingsUnsub = undefined;
-                }
-                return;
-            }
-            settingsUnsub = getSettingsListener(u.Uid)
-        })
-
         window.addEventListener('resize', handleResize);
         const unsub = page.subscribe((value) => {
             handleResize();
@@ -39,10 +27,6 @@
         return () => {
             window.removeEventListener('resize', handleResize);
             unsub();
-            userUnsub();
-            if(settingsUnsub) {
-                settingsUnsub();
-            }
         }
     });
 </script>

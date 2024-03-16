@@ -6,13 +6,14 @@
 	import { t } from 'svelte-i18n';
 
 	export let voices: Voice[];
-	export let value: Voice|undefined;
+	export let value: string|undefined;
+	$: voice = voices.find((voice) => voice.Id === value);
 	export let placeholder = $t("voice_placeholder");
 
-	$: items = voices.map((voice) => ({ value: voice, name: voice.Name })).sort((a, b) => a.name.localeCompare(b.name));
+	$: items = voices.map((voice) => ({ value: voice.Id, name: voice.Name })).sort((a, b) => a.name.localeCompare(b.name));
 
-	let audio: HTMLAudioElement = new Audio(value?.SampleUrl)
-	$: if (value) audio.src = value.SampleUrl;
+	let audio: HTMLAudioElement = new Audio(voice?.SampleUrl)
+	$: audio.src = voice?.SampleUrl ?? "";
 	let isPlaying = false;
 
 	const clickPlay = () => {

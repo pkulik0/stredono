@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { eventToAlert } from '$lib/alerts';
-	import { settingsStore } from '$lib/events_settings';
+	import { settingsStore } from '$lib/settings';
 	import { type Alert, Alignment, AnimationType, Position, Speed } from '$lib/pb/alert_pb';
 	import { Event, EventType } from '$lib/pb/event_pb';
 	import 'animate.css';
 	import { onMount } from 'svelte';
-	import {fade} from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 	import { confirmEvent } from '../../routes/overlay/events/listener';
 	import { keyStore } from '../../routes/overlay/stores';
 
@@ -19,6 +19,7 @@
 	let event: Event|undefined;
 
 	$: if(events[0] && !event) {
+		console.log("Setting event")
 		setTimeout(() => {
 			event = events[0];
 		}, 1000)
@@ -27,9 +28,22 @@
 
 	$: eventAlert = event ? eventToAlert(event, alerts) : undefined;
 
-	$: eventTypeName = event ? JSON.parse(JSON.stringify(EventType))[event.Type] : '';
+	$: header = (() => {
+		switch(event?.Type) {
+			case EventType.TIP: return $settingsStore?.Events?.Tip?.Template;
+			case EventType.CHEER: return $settingsStore?.Events?.Cheer?.Template;
+			case EventType.FOLLOW: return $settingsStore?.Events?.Follow?.Template;
+			case EventType.SUB: return $settingsStore?.Events?.Sub?.Template;
+			case EventType.SUB_GIFT: return $settingsStore?.Events?.SubGift?.Template;
+			case EventType.RAID: return $settingsStore?.Events?.Raid?.Template;
+			case EventType.CHAT_TTS: return $settingsStore?.Events?.ChatTTS?.Template;
+		}
+	})() ?? "";
+	const fillInHeader = (header: string, event: Event) => {
+		Object.entries(event.Data).forEach(([key, value]) => {header = header.replace(`{${key.toLowerCase()}}`, `<span style="color: ${eventAlert.AccentColor};">${value}</span>`);});
+		header = header.replace("{user}", `<span style="color: ${eventAlert.AccentColor};">${event.SenderName}</span>`)
+	}
 
-	$: header = $settingsStore?.Events?.Event[eventTypeName]?.MessageTemplate ?? '';
 	$: if(event && eventAlert) {
 		Object.entries(event.Data).forEach(([key, value]) => {header = header.replace(`{${key.toLowerCase()}}`, `<span style="color: ${eventAlert.AccentColor};">${value}</span>`);});
 		header = header.replace("{user}", `<span style="color: ${eventAlert.AccentColor};">${event.SenderName}</span>`)
@@ -113,6 +127,7 @@
 		if(timeout || isTest) return;
 
 		timeout = setTimeout(async () => {
+			if(!event) return;
 			await confirmEvent($keyStore, event.ID)
 			event = undefined
 			timeout = undefined

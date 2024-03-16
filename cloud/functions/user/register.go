@@ -35,10 +35,9 @@ func RegisterEntrypoint(w http.ResponseWriter, r *http.Request) {
 }
 
 const (
-	defaultUsernameLength = 16
-	methodEmailLink       = "emailLink"
-	methodTwitch          = "oidc.twitch"
-	googleKeysUrl         = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
+	methodEmailLink = "emailLink"
+	methodTwitch    = "oidc.twitch"
+	googleKeysUrl   = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
 )
 
 var (
@@ -110,58 +109,71 @@ func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 		return err
 	}
 
-	eventSettings := make(map[string]*pb.EventSettings)
-	for _, eventType := range pb.EventType_value {
-		eventSettings[pb.EventType(eventType).String()] = &pb.EventSettings{
-			MinimumValue: 0,
-			EnableTTS:    true,
-		}
-	}
-	eventSettings[pb.EventType_TIP.String()].MessageTemplate = "{user} donated {value} {currency}!"
-	eventSettings[pb.EventType_CHEER.String()].MessageTemplate = "{user} cheered {value} bits!"
-	eventSettings[pb.EventType_FOLLOW.String()].MessageTemplate = "{user} followed!"
-	eventSettings[pb.EventType_SUB.String()].MessageTemplate = "{user} subscribed!"
-	eventSettings[pb.EventType_SUB_GIFT.String()].MessageTemplate = "{user} gifted {value} subs!"
-	eventSettings[pb.EventType_RAID.String()].MessageTemplate = "{user} raided with {value} viewers!"
-	eventSettings[pb.EventType_CHAT_TTS.String()].MessageTemplate = "{user} said:"
-
-	overlayUuid, err := uuid.NewUUID()
+	keyUuid, err := uuid.NewUUID()
 	if err != nil {
 		return err
 	}
-	overlayKey := strings.ReplaceAll(overlayUuid.String(), "-", "")[:16]
+	overlayKey := strings.ReplaceAll(keyUuid.String(), "-", "")
 
 	if err := rtdb.NewRef("Data").Child(user.Uid).Set(ctx.Ctx, &pb.UserData{
 		Settings: &pb.UserSettings{
-			Tips: &pb.TipSettings{
-				MinAmount:    5,
-				MinAuthLevel: pb.AuthLevel_NONE,
-				Currency:     pb.Currency_PLN,
+			TTS: &pb.TTSSettings{
+				VoiceIdPlus:  "onwK4e9ZLuTAKqWW03F9",
+				VoiceIdBasic: "pl-PL-Wavenet-C",
+				UsePlus:      true,
 			},
 			Events: &pb.EventsSettings{
-				TTS: &pb.TTSSettings{
-					Tier:         pb.Tier_PLUS,
-					VoiceIdPlus:  "onwK4e9ZLuTAKqWW03F9",
-					VoiceIdBasic: "pl-PL-Wavenet-C",
-				},
-				Event:           eventSettings,
 				RequireApproval: false,
+				Tip: &pb.TipSettings{
+					Template:  "{user} tipped {value} {currency}",
+					MinAmount: 1,
+				},
+				Cheer: &pb.CheerSettings{
+					Template:  "{user} cheered {value} bits",
+					MinAmount: 100,
+				},
+				Follow: &pb.FollowSettings{
+					Template:  "{user} followed",
+					IsEnabled: false,
+				},
+				Sub: &pb.SubSettings{
+					Template:  "{user} subscribed. It's their {value} month",
+					MinMonths: 1,
+				},
+				SubGift: &pb.SubGiftSettings{
+					Template: "{user} gifted {value} subs",
+					MinCount: 1,
+				},
+				Raid: &pb.RaidSettings{
+					Template:   "{user} raided with {value} viewers",
+					MinViewers: 10,
+				},
+				ChatTTS: &pb.ChatTTSSettings{
+					Template:  "{user} said:",
+					IsEnabled: true,
+				},
 			},
 			Alerts: make([]*pb.Alert, 0),
+			Overlay: &pb.OverlaySettings{
+				Key: overlayKey,
+			},
 		},
 		Media: &pb.MediaRequest{
 			IsEnabled: true,
 			Settings: &pb.MediaRequestSettings{
-				MinRole:         pb.Role_NORMAL,
+				MinRole:         pb.Role_MODERATOR,
 				MinViews:        100,
 				MinLikes:        10,
 				RequireApproval: false,
 			},
 			Queue: make([]*pb.MediaRequest_QueueItem, 0),
 		},
-		Commands:   make(map[string]string),
-		OverlayKey: overlayKey,
+		Commands: make(map[string]string),
 	}); err != nil {
+		return err
+	}
+
+	if err := rtdb.NewRef("Users").Child("Overlay").Child(overlayKey).Set(ctx.Ctx, user.Uid); err != nil {
 		return err
 	}
 

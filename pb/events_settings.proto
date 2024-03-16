@@ -8,15 +8,50 @@ import 'pb/enums.proto';
 import 'pb/tts_settings.proto';
 
 message EventsSettings {
-  TTSSettings TTS = 1;
-  // string = EventType name (more stable than int32 I guess)
-  map<string, EventSettings> Event = 2;
-  bool RequireApproval = 3;
+  bool RequireApproval = 1;
+  bool IsMuted = 2;
+  bool IsPaused = 3;
+
+  TipSettings Tip = 10;
+  CheerSettings Cheer = 11;
+  SubSettings Sub = 12;
+  SubGiftSettings SubGift = 13;
+  FollowSettings Follow = 14;
+  RaidSettings Raid = 15;
+  ChatTTSSettings ChatTTS = 16;
 }
 
-message EventSettings {
-  int32 MinimumValue = 1;
-  bool EnableTTS = 2;
-  optional int32 MinimumForTTS = 3;
-  string MessageTemplate = 4;
+message TipSettings {
+  string Template = 1;
+  double MinAmount = 2;
+}
+
+message CheerSettings {
+  string Template = 1;
+  int32 MinAmount = 2;
+}
+
+message SubSettings {
+  string Template = 1;
+  int32 MinMonths = 2;
+}
+
+message SubGiftSettings {
+  string Template = 1;
+  int32 MinCount = 2;
+}
+
+message FollowSettings {
+  string Template = 1;
+  bool IsEnabled = 2;
+}
+
+message RaidSettings {
+  string Template = 1;
+  int32 MinViewers = 2;
+}
+
+message ChatTTSSettings {
+  string Template = 1;
+  bool IsEnabled = 2;
 }

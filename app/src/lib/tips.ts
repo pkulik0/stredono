@@ -9,13 +9,6 @@ const idToEntry: Map<string, { key: number, index: number }> = new Map();
 
 export const tipsStore: Writable<TipsMap> = writable({});
 
-export interface WebTip {
-    user: string;
-    amount: number;
-    currency: string;
-    message: string;
-}
-
 const dateToFirestoreTimestamp = (date: Date) => {
     return Math.floor(date.getTime() / 1000);
 }

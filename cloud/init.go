@@ -2,7 +2,6 @@ package cloud
 
 import (
 	cloudfunc "github.com/GoogleCloudPlatform/functions-framework-go/functions"
-	"github.com/pkulik0/stredono/cloud/functions/alerts"
 	"github.com/pkulik0/stredono/cloud/functions/events"
 	"github.com/pkulik0/stredono/cloud/functions/tips"
 	"github.com/pkulik0/stredono/cloud/functions/tts"
@@ -47,18 +46,11 @@ func init() {
 		log.Fatal(err)
 	}
 
-	// Cloud Events
-
 	cloudfunc.CloudEvent("OnEvent", events.OnEventEntrypoint)
-
-	// HTTP
-
-	cloudfunc.HTTP("EventConfirm", platform.CorsMiddleware(events.ConfirmEntrypoint))
+	cloudfunc.HTTP("EventChangeState", platform.CorsMiddleware(events.ChangeStateEntrypoint))
 
 	cloudfunc.HTTP("UserRegister", platform.CorsMiddleware(user.RegisterEntrypoint))
 	cloudfunc.HTTP("UserEdit", platform.CorsMiddleware(user.EditEntrypoint))
-
-	cloudfunc.HTTP("AlertAdd", platform.CorsMiddleware(alerts.AddEntrypoint))
 
 	cloudfunc.HTTP("SpeechUpdate", platform.CorsMiddleware(tts.UpdateEntrypoint))
 

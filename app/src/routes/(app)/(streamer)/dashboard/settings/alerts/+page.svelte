@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { settingsStore } from '../../../../../../lib/events_settings';
+    import { settingsStore } from '$lib/settings';
     import { EventType } from '$lib/pb/event_pb';
     import { pbEnumToItems } from '$lib/util';
     import {PlusSolid} from "flowbite-svelte-icons";

@@ -1,5 +1,5 @@
 import { terraformOutput } from '$lib/constants';
-import { getSettingsListener } from '$lib/events_settings';
+import { getSettingsListener } from '$lib/settings';
 import { db } from '$lib/ext/firebase/firebase';
 import axios from 'axios';
 import { collection, onSnapshot, query, where, limit, orderBy } from 'firebase/firestore';
@@ -22,7 +22,7 @@ export const getEventsListener = (uid: string) => {
 }
 
 export const confirmEvent = async (key: string, eventId: string) => {
-	const res = await axios.post(terraformOutput.FunctionsUrl+`/EventConfirm?key=${key}&event=${eventId}`, {}, {
+	const res = await axios.post(terraformOutput.FunctionsUrl+`/EventChangeState?key=${key}&event=${eventId}&action=confirm`, {}, {
 		headers: {
 			'Content-Type': 'application/json'
 		}

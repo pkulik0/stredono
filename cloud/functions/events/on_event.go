@@ -42,99 +42,14 @@ func OnEventEntrypoint(ctx context.Context, e event.Event) error {
 		return fmt.Errorf("failed to create context | %v", err)
 	}
 
-	if err := handleEvent(provCtx, eventData); err != nil {
+	if err := onEvent(provCtx, eventData); err != nil {
 		log.Printf("Failed to handle event | %v", err)
 		return fmt.Errorf("failed to handle event | %v", err)
 	}
 	return nil
 }
 
-func fillTemplate(event *pb.Event, eventSettings *pb.EventSettings) (string, error) {
-	template := eventSettings.MessageTemplate
-	template = strings.ReplaceAll(template, "{value}", event.Data["Value"])
-	template = strings.ReplaceAll(template, "{user}", event.SenderName)
-
-	switch event.Type {
-	case pb.EventType_TIP:
-		currency, ok := event.Data["Currency"]
-		if !ok {
-			return "", fmt.Errorf("missing currency")
-		}
-		template = strings.ReplaceAll(template, "{currency}", currency)
-	case pb.EventType_SUB_GIFT:
-		total, ok := event.Data["Total"]
-		if !ok {
-			return "", fmt.Errorf("missing total")
-		}
-		template = strings.ReplaceAll(template, "{total}", total)
-	case pb.EventType_SUB:
-	case pb.EventType_CHEER:
-	case pb.EventType_CHAT_TTS:
-	case pb.EventType_RAID:
-	case pb.EventType_FOLLOW:
-	default:
-		return "", fmt.Errorf("unknown event type: %v", event.Type)
-	}
-
-	return template, nil
-}
-
-func handleTTS(ctx *providers.Context, event *pb.Event, eventSettings *pb.EventSettings, ttsSettings *pb.TTSSettings, text,
-	uid string) error {
-	if !eventSettings.EnableTTS {
-		return nil
-	}
-
-	minValue := eventSettings.MinimumValue
-	if eventSettings.MinimumForTTS != nil {
-		minValue = *eventSettings.MinimumForTTS
-	}
-
-	valueStr := event.Data["Value"]
-	switch event.Type {
-	case pb.EventType_TIP:
-		value, err := strconv.ParseFloat(valueStr, 64)
-		if err != nil {
-			return err
-		}
-		if value < float64(minValue) {
-			return nil
-		}
-	case pb.EventType_CHEER:
-		fallthrough
-	case pb.EventType_SUB:
-		fallthrough
-	case pb.EventType_SUB_GIFT:
-		fallthrough
-	case pb.EventType_RAID:
-		value, err := strconv.ParseInt(valueStr, 10, 32)
-		if err != nil {
-			return err
-		}
-		if int32(value) < minValue {
-			return nil
-		}
-	case pb.EventType_CHAT_TTS:
-	case pb.EventType_FOLLOW: // Do nothing
-	default:
-		return fmt.Errorf("unknown event type: %v", event.Type)
-	}
-
-	path, err := providers.GenerateSpeech(ctx, &pb.TTSRequest{
-		ID:       event.ID,
-		Uid:      uid,
-		Text:     text,
-		Settings: ttsSettings,
-	})
-	if err != nil {
-		return err
-	}
-
-	event.TTSUrl = path
-	return nil
-}
-
-func handleEvent(ctx *providers.Context, event *pb.Event) error {
+func onEvent(ctx *providers.Context, event *pb.Event) error {
 	if event.Uid == "" {
 		if event.Provider == "" || event.ProviderID == "" {
 			return fmt.Errorf("missing provider or provider id")
@@ -152,35 +67,100 @@ func handleEvent(ctx *providers.Context, event *pb.Event) error {
 		return platform.ErrorMissingContextValue
 	}
 
-	eventsSettings := &pb.EventsSettings{}
+	settings := &pb.EventsSettings{}
 	eventsRef := rtdb.NewRef("Data").Child(event.Uid).Child("Settings").Child("Events")
-	if err := eventsRef.Get(ctx.Ctx, &eventsSettings); err != nil {
+	if err := eventsRef.Get(ctx.Ctx, &settings); err != nil {
 		return err
 	}
 
-	eventSettings, ok := eventsSettings.Event[event.Type.String()]
-	if !ok {
-		return fmt.Errorf("event not found: %s", event.Type.String())
+	checkIntValue := func(valueStr string, minValue int32) bool {
+		value, err := strconv.ParseInt(valueStr, 10, 32)
+		if err != nil {
+			return false
+		}
+		return int32(value) >= minValue
 	}
 
-	header, err := fillTemplate(event, eventSettings)
-	if err != nil {
-		return err
+	valueStr := event.Data["Value"]
+	text := ""
+
+	switch event.Type {
+	case pb.EventType_TIP:
+		minValue := settings.Tip.MinAmount
+		value, err := strconv.ParseFloat(valueStr, 64)
+		if err != nil {
+			return err
+		}
+		if value < minValue {
+			return nil
+		}
+
+		currency, ok := event.Data["Currency"]
+		if !ok {
+			return fmt.Errorf("missing currency")
+		}
+
+		text = settings.Tip.Template
+		text = strings.ReplaceAll(text, "{currency}", currency)
+	case pb.EventType_CHEER:
+		minValue := settings.Cheer.MinAmount
+		if !checkIntValue(valueStr, minValue) {
+			return nil
+		}
+		text = settings.Cheer.Template
+	case pb.EventType_SUB:
+		minValue := settings.Sub.MinMonths
+		if !checkIntValue(valueStr, minValue) {
+			return nil
+		}
+		text = settings.Sub.Template
+	case pb.EventType_SUB_GIFT:
+		minValue := settings.SubGift.MinCount
+		if !checkIntValue(valueStr, minValue) {
+			return nil
+		}
+		text = settings.SubGift.Template
+		total, ok := event.Data["Total"]
+		if !ok {
+			return fmt.Errorf("missing total")
+		}
+		text = strings.ReplaceAll(text, "{total}", total)
+	case pb.EventType_RAID:
+		minValue := settings.Raid.MinViewers
+		if !checkIntValue(valueStr, minValue) {
+			return nil
+		}
+		text = settings.Raid.Template
+	case pb.EventType_FOLLOW:
+		if !settings.Follow.IsEnabled {
+			return nil
+		}
+		text = settings.Follow.Template
+	case pb.EventType_CHAT_TTS:
+		if !settings.ChatTTS.IsEnabled {
+			return nil
+		}
+	default:
+		return fmt.Errorf("unknown event type: %v", event.Type)
 	}
 
-	text := fmt.Sprintf("%s. %s", header, event.Data["Message"])
-	if err := handleTTS(ctx, event, eventSettings, eventsSettings.TTS, text, event.Uid); err != nil {
-		log.Errorf("Failed to handle TTS | %v", err)
-		// Don't return so even if TTS fails, the event is still shown without TTS
-		// TODO: report issue
+	text = strings.ReplaceAll(text, "{value}", valueStr)
+	text = strings.ReplaceAll(text, "{user}", event.SenderName)
+	text += ". " + event.Data["Message"]
+
+	path, err := providers.GenerateSpeech(ctx, &pb.TTSRequest{
+		ID:   event.ID,
+		Uid:  event.Uid,
+		Text: text,
+	})
+	if err != nil { // still allow the event to be published but without tts
+		log.Errorf("Failed to generate speech | %v", err)
+		path = ""
 	}
+	event.TTSUrl = path
 
-	event.IsApproved = !eventsSettings.RequireApproval || event.Type == pb.EventType_CHAT_TTS
+	event.IsApproved = !settings.RequireApproval || event.Type == pb.EventType_CHAT_TTS // only by mods, so it's fine to auto-approve
 
-	return addEventToQueue(ctx, event)
-}
-
-func addEventToQueue(ctx *providers.Context, event *pb.Event) error {
 	db, ok := ctx.GetDocDb()
 	if !ok {
 		return platform.ErrorMissingContextValue
@@ -189,5 +169,6 @@ func addEventToQueue(ctx *providers.Context, event *pb.Event) error {
 	if _, err := db.Collection("Events").Add(ctx.Ctx, event); err != nil {
 		return err
 	}
+
 	return nil
 }

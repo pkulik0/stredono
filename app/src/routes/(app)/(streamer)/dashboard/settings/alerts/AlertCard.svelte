@@ -9,9 +9,11 @@
 
 <Card size="sm" padding="xl" class="space-y-2 justify-center w-full max-w-full">
 	<div class="flex space-x-4">
-		<div class="w-60">
-			<Img src={alert.GifUrl} alt={alert.ID + "'s gif"} class="rounded-lg w-auto m-auto max-h-40" />
-		</div>
+		{#if alert.GifUrl}
+			<div class="w-60">
+				<Img src={alert.GifUrl} alt="" class="rounded-lg m-auto max-h-40 w-auto" />
+			</div>
+		{/if}
 
 		<div class="flex flex-1 flex-col space-y-2 text-center justify-center">
 			<Heading tag="h6">{alert.Min} {unitLabel} - {alert.Max ?? '∞' } {unitLabel}</Heading>

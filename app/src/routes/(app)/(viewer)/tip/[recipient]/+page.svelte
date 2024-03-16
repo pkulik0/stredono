@@ -13,7 +13,7 @@
     import {onMount} from "svelte";
     import {FetchError, getUserByUsername} from "$lib/user";
     import {goto} from "$app/navigation";
-    import {emailStore, senderStore} from "$lib/stores";
+    import {emailStore, senderStore} from "./stores";
     import TipForm from "./TipForm.svelte";
     import UserHeader from "$lib/comp/UserHeader.svelte";
 

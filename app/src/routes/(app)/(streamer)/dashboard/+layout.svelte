@@ -1,13 +1,37 @@
 <script lang="ts">
     import ParticlesBackground from '$lib/comp/ParticlesBackground.svelte';
+    import { getSettingsListener } from '$lib/settings';
+    import { userStore } from '$lib/user';
     import { Breadcrumb, BreadcrumbItem } from 'flowbite-svelte';
     import {page} from "$app/stores";
+    import { onMount } from 'svelte';
     import AlertBox from './AlertBox.svelte';
     import NavBar from './NavBar.svelte';
     import {t} from 'svelte-i18n';
 
     $: currentPage = $page.url;
     $: pagesOnPath = currentPage.pathname.split("/").filter(Boolean);
+
+    onMount(() => {
+        let settingsUnsub: (() => void) | undefined;
+        const userUnsub = userStore.subscribe(u => {
+            if(!u) {
+                if(settingsUnsub) {
+                    settingsUnsub();
+                    settingsUnsub = undefined;
+                }
+                return;
+            }
+            settingsUnsub = getSettingsListener(u.Uid)
+        })
+
+        return () => {
+            userUnsub();
+            if(settingsUnsub) {
+                settingsUnsub();
+            }
+        }
+    })
 </script>
 
 <NavBar />

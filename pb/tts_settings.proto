@@ -9,5 +9,5 @@ import 'pb/enums.proto';
 message TTSSettings {
   string VoiceIdBasic = 1;
   string VoiceIdPlus = 2;
-  Tier Tier = 3;
+  bool UsePlus = 3;
 }

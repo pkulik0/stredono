@@ -6,19 +6,23 @@ option go_package="github.com/pkulik0/stredono/cloud/pb";
 
 import 'pb/media_request.proto';
 import 'pb/tts_settings.proto';
-import 'pb/tip_settings.proto';
 import 'pb/events_settings.proto';
 import 'pb/alert.proto';
+import 'pb/enums.proto';
 
 message UserData {
   UserSettings Settings = 1;
   MediaRequest Media = 2;
   map<string, string> Commands = 3;
-  string OverlayKey = 4;
 }
 
 message UserSettings {
-  TipSettings Tips = 1;
-  EventsSettings Events = 2;
+  EventsSettings Events = 1;
+  TTSSettings TTS = 2;
   repeated Alert Alerts = 3;
+  OverlaySettings Overlay = 4;
+}
+
+message OverlaySettings {
+  string Key = 1;
 }

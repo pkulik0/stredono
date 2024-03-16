@@ -225,7 +225,7 @@ resource "google_cloudfunctions2_function" "tip_confirm" {
     service_account_email            = google_service_account.account.email
   }
 
-  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_cloudfunctions2_function.tip_send]
+  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_cloudfunctions2_function.user_register]
 }
 
 resource "google_cloud_run_service_iam_member" "tip_confirm_invoker" {
@@ -273,7 +273,7 @@ resource "google_cloudfunctions2_function" "twitch_webhook" {
     google_storage_bucket_object.functions_source,
     google_service_account.account,
     google_pubsub_topic.events,
-    google_cloudfunctions2_function.user_register]
+    google_cloudfunctions2_function.user_edit]
 }
 
 resource "google_cloud_run_service_iam_member" "twitch_webhook_invoker" {
@@ -287,50 +287,6 @@ resource "google_cloud_run_service_iam_member" "twitch_webhook_invoker" {
   role   = "roles/run.invoker"
 
   depends_on = [google_cloudfunctions2_function.twitch_webhook]
-}
-
-resource "google_cloudfunctions2_function" "alert_add" {
-  provider = google-beta
-  project  = google_project.default.project_id
-
-  name     = "AlertAdd"
-  location = var.gcf_location
-
-  build_config {
-    runtime     = "go121"
-    entry_point = "AlertAdd"
-    source {
-      storage_source {
-        bucket = google_storage_bucket.fn_bucket.name
-        object = google_storage_bucket_object.functions_source.name
-      }
-    }
-  }
-
-  service_config {
-    min_instance_count               = 0
-    max_instance_count               = 10
-    available_memory                 = "128Mi"
-    max_instance_request_concurrency = 1
-    timeout_seconds                  = 60
-    ingress_settings                 = "ALLOW_ALL"
-    service_account_email            = google_service_account.account.email
-  }
-
-  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_cloudfunctions2_function.user_register]
-}
-
-resource "google_cloud_run_service_iam_member" "alert_add_invoker" {
-  provider = google-beta
-  project  = google_project.default.project_id
-
-  service  = lower(google_cloudfunctions2_function.alert_add.name)
-  location = google_cloudfunctions2_function.alert_add.location
-
-  member = "allUsers"
-  role   = "roles/run.invoker"
-
-  depends_on = [google_cloudfunctions2_function.alert_add]
 }
 
 resource "google_cloudfunctions2_function" "on_event" {
@@ -368,5 +324,49 @@ resource "google_cloudfunctions2_function" "on_event" {
     service_account_email = google_service_account.account.email
   }
 
-  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_pubsub_topic.events, google_cloudfunctions2_function.tip_confirm]
+  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_pubsub_topic.events, google_cloudfunctions2_function.user_register]
+}
+
+resource "google_cloudfunctions2_function" "event_change_state" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  name     = "EventChangeState"
+  location = var.gcf_location
+
+  build_config {
+    runtime     = "go121"
+    entry_point = "EventChangeState"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.fn_bucket.name
+        object = google_storage_bucket_object.functions_source.name
+      }
+    }
+  }
+
+  service_config {
+    min_instance_count               = 0
+    max_instance_count               = 10
+    available_memory                 = "128Mi"
+    max_instance_request_concurrency = 1
+    timeout_seconds                  = 60
+    ingress_settings                 = "ALLOW_ALL"
+    service_account_email            = google_service_account.account.email
+  }
+
+  depends_on = [google_storage_bucket_object.functions_source, google_service_account.account, google_cloudfunctions2_function.user_edit]
+}
+
+resource "google_cloud_run_service_iam_member" "event_change_state_invoker" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  service  = lower(google_cloudfunctions2_function.event_change_state.name)
+  location = google_cloudfunctions2_function.event_change_state.location
+
+  member = "allUsers"
+  role   = "roles/run.invoker"
+
+  depends_on = [google_cloudfunctions2_function.event_change_state]
 }

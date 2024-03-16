@@ -10,5 +10,4 @@ message TTSRequest {
   string ID = 1;
   string Uid = 2;
   string Text = 3;
-  TTSSettings Settings = 4;
 }

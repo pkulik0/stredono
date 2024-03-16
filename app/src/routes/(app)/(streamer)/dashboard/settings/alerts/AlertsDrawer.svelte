@@ -3,7 +3,7 @@
     import EventViewer from '$lib/comp/EventViewer.svelte';
     import GifPicker from '$lib/comp/GifPicker.svelte';
     import SoundPicker from '$lib/comp/SoundPicker.svelte';
-    import { settingsStore } from '$lib/events_settings';
+    import { settingsStore } from '$lib/settings';
     import { Alert, Alignment, AnimationType, Position, Speed } from '$lib/pb/alert_pb';
     import { Currency } from '$lib/pb/enums_pb';
     import { Event, EventType } from '$lib/pb/event_pb';
@@ -68,10 +68,10 @@
     $: {
         exampleEvent.Type = eventType;
         exampleEvent.Data = {
-            "User": "John",
-            "Value": "2137",
+            "User": $t("example_user"),
+            "Value": $t("example_value"),
             "Currency": currencySymbol,
-            "Message": "This is an example message. See which settings you like the most and adjust them to your needs."
+            "Message": $t("example_message"),
         }
     }
 
@@ -92,7 +92,7 @@
     let gifPickerOpen = false;
     let soundPickerOpen = false;
 
-    $: currency = $settingsStore?.Tips?.Currency;
+    $: currency = Currency.PLN; // TODO: get from user
     let currencySymbol = "?";
     $: if(currency) {
         switch(currency) {

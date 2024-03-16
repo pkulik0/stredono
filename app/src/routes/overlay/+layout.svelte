@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getSettingsListener } from '$lib/events_settings';
+	import { getSettingsListener } from '$lib/settings';
 	import { rtdb } from '$lib/ext/firebase/firebase';
 	import { onMount } from 'svelte';
 	import { ref, get } from "firebase/database";

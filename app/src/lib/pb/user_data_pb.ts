@@ -6,8 +6,8 @@
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3 } from "@bufbuild/protobuf";
 import { MediaRequest } from "./media_request_pb.js";
-import { TipSettings } from "./tip_settings_pb.js";
 import { EventsSettings } from "./events_settings_pb.js";
+import { TTSSettings } from "./tts_settings_pb.js";
 import { Alert } from "./alert_pb.js";
 
 /**
@@ -29,11 +29,6 @@ export class UserData extends Message<UserData> {
    */
   Commands: { [key: string]: string } = {};
 
-  /**
-   * @generated from field: string OverlayKey = 4;
-   */
-  OverlayKey = "";
-
   constructor(data?: PartialMessage<UserData>) {
     super();
     proto3.util.initPartial(data, this);
@@ -45,7 +40,6 @@ export class UserData extends Message<UserData> {
     { no: 1, name: "Settings", kind: "message", T: UserSettings },
     { no: 2, name: "Media", kind: "message", T: MediaRequest },
     { no: 3, name: "Commands", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "scalar", T: 9 /* ScalarType.STRING */} },
-    { no: 4, name: "OverlayKey", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UserData {
@@ -70,19 +64,24 @@ export class UserData extends Message<UserData> {
  */
 export class UserSettings extends Message<UserSettings> {
   /**
-   * @generated from field: stredono.TipSettings Tips = 1;
-   */
-  Tips?: TipSettings;
-
-  /**
-   * @generated from field: stredono.EventsSettings Events = 2;
+   * @generated from field: stredono.EventsSettings Events = 1;
    */
   Events?: EventsSettings;
+
+  /**
+   * @generated from field: stredono.TTSSettings TTS = 2;
+   */
+  TTS?: TTSSettings;
 
   /**
    * @generated from field: repeated stredono.Alert Alerts = 3;
    */
   Alerts: Alert[] = [];
+
+  /**
+   * @generated from field: stredono.OverlaySettings Overlay = 4;
+   */
+  Overlay?: OverlaySettings;
 
   constructor(data?: PartialMessage<UserSettings>) {
     super();
@@ -92,9 +91,10 @@ export class UserSettings extends Message<UserSettings> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "stredono.UserSettings";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "Tips", kind: "message", T: TipSettings },
-    { no: 2, name: "Events", kind: "message", T: EventsSettings },
+    { no: 1, name: "Events", kind: "message", T: EventsSettings },
+    { no: 2, name: "TTS", kind: "message", T: TTSSettings },
     { no: 3, name: "Alerts", kind: "message", T: Alert, repeated: true },
+    { no: 4, name: "Overlay", kind: "message", T: OverlaySettings },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): UserSettings {
@@ -111,6 +111,43 @@ export class UserSettings extends Message<UserSettings> {
 
   static equals(a: UserSettings | PlainMessage<UserSettings> | undefined, b: UserSettings | PlainMessage<UserSettings> | undefined): boolean {
     return proto3.util.equals(UserSettings, a, b);
+  }
+}
+
+/**
+ * @generated from message stredono.OverlaySettings
+ */
+export class OverlaySettings extends Message<OverlaySettings> {
+  /**
+   * @generated from field: string Key = 1;
+   */
+  Key = "";
+
+  constructor(data?: PartialMessage<OverlaySettings>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.OverlaySettings";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "Key", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): OverlaySettings {
+    return new OverlaySettings().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): OverlaySettings {
+    return new OverlaySettings().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): OverlaySettings {
+    return new OverlaySettings().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: OverlaySettings | PlainMessage<OverlaySettings> | undefined, b: OverlaySettings | PlainMessage<OverlaySettings> | undefined): boolean {
+    return proto3.util.equals(OverlaySettings, a, b);
   }
 }
 

@@ -5,7 +5,6 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3 } from "@bufbuild/protobuf";
-import { Tier } from "./enums_pb.js";
 
 /**
  * @generated from message stredono.TTSSettings
@@ -22,9 +21,9 @@ export class TTSSettings extends Message<TTSSettings> {
   VoiceIdPlus = "";
 
   /**
-   * @generated from field: stredono.Tier Tier = 3;
+   * @generated from field: bool UsePlus = 3;
    */
-  Tier = Tier.BASIC;
+  UsePlus = false;
 
   constructor(data?: PartialMessage<TTSSettings>) {
     super();
@@ -36,7 +35,7 @@ export class TTSSettings extends Message<TTSSettings> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "VoiceIdBasic", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "VoiceIdPlus", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "Tier", kind: "enum", T: proto3.getEnumType(Tier) },
+    { no: 3, name: "UsePlus", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TTSSettings {

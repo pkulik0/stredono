@@ -5,28 +5,60 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3 } from "@bufbuild/protobuf";
-import { TTSSettings } from "./tts_settings_pb.js";
 
 /**
  * @generated from message stredono.EventsSettings
  */
 export class EventsSettings extends Message<EventsSettings> {
   /**
-   * @generated from field: stredono.TTSSettings TTS = 1;
-   */
-  TTS?: TTSSettings;
-
-  /**
-   * string = EventType name (more stable than int32 I guess)
-   *
-   * @generated from field: map<string, stredono.EventSettings> Event = 2;
-   */
-  Event: { [key: string]: EventSettings } = {};
-
-  /**
-   * @generated from field: bool RequireApproval = 3;
+   * @generated from field: bool RequireApproval = 1;
    */
   RequireApproval = false;
+
+  /**
+   * @generated from field: bool IsMuted = 2;
+   */
+  IsMuted = false;
+
+  /**
+   * @generated from field: bool IsPaused = 3;
+   */
+  IsPaused = false;
+
+  /**
+   * @generated from field: stredono.TipSettings Tip = 10;
+   */
+  Tip?: TipSettings;
+
+  /**
+   * @generated from field: stredono.CheerSettings Cheer = 11;
+   */
+  Cheer?: CheerSettings;
+
+  /**
+   * @generated from field: stredono.SubSettings Sub = 12;
+   */
+  Sub?: SubSettings;
+
+  /**
+   * @generated from field: stredono.SubGiftSettings SubGift = 13;
+   */
+  SubGift?: SubGiftSettings;
+
+  /**
+   * @generated from field: stredono.FollowSettings Follow = 14;
+   */
+  Follow?: FollowSettings;
+
+  /**
+   * @generated from field: stredono.RaidSettings Raid = 15;
+   */
+  Raid?: RaidSettings;
+
+  /**
+   * @generated from field: stredono.ChatTTSSettings ChatTTS = 16;
+   */
+  ChatTTS?: ChatTTSSettings;
 
   constructor(data?: PartialMessage<EventsSettings>) {
     super();
@@ -36,9 +68,16 @@ export class EventsSettings extends Message<EventsSettings> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "stredono.EventsSettings";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "TTS", kind: "message", T: TTSSettings },
-    { no: 2, name: "Event", kind: "map", K: 9 /* ScalarType.STRING */, V: {kind: "message", T: EventSettings} },
-    { no: 3, name: "RequireApproval", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 1, name: "RequireApproval", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 2, name: "IsMuted", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 3, name: "IsPaused", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 10, name: "Tip", kind: "message", T: TipSettings },
+    { no: 11, name: "Cheer", kind: "message", T: CheerSettings },
+    { no: 12, name: "Sub", kind: "message", T: SubSettings },
+    { no: 13, name: "SubGift", kind: "message", T: SubGiftSettings },
+    { no: 14, name: "Follow", kind: "message", T: FollowSettings },
+    { no: 15, name: "Raid", kind: "message", T: RaidSettings },
+    { no: 16, name: "ChatTTS", kind: "message", T: ChatTTSSettings },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): EventsSettings {
@@ -59,57 +98,303 @@ export class EventsSettings extends Message<EventsSettings> {
 }
 
 /**
- * @generated from message stredono.EventSettings
+ * @generated from message stredono.TipSettings
  */
-export class EventSettings extends Message<EventSettings> {
+export class TipSettings extends Message<TipSettings> {
   /**
-   * @generated from field: int32 MinimumValue = 1;
+   * @generated from field: string Template = 1;
    */
-  MinimumValue = 0;
+  Template = "";
 
   /**
-   * @generated from field: bool EnableTTS = 2;
+   * @generated from field: double MinAmount = 2;
    */
-  EnableTTS = false;
+  MinAmount = 0;
 
-  /**
-   * @generated from field: optional int32 MinimumForTTS = 3;
-   */
-  MinimumForTTS?: number;
-
-  /**
-   * @generated from field: string MessageTemplate = 4;
-   */
-  MessageTemplate = "";
-
-  constructor(data?: PartialMessage<EventSettings>) {
+  constructor(data?: PartialMessage<TipSettings>) {
     super();
     proto3.util.initPartial(data, this);
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "stredono.EventSettings";
+  static readonly typeName = "stredono.TipSettings";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "MinimumValue", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
-    { no: 2, name: "EnableTTS", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
-    { no: 3, name: "MinimumForTTS", kind: "scalar", T: 5 /* ScalarType.INT32 */, opt: true },
-    { no: 4, name: "MessageTemplate", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 1, name: "Template", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "MinAmount", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): EventSettings {
-    return new EventSettings().fromBinary(bytes, options);
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TipSettings {
+    return new TipSettings().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): EventSettings {
-    return new EventSettings().fromJson(jsonValue, options);
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TipSettings {
+    return new TipSettings().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): EventSettings {
-    return new EventSettings().fromJsonString(jsonString, options);
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TipSettings {
+    return new TipSettings().fromJsonString(jsonString, options);
   }
 
-  static equals(a: EventSettings | PlainMessage<EventSettings> | undefined, b: EventSettings | PlainMessage<EventSettings> | undefined): boolean {
-    return proto3.util.equals(EventSettings, a, b);
+  static equals(a: TipSettings | PlainMessage<TipSettings> | undefined, b: TipSettings | PlainMessage<TipSettings> | undefined): boolean {
+    return proto3.util.equals(TipSettings, a, b);
+  }
+}
+
+/**
+ * @generated from message stredono.CheerSettings
+ */
+export class CheerSettings extends Message<CheerSettings> {
+  /**
+   * @generated from field: string Template = 1;
+   */
+  Template = "";
+
+  /**
+   * @generated from field: int32 MinAmount = 2;
+   */
+  MinAmount = 0;
+
+  constructor(data?: PartialMessage<CheerSettings>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.CheerSettings";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "Template", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "MinAmount", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CheerSettings {
+    return new CheerSettings().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): CheerSettings {
+    return new CheerSettings().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): CheerSettings {
+    return new CheerSettings().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: CheerSettings | PlainMessage<CheerSettings> | undefined, b: CheerSettings | PlainMessage<CheerSettings> | undefined): boolean {
+    return proto3.util.equals(CheerSettings, a, b);
+  }
+}
+
+/**
+ * @generated from message stredono.SubSettings
+ */
+export class SubSettings extends Message<SubSettings> {
+  /**
+   * @generated from field: string Template = 1;
+   */
+  Template = "";
+
+  /**
+   * @generated from field: int32 MinMonths = 2;
+   */
+  MinMonths = 0;
+
+  constructor(data?: PartialMessage<SubSettings>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.SubSettings";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "Template", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "MinMonths", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SubSettings {
+    return new SubSettings().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SubSettings {
+    return new SubSettings().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SubSettings {
+    return new SubSettings().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SubSettings | PlainMessage<SubSettings> | undefined, b: SubSettings | PlainMessage<SubSettings> | undefined): boolean {
+    return proto3.util.equals(SubSettings, a, b);
+  }
+}
+
+/**
+ * @generated from message stredono.SubGiftSettings
+ */
+export class SubGiftSettings extends Message<SubGiftSettings> {
+  /**
+   * @generated from field: string Template = 1;
+   */
+  Template = "";
+
+  /**
+   * @generated from field: int32 MinCount = 2;
+   */
+  MinCount = 0;
+
+  constructor(data?: PartialMessage<SubGiftSettings>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.SubGiftSettings";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "Template", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "MinCount", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SubGiftSettings {
+    return new SubGiftSettings().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SubGiftSettings {
+    return new SubGiftSettings().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SubGiftSettings {
+    return new SubGiftSettings().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: SubGiftSettings | PlainMessage<SubGiftSettings> | undefined, b: SubGiftSettings | PlainMessage<SubGiftSettings> | undefined): boolean {
+    return proto3.util.equals(SubGiftSettings, a, b);
+  }
+}
+
+/**
+ * @generated from message stredono.FollowSettings
+ */
+export class FollowSettings extends Message<FollowSettings> {
+  /**
+   * @generated from field: string Template = 1;
+   */
+  Template = "";
+
+  /**
+   * @generated from field: bool IsEnabled = 2;
+   */
+  IsEnabled = false;
+
+  constructor(data?: PartialMessage<FollowSettings>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.FollowSettings";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "Template", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "IsEnabled", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): FollowSettings {
+    return new FollowSettings().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): FollowSettings {
+    return new FollowSettings().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): FollowSettings {
+    return new FollowSettings().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: FollowSettings | PlainMessage<FollowSettings> | undefined, b: FollowSettings | PlainMessage<FollowSettings> | undefined): boolean {
+    return proto3.util.equals(FollowSettings, a, b);
+  }
+}
+
+/**
+ * @generated from message stredono.RaidSettings
+ */
+export class RaidSettings extends Message<RaidSettings> {
+  /**
+   * @generated from field: string Template = 1;
+   */
+  Template = "";
+
+  /**
+   * @generated from field: int32 MinViewers = 2;
+   */
+  MinViewers = 0;
+
+  constructor(data?: PartialMessage<RaidSettings>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.RaidSettings";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "Template", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "MinViewers", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RaidSettings {
+    return new RaidSettings().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): RaidSettings {
+    return new RaidSettings().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): RaidSettings {
+    return new RaidSettings().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: RaidSettings | PlainMessage<RaidSettings> | undefined, b: RaidSettings | PlainMessage<RaidSettings> | undefined): boolean {
+    return proto3.util.equals(RaidSettings, a, b);
+  }
+}
+
+/**
+ * @generated from message stredono.ChatTTSSettings
+ */
+export class ChatTTSSettings extends Message<ChatTTSSettings> {
+  /**
+   * @generated from field: string Template = 1;
+   */
+  Template = "";
+
+  /**
+   * @generated from field: bool IsEnabled = 2;
+   */
+  IsEnabled = false;
+
+  constructor(data?: PartialMessage<ChatTTSSettings>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "stredono.ChatTTSSettings";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "Template", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "IsEnabled", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ChatTTSSettings {
+    return new ChatTTSSettings().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ChatTTSSettings {
+    return new ChatTTSSettings().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ChatTTSSettings {
+    return new ChatTTSSettings().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ChatTTSSettings | PlainMessage<ChatTTSSettings> | undefined, b: ChatTTSSettings | PlainMessage<ChatTTSSettings> | undefined): boolean {
+    return proto3.util.equals(ChatTTSSettings, a, b);
   }
 }
 

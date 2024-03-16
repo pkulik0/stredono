@@ -5,7 +5,6 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, proto3 } from "@bufbuild/protobuf";
-import { TTSSettings } from "./tts_settings_pb.js";
 
 /**
  * @generated from message stredono.TTSRequest
@@ -26,11 +25,6 @@ export class TTSRequest extends Message<TTSRequest> {
    */
   Text = "";
 
-  /**
-   * @generated from field: stredono.TTSSettings Settings = 4;
-   */
-  Settings?: TTSSettings;
-
   constructor(data?: PartialMessage<TTSRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -42,7 +36,6 @@ export class TTSRequest extends Message<TTSRequest> {
     { no: 1, name: "ID", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "Uid", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "Text", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "Settings", kind: "message", T: TTSSettings },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TTSRequest {

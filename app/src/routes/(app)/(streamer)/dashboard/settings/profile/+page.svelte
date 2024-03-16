@@ -81,7 +81,7 @@
 
         <Label>
             {$t("your_url")}
-            <Input bind:value={url} type="text"/>
+            <Input placeholder="https://stredono.com" bind:value={url} type="text"/>
             <Helper class="mt-1">{$t("your_url_help")}</Helper>
         </Label>
 
