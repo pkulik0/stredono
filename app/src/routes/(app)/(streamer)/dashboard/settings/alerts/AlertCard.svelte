@@ -1,10 +1,28 @@
 <script lang="ts">
+	import { removeAlert } from '$lib/alerts';
+	import ConfirmationModal from '$lib/comp/ConfirmationModal.svelte';
 	import { type Alert } from '$lib/pb/alert_pb';
-	import { Button, Card, Heading, Img } from 'flowbite-svelte';
+	import { Button, Card, Heading, Img, Modal } from 'flowbite-svelte';
 	import { PenSolid, TrashBinSolid } from 'flowbite-svelte-icons';
+	import { alertStore, drawerHiddenStore } from './stores';
 
 	export let alert: Alert;
 	export let unitLabel: string = "";
+
+	const onRemove = (confirm: boolean) => {
+		if(confirm) {
+			removeAlert(alert);
+		} else {
+			showConfirmation = true;
+		}
+	};
+
+	const onEdit = () => {
+		alertStore.set(alert);
+		drawerHiddenStore.set(false);
+	}
+
+	let showConfirmation = false;
 </script>
 
 <Card size="sm" padding="xl" class="space-y-2 justify-center w-full max-w-full">
@@ -21,12 +39,14 @@
 		</div>
 
 		<div class="flex flex-row space-x-2">
-			<Button outline class="m-auto">
+			<Button outline class="m-auto" on:click={onEdit}>
 				<PenSolid />
 			</Button>
-			<Button outline color="red" class="m-auto">
+			<Button outline color="red" class="m-auto" on:click={() => onRemove(false)}>
 				<TrashBinSolid />
 			</Button>
 		</div>
 	</div>
 </Card>
+
+<ConfirmationModal bind:open={showConfirmation} onConfirm={() => onRemove(true)} />

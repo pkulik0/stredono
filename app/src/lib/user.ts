@@ -2,16 +2,15 @@ import { auth, db } from '$lib/ext/firebase/firebase';
 import { User } from '$lib/pb/user_pb';
 import { terraformOutput } from '$lib/constants';
 import axios from 'axios';
-import { collection, doc, getDocs, query, where, onSnapshot, setDoc, limit } from 'firebase/firestore';
+import { collection, doc, getDocs, query, where, getDoc, setDoc, limit } from 'firebase/firestore';
 import {writable, type Writable} from "svelte/store";
 
 export const userStore: Writable<User | undefined> = writable(undefined);
 
-export const getUserListener = async (uid: string) => {
-    return onSnapshot(doc(db, "users", uid), (doc) => {
-        if (!doc.exists()) return;
-        userStore.set(User.fromJson(doc.data()));
-    })
+export const getUserByUid = async (uid: string) => {
+    const d = await getDoc(doc(db, "users", uid))
+    if (!d.exists()) throw new Error("No user found")
+    return User.fromJson(d.data())
 }
 
 export const saveUser = async (user: User) => {

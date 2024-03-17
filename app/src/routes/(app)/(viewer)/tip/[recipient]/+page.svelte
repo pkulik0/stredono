@@ -11,7 +11,7 @@
     } from "flowbite-svelte";
     import {page} from "$app/stores";
     import {onMount} from "svelte";
-    import {FetchError, getUserByUsername} from "$lib/user";
+    import {getUserByUsername} from "$lib/user";
     import {goto} from "$app/navigation";
     import {emailStore, senderStore} from "./stores";
     import TipForm from "./TipForm.svelte";
@@ -22,7 +22,7 @@
         if ($senderStore === "" || $emailStore === "") return;
 
         const amountFloat = parseFloat(amount);
-        if (amountFloat < user.MinAmount) return; // TODO: show error
+        // if (amountFloat < user.MinAmount) return; // TODO: show error
 
         const sdReq = new Tip({
             Amount: amountFloat,
@@ -34,7 +34,7 @@
             Status: TipStatus.INITIATED
         });
 
-        const res = await axios.post(terraformOutput.FunctionUrls.TipSend, sdReq.toBinary(), { responseType: 'arraybuffer' })
+        const res = await axios.post(terraformOutput.FunctionsUrl + "/TipSend", sdReq.toBinary(), { responseType: 'arraybuffer' })
         if(res.status !== 200) {
             console.error(res.data); // TODO: handle error
             return;
@@ -52,20 +52,11 @@
     let hasListeners: boolean = true;
 
     const fetchData = async () => {
-        try {
-            user = await getUserByUsername(recipient);
-            if(!user) return;
+        user = await getUserByUsername(recipient);
+        if(!user) return;
 
-            amount = user.MinAmount.toString();
-            currency = user.Currency;
-        } catch (e) {
-            console.error(e);
-            if(e instanceof FetchError) {
-                await goto("/");
-                return;
-            }
-            throw e;
-        }
+        // amount = user.MinAmount.toString();
+        // currency = user.Currency;
     }
 
     onMount(() => {

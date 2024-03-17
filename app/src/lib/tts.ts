@@ -3,7 +3,12 @@ import { Tier } from '$lib/pb/enums_pb';
 import { Voice, Voices } from '$lib/pb/tts_pb';
 import {getDoc, doc} from 'firebase/firestore';
 
-export const getVoices = async () => {
+export interface VoicesResponse {
+	voicesBasic: Map<string, Voice[]>;
+	voicesPlus: Voice[];
+}
+
+export const getVoices = async (): Promise<VoicesResponse> => {
 	const docSnap = await getDoc(doc(db, 'tts/voices'));
 	if (!docSnap.exists()) {
 		throw new Error('No voices found');
@@ -23,5 +28,8 @@ export const getVoices = async () => {
 		voicesBasic.set(code, voices)
 	})
 
-	return {voicesBasic, voicesPlus}
+	return {
+		voicesPlus,
+		voicesBasic
+	}
 }

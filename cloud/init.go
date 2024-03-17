@@ -51,15 +51,17 @@ func init() {
 
 	cloudfunc.HTTP("UserRegister", platform.CorsMiddleware(user.RegisterEntrypoint))
 	cloudfunc.HTTP("UserEdit", platform.CorsMiddleware(user.EditEntrypoint))
-
-	cloudfunc.HTTP("SpeechUpdate", platform.CorsMiddleware(tts.UpdateEntrypoint))
+	cloudfunc.HTTP("UserRegenerateKey", platform.CorsMiddleware(user.RegenerateKeyEntrypoint))
 
 	cloudfunc.HTTP("TipSend", platform.CorsMiddleware(tips.SendEntrypoint))
 	cloudfunc.HTTP("TipConfirm", platform.CorsMiddleware(tips.ConfirmEntrypoint))
 
 	cloudfunc.HTTP("TwitchWebhook", platform.CorsMiddleware(twitch.WebhookEntrypoint))
-	cloudfunc.HTTP("TwitchEventsubInit", platform.CorsMiddleware(eventsub.InitEntrypoint))
 	cloudfunc.HTTP("TwitchEventsubList", platform.CorsMiddleware(eventsub.ListEntrypoint))
 
+	// Below are rarely needed endpoints
+	cloudfunc.HTTP("TwitchEventsubInit", platform.CorsMiddleware(eventsub.InitEntrypoint))
+
+	cloudfunc.HTTP("SpeechUpdate", platform.CorsMiddleware(tts.UpdateEntrypoint))
 	cloudfunc.HTTP("ChatBotInit", platform.CorsMiddleware(twitch.InitEntrypoint))
 }

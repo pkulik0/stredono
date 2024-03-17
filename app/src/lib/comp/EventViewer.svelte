@@ -16,19 +16,21 @@
 	$: minimumDuration = ($settingsStore?.Events?.MinDisplayTime ?? 5) * 1000;
 	let event: Event|undefined;
 
+	let lastChangeTimestamp: number = 0;
 	let eventTimeout: any;
 	$: if($settingsStore?.Events?.IsPaused !== true) {
 		if(events[0] && !event) {
 			clearTimeout(eventTimeout);
 			eventTimeout = setTimeout(() => {
 				event = events[0];
+				lastChangeTimestamp = Date.now();
 			}, 1000)
 		}
 	}
 
 	$: eventAlert = event ? eventToAlert(event, alerts) : undefined;
 
-	$: header = (() => {
+	$: template = (() => {
 		switch(event?.Type) {
 			case EventType.TIP: return $settingsStore?.Events?.Tip?.Template;
 			case EventType.CHEER: return $settingsStore?.Events?.Cheer?.Template;
@@ -40,7 +42,9 @@
 		}
 	})() ?? "";
 
-	$: if(event && eventAlert) {
+	let header = "";
+	$: if(event && eventAlert && eventAlert.AccentColor) {
+		header = template
 		Object.entries(event.Data).forEach(([key, value]) => {header = header.replace(`{${key.toLowerCase()}}`, `<span style="color: ${eventAlert.AccentColor};">${value}</span>`);});
 		header = header.replace("{user}", `<span style="color: ${eventAlert.AccentColor};">${event.SenderName}</span>`)
 	}
@@ -107,11 +111,31 @@
 	let soundAudioElement: HTMLAudioElement = new Audio("")
 	let ttsAudioElement: HTMLAudioElement = new Audio("")
 
-	$: soundAudioElement.src = eventAlert?.SoundUrl ?? ""
+	$: soundAudioElement.volume = $settingsStore?.Events?.IsMuted ? 0 : 1
+	$: ttsAudioElement.volume = $settingsStore?.Events?.IsMuted ? 0 : 1
+
+	let soundTimeout: any
+	let lastPlayTimestamp: number = 0;
+	$: if(eventAlert?.SoundUrl && lastChangeTimestamp > lastPlayTimestamp) {
+		soundAudioElement.src = eventAlert.SoundUrl
+
+		clearTimeout(soundTimeout)
+		soundTimeout = setTimeout(() => {
+			lastPlayTimestamp = lastChangeTimestamp;
+			soundAudioElement.play().catch(() => {
+				console.error("Sound failed")
+				ttsAudioElement.play().catch(() => {
+					console.log("TTS failed (after sound failed)")
+					finish()
+				})
+			})
+		}, 250)
+	}
 	$: ttsAudioElement.src = event?.TTSUrl ?? ""
 
 	$: if(eventAlert?.SoundUrl === "") {
-		ttsAudioElement.play().catch((e) => {
+		ttsAudioElement.play().catch(() => {
+			console.log("TTS failed (without sound)")
 			finish()
 		})
 	}
@@ -133,22 +157,20 @@
 	}
 
 	onMount(() => {
-		soundAudioElement.autoplay = true
-
 		soundAudioElement.onended = () => {
+			console.log("Sound ended")
 			totalDuration += soundAudioElement.duration * 1000
 			ttsAudioElement.play().catch((e) => {
+				console.log("TTS failed after sound")
 				finish()
 			})
 		}
 		ttsAudioElement.onended = () => {
+			console.log("TTS ended")
 			totalDuration += ttsAudioElement.duration * 1000
 			finish()
 		}
 	})
-
-	$: soundAudioElement.volume = $settingsStore?.Events?.IsMuted ? 0 : 1
-	$: ttsAudioElement.volume = $settingsStore?.Events?.IsMuted ? 0 : 1
 
 </script>
 

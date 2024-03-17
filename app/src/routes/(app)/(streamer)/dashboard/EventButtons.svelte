@@ -42,7 +42,7 @@
 
 	<Button size="xl" outline class="w-full" >
 		<RefreshOutline class="w-6 h-6 me-2"/>
-		{$t("rerun")}
+		{$t("rerun_period")}
 	</Button>
 	<Dropdown bind:open={isDropdownOpen}>
 		<DropdownItem on:click={() => { changeEventState(Action.Rerun, "", 1); isDropdownOpen = false }} >{$t("last_min")}</DropdownItem>

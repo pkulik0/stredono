@@ -10,6 +10,7 @@
         ImagePlaceholder, Label, P, Select
     } from 'flowbite-svelte';
     import { locale, t } from 'svelte-i18n';
+    import { drawerHiddenStore } from './stores';
 
     $: alerts = $settingsStore?.Alerts;
     $: filteredAlerts = alerts?.filter((alert) => alert.EventType === selectedType);
@@ -19,8 +20,6 @@
         eventTypesItems = pbEnumToItems(EventType);
     }
     let selectedType: EventType = EventType.TIP;
-
-    let drawerHidden = true;
 </script>
 
 <Heading tag="h2">{$t("alerts")}</Heading>
@@ -31,7 +30,7 @@
     </Label>
 
     <div class="flex justify-end">
-        <Button on:click={() => drawerHidden = false}>
+        <Button on:click={() => drawerHiddenStore.set(false)}>
             <PlusSolid class="w-4 h-4" />
             <span class="ms-2">{$t("new")}</span>
         </Button>
@@ -54,4 +53,4 @@
     </div>
 </div>
 
-<AlertsDrawer eventType={selectedType} bind:hidden={drawerHidden}/>
+<AlertsDrawer eventType={selectedType} bind:hidden={$drawerHiddenStore}/>

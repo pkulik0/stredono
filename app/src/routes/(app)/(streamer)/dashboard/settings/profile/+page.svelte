@@ -56,7 +56,7 @@
         }
 
         await saveUser(user)
-        sendNotification(new Notification("Profile saved"))
+        sendNotification(new Notification($t("profile_saved")))
     }
 </script>
 

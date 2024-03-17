@@ -1,13 +1,12 @@
 <script lang="ts">
-    import { saveAlert } from '$lib/alerts';
+    import { getDefaultAlert, saveAlert } from '$lib/alerts';
     import EventViewer from '$lib/comp/EventViewer.svelte';
     import GifPicker from '$lib/comp/GifPicker.svelte';
     import SoundPicker from '$lib/comp/SoundPicker.svelte';
-    import { settingsStore } from '$lib/settings';
     import { Alert, Alignment, AnimationType, Position, Speed } from '$lib/pb/alert_pb';
     import { Currency } from '$lib/pb/enums_pb';
     import { Event, EventType } from '$lib/pb/event_pb';
-    import { pbEnumToItems } from '$lib/util';
+    import { currencyToSymbol, pbEnumToItems } from '$lib/util';
     import {
         Button,
         ButtonGroup,
@@ -21,7 +20,7 @@
         Radio,
         RadioButton,
         Range,
-        Select,
+        Select
     } from 'flowbite-svelte';
     import {
         AlignCenterSolid,
@@ -35,50 +34,39 @@
     import { locale, t } from 'svelte-i18n';
     import { sineIn } from 'svelte/easing';
     import { fade } from 'svelte/transition';
+    import { alertStore } from './stores';
 
     export let hidden = true;
     export let eventType: EventType;
 
-    export let alert = Alert.fromJson({
-        ID: "",
-        EventType: eventType,
-        Min: 0,
-        Max: 0,
-        TextColor: "#FFFFFF",
-        AccentColor: "#2381f8",
-        Animation: AnimationType.PULSE,
-        AnimationSpeed: Speed.MEDIUM,
-        Alignment: Alignment.JUSTIFY,
-        TextPosition: Position.BOTTOM,
-    })
+    $: alert = $alertStore
     $: if(alert.ID === "") {
         alert.EventType = eventType;
     }
 
-    let startValue = "0";
-    let endValue = "10";
-    let hasMax = false;
-    $: if(hasMax) {
-        alert.Max = Number.parseFloat(endValue);
-    } else {
-        alert.Max = undefined;
-    }
+    let minValue = "1";
+    $: alert.Min = alert.EventType == EventType.TIP ? Number.parseFloat(minValue) : Number.parseInt(minValue)
 
-    let exampleEvent = new Event();
-    $: {
-        exampleEvent.Type = eventType;
-        exampleEvent.Data = {
+    let maxValue = "10";
+    $: alert.Max = hasMax ? (alert.EventType == EventType.TIP ? Number.parseFloat(maxValue) : Number.parseInt(maxValue)) : undefined
+
+    let hasMax = false;
+
+    $: exampleEvent = Event.fromJson({
+        ID: "",
+        Type: eventType,
+        Data: {
             "User": $t("example_user"),
             "Value": $t("example_value"),
             "Currency": currencySymbol,
             "Message": $t("example_message"),
         }
-    }
+    })
 
     const addNew = async () => {
         try {
             await saveAlert(alert);
-            hidden = true;
+            onClose()
         } catch (e) {
             console.error(e); // TODO: Show error to user
         }
@@ -92,18 +80,7 @@
     let gifPickerOpen = false;
     let soundPickerOpen = false;
 
-    $: currency = Currency.PLN; // TODO: get from user
-    let currencySymbol = "?";
-    $: if(currency) {
-        switch(currency) {
-            case Currency.PLN:
-                currencySymbol = "zł";
-                break;
-            default:
-                currencySymbol = "?";
-                break;
-        }
-    }
+    $: currencySymbol = currencyToSymbol(Currency.PLN)
 
     let transitionParams = {
         x: 300,
@@ -115,7 +92,26 @@
 
     const eventTypeNames = JSON.parse(JSON.stringify(EventType));
 
-    const onShown = (e: Event) => {
+    $: valueDescription = (() => {
+        switch(alert.EventType) {
+            case EventType.TIP:
+                return currencySymbol;
+            case EventType.CHEER:
+                return $t("bits_count");
+            case EventType.SUB:
+                return $t("months");
+            case EventType.SUB_GIFT:
+                return $t("count");
+            case EventType.RAID:
+                return $t("viewers_count");
+            default:
+                return "";
+        }
+    })();
+
+    const onClose = () => {
+        hidden = true;
+        alertStore.set(getDefaultAlert(eventType));
     }
 </script>
 
@@ -125,34 +121,36 @@
             <BellActiveSolid class="w-4 h-4 me-2.5" />
             {$t("new_alert")} ({$t(eventTypeNames[eventType].toLowerCase())})
         </h5>
-        <CloseButton on:click={() => (hidden = true)} class="mb-4 dark:text-white" />
+        <CloseButton on:click={onClose} class="mb-4 dark:text-white" />
     </div>
 
     <div class="w-full space-y-4">
-        <Heading tag="h5">{$t("trigger")}</Heading>
+        {#if valueDescription}
+            <Heading tag="h5">{$t("trigger")}</Heading>
 
-        <div class="space-x-4 flex {triggerClass}">
-            <Label class={hasMax ? "w-1/2" : "w-full"}>
-                {$t("range_from")}
-                <ButtonGroup class="w-full">
-                    <Input type="number" bind:value={startValue} />
-                    <InputAddon>{currencySymbol}</InputAddon>
-                </ButtonGroup>
-            </Label>
+            <div class="space-x-4 flex {triggerClass}">
+                <Label class={hasMax ? "w-1/2" : "w-full"}>
+                    {$t("range_from")}
+                    <ButtonGroup class="w-full">
+                        <Input type="number" bind:value={minValue} min="1" max={hasMax ? maxValue : undefined}/>
+                        <InputAddon>{valueDescription}</InputAddon>
+                    </ButtonGroup>
+                </Label>
 
-            {#if hasMax}
-                <div class="w-1/2" transition:fade>
-                    <Label>
-                        {$t("range_to")}
-                        <ButtonGroup class="w-full">
-                            <Input type="number" bind:value={endValue} />
-                            <InputAddon>{currencySymbol}</InputAddon>
-                        </ButtonGroup>
-                    </Label>
-                </div>
-            {/if}
-        </div>
-        <Checkbox bind:checked={hasMax} class="mt-1.5 ms-1">{$t("set_max")}</Checkbox>
+                {#if hasMax}
+                    <div class="w-1/2" transition:fade>
+                        <Label>
+                            {$t("range_to")}
+                            <ButtonGroup class="w-full">
+                                <Input type="number" bind:value={maxValue} min={minValue}/>
+                                <InputAddon>{valueDescription}</InputAddon>
+                            </ButtonGroup>
+                        </Label>
+                    </div>
+                {/if}
+            </div>
+            <Checkbox bind:checked={hasMax} class="mt-1.5 ms-1">{$t("set_max")}</Checkbox>
+        {/if}
 
         <Heading tag="h5">{$t("media")}</Heading>
 

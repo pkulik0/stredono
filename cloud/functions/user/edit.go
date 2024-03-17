@@ -31,7 +31,7 @@ func validateUser(user *pb.User, uid string) error {
 		return fmt.Errorf("invalid username | %s", user.Username)
 	}
 
-	matched, err = regexp.Match(`^[a-zA-Z0-9_]{4,32}$`, []byte(user.DisplayName))
+	matched, err = regexp.Match(`^[a-zA-Z0-9_ ]{1,32}$`, []byte(user.DisplayName))
 	if err != nil || !matched {
 		return fmt.Errorf("invalid display name | %s", user.DisplayName)
 	}
