@@ -21,22 +21,17 @@ export class User extends Message<User> {
   Username = "";
 
   /**
-   * @generated from field: string DisplayName = 3;
-   */
-  DisplayName = "";
-
-  /**
-   * @generated from field: string Description = 4;
+   * @generated from field: string Description = 3;
    */
   Description = "";
 
   /**
-   * @generated from field: string PictureUrl = 5;
+   * @generated from field: string PictureUrl = 4;
    */
   PictureUrl = "";
 
   /**
-   * @generated from field: string Url = 6;
+   * @generated from field: string Url = 5;
    */
   Url = "";
 
@@ -50,10 +45,9 @@ export class User extends Message<User> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "Uid", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "Username", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "DisplayName", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "Description", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 5, name: "PictureUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "Url", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "Description", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "PictureUrl", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "Url", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): User {

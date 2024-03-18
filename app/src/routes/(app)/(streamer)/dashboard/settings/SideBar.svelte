@@ -5,7 +5,7 @@
         UserSolid,
         BellSolid,
         VolumeUpSolid,
-        ArrowRightToBracketSolid, NewspapperOutline, CameraFotoOutline, VideoCameraSolid
+        ArrowRightToBracketSolid, NewspapperOutline, CameraFotoOutline, VideoCameraSolid, UsersGroupSolid
     } from 'flowbite-svelte-icons';
     import {page} from "$app/stores";
     import {auth} from "$lib/ext/firebase/firebase";
@@ -58,6 +58,12 @@
             <SidebarItem label={$t("overlay")} href="{baseUrl}/overlay">
                 <svelte:fragment slot="icon">
                     <VideoCameraSolid class={iconClass} />
+                </svelte:fragment>
+            </SidebarItem>
+
+            <SidebarItem label={$t("moderators")} href="{baseUrl}/moderators">
+                <svelte:fragment slot="icon">
+                    <UsersGroupSolid class={iconClass} />
                 </svelte:fragment>
             </SidebarItem>
         </SidebarGroup>

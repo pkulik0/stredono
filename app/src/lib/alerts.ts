@@ -51,16 +51,17 @@ export const getDefaultAlert = (eventType: EventType) => {
 }
 
 export const eventToAlert = (event: Event, alerts: Alert[]): Alert => {
-	for(const alert of alerts) {
-		if(alert.EventType !== event.Type) continue;
+	let filteredAlerts = alerts.filter(a => a.EventType === event.Type)
 
-		const value = Number.parseFloat(event.Data.Value);
-		if(value < alert.Min) continue;
-		if(alert.Max !== undefined) {
-			if(value > alert.Max) continue;
-		}
+	const valueStr = event.Data.Value;
+	if (valueStr !== undefined) {
+		const value = parseFloat(valueStr);
+		filteredAlerts = filteredAlerts.filter(a => value >= a.Min && (a.Max !== undefined ? value <= a.Max  : true));
+	}
 
-		return alert;
+	if (filteredAlerts.length > 0) {
+		const i = Math.floor(Math.random() * filteredAlerts.length);
+		return filteredAlerts[i];
 	}
 
 	return getDefaultAlert(event.Type);

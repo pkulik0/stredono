@@ -47,7 +47,7 @@ func regenerateKey(ctx *providers.Context, w http.ResponseWriter, r *http.Reques
 	}
 	newKey := strings.ReplaceAll(keyUuid.String(), "-", "")
 
-	refData := rtdb.NewRef("Data").Child(token.UserId()).Child("Settings").Child("Overlay").Child("Key")
+	refData := rtdb.NewRef("Data").Child(token.UserId()).Child("OverlayKey")
 	err = refData.Transaction(ctx.Ctx, func(node modules.TransactionNode) (interface{}, error) {
 		var readKey string
 		if err := node.Unmarshal(&readKey); err != nil {

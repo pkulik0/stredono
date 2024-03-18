@@ -5,9 +5,7 @@ import { collection, limit, onSnapshot, orderBy, query, where } from 'firebase/f
 import { type Writable, writable } from 'svelte/store';
 import {Event} from "$lib/pb/event_pb";
 
-export const eventsStore: Writable<Event[]> = writable([]);
-
-export const getEventsDashboardListener = (uid: string) => {
+export const getEventsDashboardListener = (uid: string, onChange: (events: Event[]) => void) => {
 	const q = query(collection(db, "events"),
 		where("Uid", "==", uid),
 		orderBy("Timestamp", "desc"),
@@ -15,7 +13,7 @@ export const getEventsDashboardListener = (uid: string) => {
 	);
 
 	return onSnapshot(q, (snapshot) => {
-		eventsStore.set(snapshot.docs.map(doc => Event.fromJson(doc.data())))
+		onChange(snapshot.docs.map(doc => Event.fromJson(doc.data())))
 	});
 }
 
@@ -29,14 +27,14 @@ export enum Action {
 	Unmute = "unmute",
 }
 
-export const changeEventState = async (action: Action, eventId: string, minutes: number) => {
+export const changeEventState = async (uid: string, eventId: string, action: Action, minutes: number) => {
 	const user = auth.currentUser;
 	if (!user) {
 		throw new Error("User not authenticated");
 	}
 	const token = await user.getIdToken();
 
-	const url = terraformOutput.FunctionsUrl + `/EventChangeState?uid=${user.uid}&action=${action}&event=${eventId}&minutes=${minutes}`
+	const url = terraformOutput.FunctionsUrl + `/EventChangeState?uid=${uid}&action=${action}&event=${eventId}&minutes=${minutes}`
 	const res = await axios.get(url, {
 		headers: {
 			'Authorization': 'Bearer ' + token

@@ -4,6 +4,7 @@
 	import { auth } from '$lib/ext/firebase/firebase';
 	import { sendNotification, Notification } from '$lib/notifications';
 	import {settingsStore} from '$lib/settings';
+	import { userStore } from '$lib/user';
 	import axios from 'axios';
 	import { Alert, Button, ButtonGroup, Heading, Input, InputAddon, Label, P } from 'flowbite-svelte';
 	import {
@@ -12,10 +13,12 @@
 		InfoCircleSolid,
 		RefreshOutline
 	} from 'flowbite-svelte-icons';
+	import { onMount } from 'svelte';
 	import {t} from 'svelte-i18n';
+	import { getKeyListener, overlayKeyStore } from './key';
 
 	const overlayUrlBase = "https://stredono.com/overlay?key=";
-	$: overlayUrl = overlayUrlBase + $settingsStore?.Overlay?.Key
+	$: overlayUrl = overlayUrlBase + $overlayKeyStore
 
 	const onCopyClick = () => {
 		navigator.clipboard.writeText(overlayUrl);
@@ -43,6 +46,24 @@
 			return
 		}
 	}
+
+	let keyUnsub: any;
+	onMount(() => {
+		const unsub = userStore.subscribe(u => {
+			if(!u) {
+				if(keyUnsub) keyUnsub();
+				keyUnsub = undefined;
+				return;
+			}
+
+			keyUnsub = getKeyListener(u.Uid);
+		})
+
+		return () => {
+			unsub();
+			if(keyUnsub) keyUnsub();
+		}
+	})
 </script>
 
 {#if $settingsStore}

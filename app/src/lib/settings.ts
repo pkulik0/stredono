@@ -9,13 +9,13 @@ const getSettingsRef = (uid: string) => {
 	return ref(rtdb, `Data/${uid}/Settings`)
 }
 
-export const getSettingsListener = (uid: string) => {
+export const getSettingsListener = (uid: string, onChange: (settings: UserSettings) => void) => {
 	return onValue(getSettingsRef(uid), (snapshot) => {
 		const data = snapshot.val();
 		if (!data) {
 			throw new Error("Settings not found");
 		}
-		settingsStore.set(UserSettings.fromJson(data));
+		onChange(UserSettings.fromJson(data))
 	});
 }
 

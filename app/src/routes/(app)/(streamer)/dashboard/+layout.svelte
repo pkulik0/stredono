@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { getEventsDashboardListener } from '$lib/events';
-    import { getSettingsListener } from '$lib/settings';
+    import { getSettingsListener, settingsStore } from '$lib/settings';
     import { userStore } from '$lib/user';
     import { Breadcrumb, BreadcrumbItem } from 'flowbite-svelte';
     import {page} from "$app/stores";
@@ -13,30 +12,21 @@
 
     onMount(() => {
         let settingsUnsub: (() => void) | undefined;
-        let eventsUnsub: (() => void) | undefined;
         const userUnsub = userStore.subscribe(u => {
             if(!u) {
                 if(settingsUnsub) {
                     settingsUnsub();
                     settingsUnsub = undefined;
                 }
-                if(eventsUnsub) {
-                    eventsUnsub();
-                    eventsUnsub = undefined;
-                }
                 return;
             }
-            settingsUnsub = getSettingsListener(u.Uid)
-            eventsUnsub = getEventsDashboardListener(u.Uid);
+            settingsUnsub = getSettingsListener(u.Uid, s => settingsStore.set(s))
         })
 
         return () => {
             userUnsub();
             if(settingsUnsub) {
                 settingsUnsub();
-            }
-            if(eventsUnsub) {
-                eventsUnsub();
             }
         }
     })

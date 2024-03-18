@@ -86,7 +86,6 @@ func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 
 	user := &pb.User{
 		Username:    "",
-		DisplayName: "",
 		Uid:         claims.Uid,
 		Url:         "",
 		Description: "",
@@ -155,9 +154,6 @@ func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 				},
 			},
 			Alerts: make([]*pb.Alert, 0),
-			Overlay: &pb.OverlaySettings{
-				Key: overlayKey,
-			},
 		},
 		Media: &pb.MediaRequest{
 			IsEnabled: true,
@@ -169,7 +165,8 @@ func handleRegistration(ctx *providers.Context, claims *userClaims) error {
 			},
 			Queue: make([]*pb.MediaRequest_QueueItem, 0),
 		},
-		Commands: make(map[string]string),
+		Commands:   make(map[string]string),
+		OverlayKey: overlayKey,
 	}); err != nil {
 		return err
 	}
@@ -208,7 +205,6 @@ func handleOauthRegistration(ctx *providers.Context, claims *userClaims, user *p
 	}
 	twitchUser := users.Data.Users[0]
 
-	user.DisplayName = twitchUser.DisplayName
 	user.PictureUrl = twitchUser.ProfileImageURL
 	user.Description = twitchUser.Description
 

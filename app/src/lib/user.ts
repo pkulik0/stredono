@@ -2,8 +2,8 @@ import { auth, db } from '$lib/ext/firebase/firebase';
 import { User } from '$lib/pb/user_pb';
 import { terraformOutput } from '$lib/constants';
 import axios from 'axios';
-import { collection, doc, getDocs, query, where, getDoc, setDoc, limit } from 'firebase/firestore';
-import {writable, type Writable} from "svelte/store";
+import { collection, doc, getDocs, query, where, getDoc, limit } from 'firebase/firestore';
+import { get, writable, type Writable } from 'svelte/store';
 
 export const userStore: Writable<User | undefined> = writable(undefined);
 
@@ -36,4 +36,17 @@ export const getUserByUsername = async (username: string): Promise<User> => {
 
     const userDoc = snapshot.docs[0]
     return User.fromJson(userDoc.data())
+}
+
+export const getUidByUsernameOther = async (username: string) => {
+    if(!username) return "";
+
+    const user = get(userStore);
+    if(!user) throw new Error("Not logged in");
+
+    const qSnap = await getDocs(query(collection(db, "users"), where("Username", "==", username), where("Uid", "!=", user.Uid), limit(1)));
+    if(qSnap.empty) return "";
+
+    const userData = User.fromJson(qSnap.docs[0].data());
+    return userData.Uid;
 }

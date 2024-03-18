@@ -10,10 +10,10 @@ import 'pb/tts.proto';
 message User {
   string Uid = 1;
   string Username = 2;
-  string DisplayName = 3;
-  string Description = 4;
 
-  string PictureUrl = 5;
-  string Url = 6;
+  string Description = 3;
+
+  string PictureUrl = 4;
+  string Url = 5;
 }
 

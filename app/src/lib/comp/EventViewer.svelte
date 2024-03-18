@@ -18,6 +18,8 @@
 
 	let lastChangeTimestamp: number = 0;
 	let eventTimeout: any;
+
+	// Takes a new event if none is being displayed
 	$: if($settingsStore?.Events?.IsPaused !== true) {
 		if(events[0] && !event) {
 			clearTimeout(eventTimeout);
@@ -123,9 +125,7 @@
 		soundTimeout = setTimeout(() => {
 			lastPlayTimestamp = lastChangeTimestamp;
 			soundAudioElement.play().catch(() => {
-				console.error("Sound failed")
 				ttsAudioElement.play().catch(() => {
-					console.log("TTS failed (after sound failed)")
 					finish()
 				})
 			})
@@ -135,7 +135,6 @@
 
 	$: if(eventAlert?.SoundUrl === "") {
 		ttsAudioElement.play().catch(() => {
-			console.log("TTS failed (without sound)")
 			finish()
 		})
 	}
@@ -158,15 +157,12 @@
 
 	onMount(() => {
 		soundAudioElement.onended = () => {
-			console.log("Sound ended")
 			totalDuration += soundAudioElement.duration * 1000
 			ttsAudioElement.play().catch((e) => {
-				console.log("TTS failed after sound")
 				finish()
 			})
 		}
 		ttsAudioElement.onended = () => {
-			console.log("TTS ended")
 			totalDuration += ttsAudioElement.duration * 1000
 			finish()
 		}
@@ -182,8 +178,8 @@
 			{/if}
 
 			<div class="flex flex-col space-y-2 max-w-lg">
-				<h5 class="font-extrabold text-2xl pt-2 {alignment === Alignment.JUSTIFY ? 'text-center' : ''}">{@html header}</h5>
-				<p class="text-lg">{message}</p>
+				<h5 class="font-extrabold text-2xl pt-2 {alignment === Alignment.JUSTIFY ? 'text-center' : ''}"><span class="shadow-2xl">{@html header}</span></h5>
+				<p class="text-lg"><span class="shadow-2xl">{message}</span></p>
 			</div>
 		</div>
 	</div>

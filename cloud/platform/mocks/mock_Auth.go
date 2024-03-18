@@ -22,6 +22,54 @@ func (_m *MockAuth) EXPECT() *MockAuth_Expecter {
 	return &MockAuth_Expecter{mock: &_m.Mock}
 }
 
+// UpdateUser provides a mock function with given fields: ctx, uid, data
+func (_m *MockAuth) UpdateUser(ctx context.Context, uid string, data *modules.UserToUpdate) error {
+	ret := _m.Called(ctx, uid, data)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUser")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, *modules.UserToUpdate) error); ok {
+		r0 = rf(ctx, uid, data)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockAuth_UpdateUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateUser'
+type MockAuth_UpdateUser_Call struct {
+	*mock.Call
+}
+
+// UpdateUser is a helper method to define mock.On call
+//   - ctx context.Context
+//   - uid string
+//   - data *modules.UserToUpdate
+func (_e *MockAuth_Expecter) UpdateUser(ctx interface{}, uid interface{}, data interface{}) *MockAuth_UpdateUser_Call {
+	return &MockAuth_UpdateUser_Call{Call: _e.mock.On("UpdateUser", ctx, uid, data)}
+}
+
+func (_c *MockAuth_UpdateUser_Call) Run(run func(ctx context.Context, uid string, data *modules.UserToUpdate)) *MockAuth_UpdateUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(*modules.UserToUpdate))
+	})
+	return _c
+}
+
+func (_c *MockAuth_UpdateUser_Call) Return(_a0 error) *MockAuth_UpdateUser_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockAuth_UpdateUser_Call) RunAndReturn(run func(context.Context, string, *modules.UserToUpdate) error) *MockAuth_UpdateUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // VerifyToken provides a mock function with given fields: ctx, token
 func (_m *MockAuth) VerifyToken(ctx context.Context, token string) (modules.Token, error) {
 	ret := _m.Called(ctx, token)

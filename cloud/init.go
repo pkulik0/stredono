@@ -35,7 +35,7 @@ func setupEmulators() error {
 		return err
 	}
 
-	log.Info("Running in local mode. Emulators are set up.")
+	log.Info("RunninObject.values(data)g in local mode. Emulators are set up.")
 	return nil
 }
 
@@ -52,6 +52,7 @@ func init() {
 	cloudfunc.HTTP("UserRegister", platform.CorsMiddleware(user.RegisterEntrypoint))
 	cloudfunc.HTTP("UserEdit", platform.CorsMiddleware(user.EditEntrypoint))
 	cloudfunc.HTTP("UserRegenerateKey", platform.CorsMiddleware(user.RegenerateKeyEntrypoint))
+	cloudfunc.HTTP("UserModeratorChange", platform.CorsMiddleware(user.ModeratorChangeEntrypoint))
 
 	cloudfunc.HTTP("TipSend", platform.CorsMiddleware(tips.SendEntrypoint))
 	cloudfunc.HTTP("TipConfirm", platform.CorsMiddleware(tips.ConfirmEntrypoint))

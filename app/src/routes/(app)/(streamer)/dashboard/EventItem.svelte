@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Action, changeEventState } from '$lib/events';
+	import { Action, changeEventState } from './events';
 	import { Button, Dropdown, DropdownItem, ListgroupItem, P } from 'flowbite-svelte';
 	import {
 		CheckOutline, CloseOutline,
@@ -11,6 +11,7 @@
 	} from 'flowbite-svelte-icons';
 	import { t } from 'svelte-i18n';
 	import { Event, EventType } from '$lib/pb/event_pb';
+	import { dashboardUidStore } from './store';
 
 	export let event: Event;
 </script>
@@ -38,18 +39,18 @@
 
 	<div class="flex">
 		{#if !event.IsApproved}
-			<Button color="green" outline size="xs" on:click={() => changeEventState(Action.Approve, event.ID, 0)}>
+			<Button color="green" outline size="xs" on:click={() => changeEventState($dashboardUidStore, event.ID, Action.Approve, 0)}>
 				<CheckOutline class="me-1"/>
 				{$t("approve")}
 			</Button>
 		{:else}
 			{#if event.WasShown}
-				<Button size="xs" outline on:click={() => changeEventState(Action.Rerun, event.ID, 0)}>
+				<Button size="xs" outline on:click={() => changeEventState($dashboardUidStore, event.ID, Action.Rerun, 0)}>
 					<RefreshOutline class="me-1"/>
 					{$t("rerun")}
 				</Button>
 			{:else}
-				<Button size="xs" color="red" outline on:click={() => changeEventState(Action.Cancel, event.ID, 0)}>
+				<Button size="xs" color="red" outline on:click={() => changeEventState($dashboardUidStore, event.ID, Action.Cancel, 0)}>
 					<CloseOutline class="me-1"/>
 					{$t("dont_show")}
 				</Button>

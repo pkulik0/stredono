@@ -71,11 +71,25 @@ func changeState(ctx *providers.Context, w http.ResponseWriter, r *http.Request)
 		}
 
 		if token.UserId() != uid {
-			// TODO check if the user is a moderator
+			var moderators []string
+			if err := rtdb.NewRef("Moderators").Child("From").Child(uid).Get(ctx.Ctx, &moderators); err != nil {
+				log.Printf("Failed to get moderators for user %s | %v", uid, err)
+				http.Error(w, platform.ServerErrorMessage, http.StatusInternalServerError)
+				return
+			}
 
-			log.Printf("User %s is not allowed to modify events for user %s", token.UserId(), uid)
-			http.Error(w, platform.UnauthorizedMessage, http.StatusUnauthorized)
-			return
+			isMod := false
+			for _, mod := range moderators {
+				if mod == token.UserId() {
+					isMod = true
+					break
+				}
+			}
+			if !isMod {
+				log.Printf("User %s is not allowed to modify events for user %s", token.UserId(), uid)
+				http.Error(w, platform.UnauthorizedMessage, http.StatusUnauthorized)
+				return
+			}
 		}
 		log.Printf("User %s is allowed to modify events for user %s", token.UserId(), uid)
 	}
